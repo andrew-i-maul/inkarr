@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net6.0</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Inkarr.Http\Inkarr.Http.csproj" />
+    <ProjectReference Include="..\NzbDrone.Common\Inkarr.Common.csproj" />
+    <ProjectReference Include="..\NzbDrone.Core\Inkarr.Core.csproj" />
+    <ProjectReference Include="..\NzbDrone.SignalR\Inkarr.SignalR.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="Ical.Net" />
+    <PackageReference Include="NLog" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" />
+    <PackageReference Include="System.IO.Abstractions" />
+    <PackageReference Include="System.Reflection.TypeExtensions" />
+  </ItemGroup>
+</Project>

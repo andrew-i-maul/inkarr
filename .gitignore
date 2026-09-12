@@ -1,0 +1,20 @@
+# .NET
+bin/
+obj/
+_output/
+*.user
+*.suo
+
+# Node / frontend
+node_modules/
+frontend/build/generated/
+**/*.js.map
+
+# IDE
+.vs/
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,9 @@
+﻿using System.Collections.Generic;
+
+namespace Inkarr.Api.V1.Queue
+{
+    public class QueueBulkResource
+    {
+        public List<int> Ids { get; set; }
+    }
+}
