@@ -269,6 +269,13 @@ namespace NzbDrone.Core.Configuration
             set { SetValue("MetadataSource", value); }
         }
 
+        public string ComicVineApiKey
+        {
+            get { return GetValue("ComicVineApiKey", ""); }
+
+            set { SetValue("ComicVineApiKey", value); }
+        }
+
         public WriteAudioTagsType WriteAudioTags
         {
             get { return GetValueEnum("WriteAudioTags", WriteAudioTagsType.No); }
