@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import AuthorPoster from 'Author/AuthorPoster';
+import AuthorPoster from 'Volume/VolumePoster';
 import Label from 'Components/Label';
 import { kinds } from 'Helpers/Props';
 import styles from './AuthorSearchResult.css';

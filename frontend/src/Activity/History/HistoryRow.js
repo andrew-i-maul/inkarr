@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import AuthorNameLink from 'Author/AuthorNameLink';
-import BookFormats from 'Book/BookFormats';
-import BookQuality from 'Book/BookQuality';
-import BookTitleLink from 'Book/BookTitleLink';
+import AuthorNameLink from 'Volume/VolumeNameLink';
+import BookFormats from 'Issue/IssueFormats';
+import BookQuality from 'Issue/IssueQuality';
+import BookTitleLink from 'Issue/IssueTitleLink';
 import IconButton from 'Components/Link/IconButton';
 import RelativeDateCellConnector from 'Components/Table/Cells/RelativeDateCellConnector';
 import TableRowCell from 'Components/Table/Cells/TableRowCell';

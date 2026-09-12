@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import ProtocolLabel from 'Activity/Queue/ProtocolLabel';
-import AuthorNameLink from 'Author/AuthorNameLink';
-import BookFormats from 'Book/BookFormats';
-import BookQuality from 'Book/BookQuality';
-import BookTitleLink from 'Book/BookTitleLink';
+import AuthorNameLink from 'Volume/VolumeNameLink';
+import BookFormats from 'Issue/IssueFormats';
+import BookQuality from 'Issue/IssueQuality';
+import BookTitleLink from 'Issue/IssueTitleLink';
 import Icon from 'Components/Icon';
 import IconButton from 'Components/Link/IconButton';
 import SpinnerIconButton from 'Components/Link/SpinnerIconButton';

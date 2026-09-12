@@ -1,4 +1,4 @@
-import updateBooks from 'Utilities/Book/updateBooks';
+import updateBooks from 'Utilities/Issue/updateIssues';
 import createAjaxRequest from 'Utilities/createAjaxRequest';
 import getSectionState from 'Utilities/State/getSectionState';
 

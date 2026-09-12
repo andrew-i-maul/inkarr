@@ -1,5 +1,5 @@
 import { get } from 'lodash';
-import monitorOptions from 'Utilities/Author/monitorOptions';
+import monitorOptions from 'Utilities/Volume/monitorOptions';
 
 export default function migrateAddAuthorDefaults(persistedState) {
   const monitor = get(persistedState, 'addAuthor.defaults.monitor');

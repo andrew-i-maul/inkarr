@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import BookQuality from 'Book/BookQuality';
-import FileDetailsModal from 'BookFile/FileDetailsModal';
+import BookQuality from 'Issue/IssueQuality';
+import FileDetailsModal from 'IssueFile/FileDetailsModal';
 import IconButton from 'Components/Link/IconButton';
 import ConfirmModal from 'Components/Modal/ConfirmModal';
 import RelativeDateCellConnector from 'Components/Table/Cells/RelativeDateCellConnector';

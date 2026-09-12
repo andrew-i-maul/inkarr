@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import monitorOptions from 'Utilities/Author/monitorOptions';
+import monitorOptions from 'Utilities/Volume/monitorOptions';
 import translate from 'Utilities/String/translate';
 import SelectInput from './SelectInput';
 

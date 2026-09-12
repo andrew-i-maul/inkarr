@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 import AppState from 'App/State/AppState';
-import Author from 'Author/Author';
+import Author from 'Volume/Volume';
 
 function createMultiAuthorsSelector(authorIds: number[]) {
   return createSelector(

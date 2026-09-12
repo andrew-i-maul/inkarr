@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import AuthorNameLink from 'Author/AuthorNameLink';
-import { getAuthorStatusDetails } from 'Author/AuthorStatus';
+import AuthorNameLink from 'Volume/VolumeNameLink';
+import { getVolumeStatusDetails } from 'Volume/VolumeStatus';
 import Icon from 'Components/Icon';
 import MonitorToggleButton from 'Components/MonitorToggleButton';
 import VirtualTableRowCell from 'Components/Table/Cells/VirtualTableRowCell';
@@ -29,7 +29,7 @@ class BookshelfRow extends Component {
       onBookMonitoredPress
     } = this.props;
 
-    const statusDetails = getAuthorStatusDetails(status);
+    const statusDetails = getVolumeStatusDetails(status);
 
     return (
       <>

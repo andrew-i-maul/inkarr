@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import ProtocolLabel from 'Activity/Queue/ProtocolLabel';
-import BookFormats from 'Book/BookFormats';
-import BookQuality from 'Book/BookQuality';
-import IndexerFlags from 'Book/IndexerFlags';
+import BookFormats from 'Issue/IssueFormats';
+import BookQuality from 'Issue/IssueQuality';
+import IndexerFlags from 'Issue/IndexerFlags';
 import Icon from 'Components/Icon';
 import Link from 'Components/Link/Link';
 import SpinnerIconButton from 'Components/Link/SpinnerIconButton';

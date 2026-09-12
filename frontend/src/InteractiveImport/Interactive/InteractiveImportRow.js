@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import BookFormats from 'Book/BookFormats';
-import BookQuality from 'Book/BookQuality';
-import IndexerFlags from 'Book/IndexerFlags';
-import FileDetails from 'BookFile/FileDetails';
+import BookFormats from 'Issue/IssueFormats';
+import BookQuality from 'Issue/IssueQuality';
+import IndexerFlags from 'Issue/IndexerFlags';
+import FileDetails from 'IssueFile/FileDetails';
 import Icon from 'Components/Icon';
 import ConfirmModal from 'Components/Modal/ConfirmModal';
 import TableRowCell from 'Components/Table/Cells/TableRowCell';

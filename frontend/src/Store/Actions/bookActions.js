@@ -3,7 +3,7 @@ import moment from 'moment';
 import React from 'react';
 import { createAction } from 'redux-actions';
 import { batchActions } from 'redux-batched-actions';
-import bookEntities from 'Book/bookEntities';
+import bookEntities from 'Issue/bookEntities';
 import Icon from 'Components/Icon';
 import { filterTypePredicates, filterTypes, icons, sortDirections } from 'Helpers/Props';
 import { createThunk, handleThunks } from 'Store/thunks';

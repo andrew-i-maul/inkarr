@@ -2,7 +2,7 @@ import AppSectionState, {
   AppSectionDeleteState,
   AppSectionSaveState,
 } from 'App/State/AppSectionState';
-import Author from 'Author/Author';
+import Author from 'Volume/Volume';
 
 interface AuthorsAppState
   extends AppSectionState<Author>,

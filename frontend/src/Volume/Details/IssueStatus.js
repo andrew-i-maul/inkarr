@@ -1,0 +1,78 @@
+import PropTypes from 'prop-types';
+import React from 'react';
+import IssueQuality from 'Issue/IssueQuality';
+import Label from 'Components/Label';
+import { kinds } from 'Helpers/Props';
+import translate from 'Utilities/String/translate';
+import styles from './IssueStatus.css';
+
+function IssueStatus(props) {
+  const {
+    isAvailable,
+    monitored,
+    bookFile
+  } = props;
+
+  const hasIssueFile = !!bookFile;
+
+  if (hasIssueFile) {
+    const quality = bookFile.quality;
+
+    return (
+      <div className={styles.center}>
+        <IssueQuality
+          title={quality.quality.name}
+          size={bookFile.size}
+          quality={quality}
+          isMonitored={monitored}
+          isCutoffNotMet={bookFile.qualityCutoffNotMet}
+        />
+      </div>
+    );
+  }
+
+  if (!monitored) {
+    return (
+      <div className={styles.center}>
+        <Label
+          title={translate('NotMonitored')}
+          kind={kinds.WARNING}
+        >
+          {translate('NotMonitored')}
+        </Label>
+      </div>
+    );
+  }
+
+  if (isAvailable) {
+    return (
+      <div className={styles.center}>
+        <Label
+          title={translate('IssueAvailableButMissing')}
+          kind={kinds.DANGER}
+        >
+          {translate('Missing')}
+        </Label>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.center}>
+      <Label
+        title={translate('NotAvailable')}
+        kind={kinds.INFO}
+      >
+        {translate('NotAvailable')}
+      </Label>
+    </div>
+  );
+}
+
+IssueStatus.propTypes = {
+  isAvailable: PropTypes.bool,
+  monitored: PropTypes.bool.isRequired,
+  bookFile: PropTypes.object
+};
+
+export default IssueStatus;
