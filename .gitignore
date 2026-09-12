@@ -2,6 +2,7 @@
 bin/
 obj/
 _output/
+_tests/
 *.user
 *.suo
 
