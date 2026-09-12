@@ -1,5 +1,5 @@
-using NzbDrone.Core.Configuration;
 using Inkarr.Http.REST;
+using NzbDrone.Core.Configuration;
 
 namespace Prowlarr.Api.V1.Config
 {

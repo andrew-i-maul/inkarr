@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
+using Inkarr.Api.V1.Author;
+using Inkarr.Api.V1.Books;
+using Inkarr.Http.REST;
 using NzbDrone.Core.DecisionEngine;
 using NzbDrone.Core.MediaFiles.BookImport.Manual;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Qualities;
-using Inkarr.Api.V1.Author;
-using Inkarr.Api.V1.Books;
-using Inkarr.Http.REST;
 
 namespace Inkarr.Api.V1.ManualImport
 {

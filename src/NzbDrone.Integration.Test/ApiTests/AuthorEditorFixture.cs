@@ -1,8 +1,8 @@
 using System.Linq;
 using FluentAssertions;
+using Inkarr.Api.V1.Author;
 using NUnit.Framework;
 using NzbDrone.Test.Common;
-using Inkarr.Api.V1.Author;
 
 namespace NzbDrone.Integration.Test.ApiTests
 {

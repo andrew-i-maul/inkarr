@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.Versioning;
 using System.Security.Principal;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.WindowsServices;
@@ -57,6 +58,7 @@ namespace NzbDrone.Common.EnvironmentInfo
 
         bool IRuntimeInfo.IsUserInteractive => IsUserInteractive;
 
+        [SupportedOSPlatform("windows")]
         public bool IsAdmin
         {
             get

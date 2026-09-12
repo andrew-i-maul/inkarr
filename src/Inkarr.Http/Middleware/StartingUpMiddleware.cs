@@ -1,9 +1,9 @@
 using System.Text;
 using System.Threading.Tasks;
+using Inkarr.Http.Extensions;
 using Microsoft.AspNetCore.Http;
 using NzbDrone.Common.EnvironmentInfo;
 using NzbDrone.Common.Serializer;
-using Inkarr.Http.Extensions;
 
 namespace Inkarr.Http.Middleware
 {

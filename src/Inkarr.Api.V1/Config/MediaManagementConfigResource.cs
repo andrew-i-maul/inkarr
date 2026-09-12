@@ -1,7 +1,7 @@
+using Inkarr.Http.REST;
 using NzbDrone.Core.Configuration;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Qualities;
-using Inkarr.Http.REST;
 
 namespace Inkarr.Api.V1.Config
 {

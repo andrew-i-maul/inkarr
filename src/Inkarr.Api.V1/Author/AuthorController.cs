@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentValidation;
+using Inkarr.Http;
+using Inkarr.Http.REST;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.AuthorStats;
@@ -18,8 +20,6 @@ using NzbDrone.Core.Validation;
 using NzbDrone.Core.Validation.Paths;
 using NzbDrone.Http.REST.Attributes;
 using NzbDrone.SignalR;
-using Inkarr.Http;
-using Inkarr.Http.REST;
 
 namespace Inkarr.Api.V1.Author
 {

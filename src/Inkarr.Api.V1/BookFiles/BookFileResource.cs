@@ -1,10 +1,10 @@
 using System;
 using System.Linq;
+using Inkarr.Http.REST;
 using NzbDrone.Core.DecisionEngine.Specifications;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Qualities;
-using Inkarr.Http.REST;
 
 namespace Inkarr.Api.V1.BookFiles
 {

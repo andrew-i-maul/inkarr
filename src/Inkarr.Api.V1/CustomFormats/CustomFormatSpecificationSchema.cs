@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using NzbDrone.Core.CustomFormats;
 using Inkarr.Http.ClientSchema;
 using Inkarr.Http.REST;
+using NzbDrone.Core.CustomFormats;
 
 namespace Inkarr.Api.V1.CustomFormats
 {

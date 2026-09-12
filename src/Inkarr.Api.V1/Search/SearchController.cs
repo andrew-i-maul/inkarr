@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Inkarr.Api.V1.Author;
+using Inkarr.Api.V1.Books;
+using Inkarr.Http;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Core.MediaCover;
 using NzbDrone.Core.MetadataSource;
 using NzbDrone.Core.Organizer;
-using Inkarr.Api.V1.Author;
-using Inkarr.Api.V1.Books;
-using Inkarr.Http;
 
 namespace Inkarr.Api.V1.Search
 {

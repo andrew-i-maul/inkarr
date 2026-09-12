@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
-using NzbDrone.Core.CustomFormats;
 using Inkarr.Http.ClientSchema;
 using Inkarr.Http.REST;
+using NzbDrone.Core.CustomFormats;
 
 namespace Inkarr.Api.V1.CustomFormats
 {

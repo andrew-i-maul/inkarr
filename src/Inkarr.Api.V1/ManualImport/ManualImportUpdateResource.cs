@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using Inkarr.Http.REST;
 using NzbDrone.Core.DecisionEngine;
 using NzbDrone.Core.Qualities;
-using Inkarr.Http.REST;
 
 namespace Inkarr.Api.V1.ManualImport
 {

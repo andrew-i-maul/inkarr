@@ -2,13 +2,13 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentValidation;
 using FluentValidation.Results;
+using Inkarr.Http.REST;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Serializer;
 using NzbDrone.Core.ThingiProvider;
 using NzbDrone.Core.Validation;
 using NzbDrone.Http.REST.Attributes;
-using Inkarr.Http.REST;
 
 namespace Inkarr.Api.V1
 {

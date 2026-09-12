@@ -2,6 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using DryIoc;
+using Inkarr.Api.V1.System;
+using Inkarr.Http;
+using Inkarr.Http.Authentication;
+using Inkarr.Http.ClientSchema;
+using Inkarr.Http.ErrorManagement;
+using Inkarr.Http.Frontend;
+using Inkarr.Http.Middleware;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -24,13 +31,6 @@ using NzbDrone.Core.Messaging.Events;
 using NzbDrone.Host.AccessControl;
 using NzbDrone.Http.Authentication;
 using NzbDrone.SignalR;
-using Inkarr.Api.V1.System;
-using Inkarr.Http;
-using Inkarr.Http.Authentication;
-using Inkarr.Http.ClientSchema;
-using Inkarr.Http.ErrorManagement;
-using Inkarr.Http.Frontend;
-using Inkarr.Http.Middleware;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace NzbDrone.Host

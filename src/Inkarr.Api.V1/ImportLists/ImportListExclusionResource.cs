@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
-using NzbDrone.Core.ImportLists.Exclusions;
 using Inkarr.Http.REST;
+using NzbDrone.Core.ImportLists.Exclusions;
 
 namespace Inkarr.Api.V1.ImportLists
 {

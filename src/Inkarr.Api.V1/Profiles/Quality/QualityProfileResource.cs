@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
+using Inkarr.Http.REST;
 using NzbDrone.Core.CustomFormats;
 using NzbDrone.Core.Profiles;
 using NzbDrone.Core.Profiles.Qualities;
-using Inkarr.Http.REST;
 
 namespace Inkarr.Api.V1.Profiles.Quality
 {

@@ -1,8 +1,8 @@
 using System.Linq;
 using System.Net;
 using FluentAssertions;
-using NUnit.Framework;
 using Inkarr.Api.V1.Indexers;
+using NUnit.Framework;
 
 namespace NzbDrone.Integration.Test.ApiTests
 {

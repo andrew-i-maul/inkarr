@@ -1,8 +1,8 @@
 using System.Text.Json;
+using Inkarr.Http;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Common.Serializer;
 using NzbDrone.Core.Localization;
-using Inkarr.Http;
 
 namespace Inkarr.Api.V1.Localization
 {

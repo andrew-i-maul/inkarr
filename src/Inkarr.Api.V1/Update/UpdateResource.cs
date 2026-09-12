@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NzbDrone.Core.Update;
 using Inkarr.Http.REST;
+using NzbDrone.Core.Update;
 
 namespace Inkarr.Api.V1.Update
 {

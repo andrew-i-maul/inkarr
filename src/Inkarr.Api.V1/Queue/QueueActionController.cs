@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
+using Inkarr.Http;
+using Inkarr.Http.REST;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Core.Download;
 using NzbDrone.Core.Download.Pending;
-using Inkarr.Http;
-using Inkarr.Http.REST;
 
 namespace Inkarr.Api.V1.Queue
 {

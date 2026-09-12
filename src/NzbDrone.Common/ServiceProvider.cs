@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.ServiceProcess;
 using NLog;
 using NzbDrone.Common.Exceptions;
@@ -23,6 +24,10 @@ namespace NzbDrone.Common
         void SetPermissions(string serviceName);
     }
 
+    // Windows service management (System.ServiceProcess, sc.exe) is inherently Windows-only;
+    // callers only reach these members via Windows-only utility modes (service install/uninstall).
+    // SERVICE_NAME itself is a plain string with no platform dependency, so it's deliberately
+    // outside this annotation's scope (it's referenced from cross-platform display code).
     public class ServiceProvider : IServiceProvider
     {
         public const string SERVICE_NAME = "Inkarr";
@@ -36,6 +41,7 @@ namespace NzbDrone.Common
             _logger = logger;
         }
 
+        [SupportedOSPlatform("windows")]
         public virtual bool ServiceExist(string name)
         {
             _logger.Debug("Checking if service {0} exists.", name);
@@ -44,6 +50,7 @@ namespace NzbDrone.Common
                     s => string.Equals(s.ServiceName, name, StringComparison.InvariantCultureIgnoreCase));
         }
 
+        [SupportedOSPlatform("windows")]
         public virtual bool IsServiceRunning(string name)
         {
             _logger.Debug("Checking if '{0}' service is running", name);
@@ -93,6 +100,7 @@ namespace NzbDrone.Common
             _logger.Info("Service Has installed successfully.");
         }
 
+        [SupportedOSPlatform("windows")]
         public virtual void Uninstall(string serviceName)
         {
             _logger.Info("Uninstalling {0} service", serviceName);
@@ -105,16 +113,19 @@ namespace NzbDrone.Common
             _logger.Info("{0} successfully uninstalled", serviceName);
         }
 
+        [SupportedOSPlatform("windows")]
         public virtual void Run(ServiceBase service)
         {
             ServiceBase.Run(service);
         }
 
+        [SupportedOSPlatform("windows")]
         public virtual ServiceController GetService(string serviceName)
         {
             return ServiceController.GetServices().FirstOrDefault(c => string.Equals(c.ServiceName, serviceName, StringComparison.InvariantCultureIgnoreCase));
         }
 
+        [SupportedOSPlatform("windows")]
         public virtual void Stop(string serviceName)
         {
             _logger.Info("Stopping {0} Service...", serviceName);
@@ -148,11 +159,13 @@ namespace NzbDrone.Common
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public ServiceControllerStatus GetStatus(string serviceName)
         {
             return GetService(serviceName).Status;
         }
 
+        [SupportedOSPlatform("windows")]
         public void Start(string serviceName)
         {
             _logger.Info("Starting {0} Service...", serviceName);

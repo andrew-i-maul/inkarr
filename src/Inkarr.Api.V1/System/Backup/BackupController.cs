@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Inkarr.Http;
+using Inkarr.Http.REST;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Common.Crypto;
 using NzbDrone.Common.Disk;
@@ -8,8 +10,6 @@ using NzbDrone.Common.EnvironmentInfo;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Backup;
 using NzbDrone.Http.REST.Attributes;
-using Inkarr.Http;
-using Inkarr.Http.REST;
 
 namespace Inkarr.Api.V1.System.Backup
 {

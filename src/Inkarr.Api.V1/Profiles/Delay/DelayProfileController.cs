@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
-using NzbDrone.Core.Profiles.Delay;
-using NzbDrone.Http.REST.Attributes;
 using Inkarr.Http;
 using Inkarr.Http.REST;
 using Inkarr.Http.Validation;
+using Microsoft.AspNetCore.Mvc;
+using NzbDrone.Core.Profiles.Delay;
+using NzbDrone.Http.REST.Attributes;
 
 namespace Inkarr.Api.V1.Profiles.Delay
 {

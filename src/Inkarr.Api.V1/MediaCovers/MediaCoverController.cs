@@ -1,11 +1,11 @@
 using System.IO;
 using System.Text.RegularExpressions;
+using Inkarr.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using NzbDrone.Common.Disk;
 using NzbDrone.Common.EnvironmentInfo;
 using NzbDrone.Common.Extensions;
-using Inkarr.Http;
 
 namespace Inkarr.Api.V1.MediaCovers
 {

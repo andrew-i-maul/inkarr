@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Inkarr.Http.REST;
 using Newtonsoft.Json;
 using NzbDrone.Core.Books;
 using NzbDrone.Core.MediaCover;
-using Inkarr.Http.REST;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Inkarr.Api.V1.Books

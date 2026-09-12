@@ -1,8 +1,8 @@
+using Inkarr.Http;
+using Inkarr.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Instrumentation;
-using Inkarr.Http;
-using Inkarr.Http.Extensions;
 
 namespace Inkarr.Api.V1.Logs
 {

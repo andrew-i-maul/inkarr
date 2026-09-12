@@ -21,7 +21,7 @@ namespace NzbDrone.Core.Download.Clients.DownloadStation
 
         public override string ToString()
         {
-            return this.Title;
+            return Title;
         }
     }
 }

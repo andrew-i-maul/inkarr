@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using NzbDrone.Core.RemotePathMappings;
 using Inkarr.Http.REST;
+using NzbDrone.Core.RemotePathMappings;
 
 namespace Inkarr.Api.V1.RemotePathMappings
 {

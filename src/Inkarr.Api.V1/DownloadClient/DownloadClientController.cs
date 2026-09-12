@@ -1,6 +1,6 @@
 using FluentValidation;
-using NzbDrone.Core.Download;
 using Inkarr.Http;
+using NzbDrone.Core.Download;
 
 namespace Inkarr.Api.V1.DownloadClient
 {

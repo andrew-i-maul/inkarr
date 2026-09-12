@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
+using Inkarr.Api.V1.Author;
+using Inkarr.Http.REST;
 using NzbDrone.Core.AuthorStats;
 using NzbDrone.Core.Books;
 using NzbDrone.Core.DecisionEngine.Specifications;
 using NzbDrone.Core.MediaCover;
 using NzbDrone.SignalR;
-using Inkarr.Api.V1.Author;
-using Inkarr.Http.REST;
 
 namespace Inkarr.Api.V1.Books
 {

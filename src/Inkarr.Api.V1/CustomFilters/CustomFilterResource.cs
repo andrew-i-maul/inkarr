@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using Inkarr.Http.REST;
 using NzbDrone.Common.Serializer;
 using NzbDrone.Core.CustomFilters;
-using Inkarr.Http.REST;
 
 namespace Inkarr.Api.V1.CustomFilters
 {

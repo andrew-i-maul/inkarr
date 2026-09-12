@@ -1,8 +1,8 @@
 using System.Linq;
+using Inkarr.Http;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Common.Disk;
 using NzbDrone.Core.MediaFiles;
-using Inkarr.Http;
 
 namespace Inkarr.Api.V1.FileSystem
 {

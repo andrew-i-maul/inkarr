@@ -1,5 +1,5 @@
-using Newtonsoft.Json;
 using Inkarr.Http.REST;
+using Newtonsoft.Json;
 
 namespace Inkarr.Api.V1.Indexers
 {

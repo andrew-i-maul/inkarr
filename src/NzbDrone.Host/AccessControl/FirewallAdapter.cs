@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Runtime.Versioning;
 using NetFwTypeLib;
 using NLog;
 using NzbDrone.Common.EnvironmentInfo;
@@ -25,6 +26,7 @@ namespace NzbDrone.Host.AccessControl
             _logger = logger;
         }
 
+        [SupportedOSPlatform("windows")]
         public void MakeAccessible()
         {
             if (IsFirewallEnabled())
@@ -43,6 +45,7 @@ namespace NzbDrone.Host.AccessControl
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private bool IsNzbDronePortOpen(int port)
         {
             try
@@ -62,6 +65,7 @@ namespace NzbDrone.Host.AccessControl
             return false;
         }
 
+        [SupportedOSPlatform("windows")]
         private void OpenFirewallPort(int portNumber)
         {
             try
@@ -86,6 +90,7 @@ namespace NzbDrone.Host.AccessControl
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private bool IsFirewallEnabled()
         {
             if (OsInfo.IsNotWindows)

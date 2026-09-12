@@ -1,7 +1,7 @@
 using FluentValidation;
-using NzbDrone.Core.Configuration;
 using Inkarr.Http;
 using Inkarr.Http.Validation;
+using NzbDrone.Core.Configuration;
 
 namespace Inkarr.Api.V1.Config
 {

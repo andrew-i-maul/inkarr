@@ -1,7 +1,7 @@
+using Inkarr.Http;
 using NzbDrone.Core.ImportLists;
 using NzbDrone.Core.Validation;
 using NzbDrone.Core.Validation.Paths;
-using Inkarr.Http;
 
 namespace Inkarr.Api.V1.ImportLists
 {

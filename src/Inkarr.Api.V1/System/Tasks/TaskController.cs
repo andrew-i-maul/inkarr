@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
+using Inkarr.Http;
+using Inkarr.Http.REST;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Datastore.Events;
 using NzbDrone.Core.Jobs;
 using NzbDrone.Core.Messaging.Events;
 using NzbDrone.SignalR;
-using Inkarr.Http;
-using Inkarr.Http.REST;
 
 namespace Inkarr.Api.V1.System.Tasks
 {

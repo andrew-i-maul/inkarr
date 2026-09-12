@@ -1,10 +1,10 @@
+using Inkarr.Http;
+using Inkarr.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Core.Blocklisting;
 using NzbDrone.Core.CustomFormats;
 using NzbDrone.Core.Datastore;
 using NzbDrone.Http.REST.Attributes;
-using Inkarr.Http;
-using Inkarr.Http.Extensions;
 
 namespace Inkarr.Api.V1.Blocklist
 {

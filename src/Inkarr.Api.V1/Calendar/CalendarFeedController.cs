@@ -5,11 +5,11 @@ using Ical.Net;
 using Ical.Net.CalendarComponents;
 using Ical.Net.DataTypes;
 using Ical.Net.Serialization;
+using Inkarr.Http;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Books;
 using NzbDrone.Core.Tags;
-using Inkarr.Http;
 
 namespace Inkarr.Api.V1.Calendar
 {

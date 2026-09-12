@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
+using Inkarr.Http;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Core.MediaCover;
 using NzbDrone.Core.MetadataSource;
 using NzbDrone.Core.Organizer;
-using Inkarr.Http;
 
 namespace Inkarr.Api.V1.Author
 {

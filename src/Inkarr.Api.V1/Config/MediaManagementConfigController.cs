@@ -1,9 +1,9 @@
 using FluentValidation;
+using Inkarr.Http;
 using NzbDrone.Common.EnvironmentInfo;
 using NzbDrone.Core.Configuration;
 using NzbDrone.Core.Validation;
 using NzbDrone.Core.Validation.Paths;
-using Inkarr.Http;
 
 namespace Inkarr.Api.V1.Config
 {

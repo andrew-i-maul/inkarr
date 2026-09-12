@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using NzbDrone.Core.MediaFiles;
 using Inkarr.Http;
 using Inkarr.Http.REST;
+using Microsoft.AspNetCore.Mvc;
+using NzbDrone.Core.MediaFiles;
 
 namespace Inkarr.Api.V1.Books
 {

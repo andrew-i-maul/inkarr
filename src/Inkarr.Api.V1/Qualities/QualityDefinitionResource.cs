@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using NzbDrone.Core.Qualities;
 using Inkarr.Http.REST;
+using NzbDrone.Core.Qualities;
 
 namespace Inkarr.Api.V1.Qualities
 {

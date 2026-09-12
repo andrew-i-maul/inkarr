@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using Inkarr.Http;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Core.MediaFiles;
-using Inkarr.Http;
 
 namespace Inkarr.Api.V1.Books
 {

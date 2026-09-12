@@ -1,8 +1,8 @@
+using Inkarr.Http.Extensions;
 using Microsoft.AspNetCore.Http;
 using NLog;
 using NzbDrone.Core.Authentication;
 using NzbDrone.Core.Configuration;
-using Inkarr.Http.Extensions;
 
 namespace Inkarr.Http.Authentication
 {

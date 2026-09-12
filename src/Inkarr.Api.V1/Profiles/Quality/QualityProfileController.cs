@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentValidation;
+using Inkarr.Http;
+using Inkarr.Http.REST;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.CustomFormats;
 using NzbDrone.Core.Profiles.Qualities;
 using NzbDrone.Http.REST.Attributes;
-using Inkarr.Http;
-using Inkarr.Http.REST;
 
 namespace Inkarr.Api.V1.Profiles.Quality
 {

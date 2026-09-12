@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using Inkarr.Http;
+using Inkarr.Http.REST;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Core.Books;
 using NzbDrone.Core.Datastore.Events;
@@ -12,8 +14,6 @@ using NzbDrone.Core.MediaFiles.Events;
 using NzbDrone.Core.Messaging.Events;
 using NzbDrone.Http.REST.Attributes;
 using NzbDrone.SignalR;
-using Inkarr.Http;
-using Inkarr.Http.REST;
 using BadRequestException = NzbDrone.Core.Exceptions.BadRequestException;
 using HttpStatusCode = System.Net.HttpStatusCode;
 

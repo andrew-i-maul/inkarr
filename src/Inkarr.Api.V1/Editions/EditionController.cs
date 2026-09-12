@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using NzbDrone.Core.Books;
 using Inkarr.Api.V1.Books;
 using Inkarr.Http;
+using Microsoft.AspNetCore.Mvc;
+using NzbDrone.Core.Books;
 
 namespace NzbDrone.Api.V1.Editions
 {

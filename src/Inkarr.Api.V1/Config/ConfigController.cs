@@ -1,9 +1,9 @@
 using System.Linq;
 using System.Reflection;
+using Inkarr.Http.REST;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Core.Configuration;
 using NzbDrone.Http.REST.Attributes;
-using Inkarr.Http.REST;
 
 namespace Inkarr.Api.V1.Config
 {

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentValidation;
 using FluentValidation.Results;
+using Inkarr.Http.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using NzbDrone.Core.Datastore;
 using NzbDrone.Http.REST.Attributes;
-using Inkarr.Http.Validation;
 
 namespace Inkarr.Http.REST
 {

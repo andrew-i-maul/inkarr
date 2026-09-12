@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Inkarr.Api.V1.Author;
+using Inkarr.Api.V1.Books;
+using Inkarr.Http;
+using Inkarr.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Books;
@@ -9,10 +13,6 @@ using NzbDrone.Core.Datastore;
 using NzbDrone.Core.DecisionEngine.Specifications;
 using NzbDrone.Core.Download;
 using NzbDrone.Core.History;
-using Inkarr.Api.V1.Author;
-using Inkarr.Api.V1.Books;
-using Inkarr.Http;
-using Inkarr.Http.Extensions;
 
 namespace Inkarr.Api.V1.History
 {

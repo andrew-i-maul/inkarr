@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using NzbDrone.Common.Reflection;
-using NzbDrone.Core.ThingiProvider;
 using Inkarr.Http.ClientSchema;
 using Inkarr.Http.REST;
+using NzbDrone.Common.Reflection;
+using NzbDrone.Core.ThingiProvider;
 
 namespace Inkarr.Api.V1
 {

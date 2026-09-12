@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using NzbDrone.Core.Languages;
 using Inkarr.Http;
 using Inkarr.Http.REST;
+using Microsoft.AspNetCore.Mvc;
+using NzbDrone.Core.Languages;
 
 namespace Inkarr.Api.V1.Languages
 {

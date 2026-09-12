@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
+using Inkarr.Http;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.AuthorStats;
@@ -18,7 +19,6 @@ using NzbDrone.Core.Validation;
 using NzbDrone.Core.Validation.Paths;
 using NzbDrone.Http.REST.Attributes;
 using NzbDrone.SignalR;
-using Inkarr.Http;
 
 namespace Inkarr.Api.V1.Books
 {

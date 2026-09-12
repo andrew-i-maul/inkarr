@@ -1,6 +1,6 @@
+using Inkarr.Http;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Core.Profiles.Qualities;
-using Inkarr.Http;
 
 namespace Inkarr.Api.V1.Profiles.Quality
 {

@@ -1,6 +1,6 @@
+using Inkarr.Http.REST;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Parser.Model;
-using Inkarr.Http.REST;
 
 namespace Inkarr.Api.V1.BookFiles
 {

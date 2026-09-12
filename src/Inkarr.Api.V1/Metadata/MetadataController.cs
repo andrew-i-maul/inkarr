@@ -1,7 +1,7 @@
 using System;
+using Inkarr.Http;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Core.Extras.Metadata;
-using Inkarr.Http;
 
 namespace Inkarr.Api.V1.Metadata
 {

@@ -1,7 +1,7 @@
 using FluentValidation;
+using Inkarr.Http;
 using NzbDrone.Core.Indexers;
 using NzbDrone.Core.Validation;
-using Inkarr.Http;
 
 namespace Inkarr.Api.V1.Indexers
 {

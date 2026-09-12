@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
+using Inkarr.Http;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Common.EnvironmentInfo;
 using NzbDrone.Core.Update;
 using NzbDrone.Core.Update.History;
-using Inkarr.Http;
 
 namespace Inkarr.Api.V1.Update
 {

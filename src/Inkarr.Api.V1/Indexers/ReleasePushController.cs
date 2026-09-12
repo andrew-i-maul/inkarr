@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentValidation;
 using FluentValidation.Results;
+using Inkarr.Http;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
 using NzbDrone.Common.Extensions;
@@ -10,7 +11,6 @@ using NzbDrone.Core.DecisionEngine;
 using NzbDrone.Core.Download;
 using NzbDrone.Core.Indexers;
 using NzbDrone.Core.Parser.Model;
-using Inkarr.Http;
 
 namespace Inkarr.Api.V1.Indexers
 {

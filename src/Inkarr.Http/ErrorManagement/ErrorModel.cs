@@ -1,8 +1,8 @@
 using System.Net;
 using System.Threading.Tasks;
+using Inkarr.Http.Exceptions;
 using Microsoft.AspNetCore.Http;
 using NzbDrone.Common.Serializer;
-using Inkarr.Http.Exceptions;
 
 namespace Inkarr.Http.ErrorManagement
 {

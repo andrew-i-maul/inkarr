@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentValidation;
+using Inkarr.Http;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
 using NzbDrone.Common.Cache;
@@ -15,7 +16,6 @@ using NzbDrone.Core.IndexerSearch;
 using NzbDrone.Core.Parser;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Validation;
-using Inkarr.Http;
 using HttpStatusCode = System.Net.HttpStatusCode;
 
 namespace Inkarr.Api.V1.Indexers

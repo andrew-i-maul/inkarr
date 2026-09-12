@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using Inkarr.Api.V1.CustomFormats;
+using Inkarr.Http.REST;
 using NzbDrone.Core.DecisionEngine;
 using NzbDrone.Core.Indexers;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Qualities;
-using Inkarr.Api.V1.CustomFormats;
-using Inkarr.Http.REST;
 
 namespace Inkarr.Api.V1.Indexers
 {

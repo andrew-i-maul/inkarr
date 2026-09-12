@@ -1,9 +1,9 @@
-using Microsoft.AspNetCore.Mvc;
-using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Parser;
 using Inkarr.Api.V1.Author;
 using Inkarr.Api.V1.Books;
 using Inkarr.Http;
+using Microsoft.AspNetCore.Mvc;
+using NzbDrone.Common.Extensions;
+using NzbDrone.Core.Parser;
 
 namespace Inkarr.Api.V1.Parse
 {

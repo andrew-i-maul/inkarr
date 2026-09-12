@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using NzbDrone.Core.Parser.Model;
 using Inkarr.Api.V1.Author;
 using Inkarr.Api.V1.Books;
 using Inkarr.Http.REST;
+using NzbDrone.Core.Parser.Model;
 
 namespace Inkarr.Api.V1.Parse
 {

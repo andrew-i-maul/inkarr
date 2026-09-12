@@ -138,6 +138,9 @@
   </ItemGroup>
 
   <!-- Set up stylecop -->
+  <PropertyGroup Condition="'$(InkarrProject)'=='true' and '$(EnableAnalyzers)'!='false'">
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)Stylecop.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup Condition="'$(InkarrProject)'=='true' and '$(EnableAnalyzers)'!='false'">
     <!-- StyleCop analysis -->
     <PackageReference Include="StyleCop.Analyzers" >

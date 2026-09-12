@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using NzbDrone.Core.HealthCheck;
 using Inkarr.Http.REST;
+using NzbDrone.Core.HealthCheck;
 
 namespace Inkarr.Api.V1.Health
 {

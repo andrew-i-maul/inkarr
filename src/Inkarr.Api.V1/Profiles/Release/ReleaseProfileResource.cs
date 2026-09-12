@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
-using NzbDrone.Core.Profiles.Releases;
 using Inkarr.Http.REST;
+using NzbDrone.Core.Profiles.Releases;
 
 namespace Inkarr.Api.V1.Profiles.Release
 {

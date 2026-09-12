@@ -2,11 +2,11 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Inkarr.Http.ErrorManagement;
+using Inkarr.Http.Extensions;
 using Microsoft.AspNetCore.Http;
 using NLog;
 using NzbDrone.Common.Extensions;
-using Inkarr.Http.ErrorManagement;
-using Inkarr.Http.Extensions;
 
 namespace Inkarr.Http.Middleware
 {

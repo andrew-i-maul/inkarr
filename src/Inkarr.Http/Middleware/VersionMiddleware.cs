@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
+using Inkarr.Http.Extensions;
 using Microsoft.AspNetCore.Http;
 using NzbDrone.Common.EnvironmentInfo;
-using Inkarr.Http.Extensions;
 
 namespace Inkarr.Http.Middleware
 {

@@ -1,5 +1,5 @@
-using NzbDrone.Core.Configuration;
 using Inkarr.Http;
+using NzbDrone.Core.Configuration;
 
 namespace Inkarr.Api.V1.Config
 {

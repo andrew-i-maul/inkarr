@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Inkarr.Api.V1.Books;
+using Inkarr.Http;
+using Inkarr.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Core.AuthorStats;
 using NzbDrone.Core.Books;
 using NzbDrone.Core.DecisionEngine.Specifications;
 using NzbDrone.Core.MediaCover;
 using NzbDrone.SignalR;
-using Inkarr.Api.V1.Books;
-using Inkarr.Http;
-using Inkarr.Http.Extensions;
 
 namespace Inkarr.Api.V1.Calendar
 {

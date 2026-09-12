@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using NzbDrone.Core.CustomFormats;
-using NzbDrone.Core.History;
-using NzbDrone.Core.Qualities;
 using Inkarr.Api.V1.Author;
 using Inkarr.Api.V1.Books;
 using Inkarr.Api.V1.CustomFormats;
 using Inkarr.Http.REST;
+using NzbDrone.Core.CustomFormats;
+using NzbDrone.Core.History;
+using NzbDrone.Core.Qualities;
 
 namespace Inkarr.Api.V1.History
 {

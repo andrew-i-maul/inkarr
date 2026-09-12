@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using Inkarr.Http.REST;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Http;
 using NzbDrone.Core.Messaging.Commands;
-using Inkarr.Http.REST;
 
 namespace Inkarr.Api.V1.Commands
 {

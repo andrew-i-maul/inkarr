@@ -1,6 +1,6 @@
 using System;
-using NzbDrone.Core.Backup;
 using Inkarr.Http.REST;
+using NzbDrone.Core.Backup;
 
 namespace Inkarr.Api.V1.System.Backup
 {

@@ -1,6 +1,6 @@
 using System;
-using NzbDrone.Core.Instrumentation;
 using Inkarr.Http.REST;
+using NzbDrone.Core.Instrumentation;
 
 namespace Inkarr.Api.V1.Logs
 {

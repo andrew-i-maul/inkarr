@@ -1,8 +1,8 @@
 using System.Linq;
 using System.Threading.Tasks;
+using Inkarr.Http.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
-using Inkarr.Http.Extensions;
 
 namespace Inkarr.Http.Middleware
 {

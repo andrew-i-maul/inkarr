@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using NzbDrone.Core.CustomFormats;
-using NzbDrone.Core.Indexers;
-using NzbDrone.Core.Qualities;
 using Inkarr.Api.V1.Author;
 using Inkarr.Api.V1.CustomFormats;
 using Inkarr.Http.REST;
+using NzbDrone.Core.CustomFormats;
+using NzbDrone.Core.Indexers;
+using NzbDrone.Core.Qualities;
 
 namespace Inkarr.Api.V1.Blocklist
 {

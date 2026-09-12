@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using Inkarr.Api.V1.Books;
 using NUnit.Framework;
 using NzbDrone.Integration.Test.Client;
-using Inkarr.Api.V1.Books;
 
 namespace NzbDrone.Integration.Test.ApiTests
 {

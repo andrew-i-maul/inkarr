@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Versioning;
 using System.Security.Principal;
 using System.ServiceProcess;
 using System.Threading;
@@ -11,6 +12,8 @@ using NzbDrone.Test.Common.Categories;
 
 namespace NzbDrone.Common.Test
 {
+    // Setup() calls WindowsOnly(), which skips this fixture at runtime on non-Windows platforms.
+    [SupportedOSPlatform("windows")]
     [TestFixture]
     public class ServiceProviderFixture : TestBase<ServiceProvider>
     {

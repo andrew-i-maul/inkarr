@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Inkarr.Http.Extensions;
+using Microsoft.AspNetCore.Http;
 
 namespace Inkarr.Http.Middleware
 {
