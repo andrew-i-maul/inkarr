@@ -75,6 +75,8 @@ namespace NzbDrone.Core.Qualities
         public static Quality MOBI => new Quality(2, "MOBI");
         public static Quality EPUB => new Quality(3, "EPUB");
         public static Quality AZW3 => new Quality(4, "AZW3");
+        public static Quality CBZ => new Quality(20, "CBZ");
+        public static Quality CBR => new Quality(21, "CBR");
         public static Quality MP3 => new Quality(10, "MP3");
         public static Quality FLAC => new Quality(11, "FLAC");
         public static Quality M4B => new Quality(12, "M4B");
@@ -89,6 +91,8 @@ namespace NzbDrone.Core.Qualities
                 MOBI,
                 EPUB,
                 AZW3,
+                CBZ,
+                CBR,
                 UnknownAudio,
                 MP3,
                 M4B,
@@ -108,6 +112,8 @@ namespace NzbDrone.Core.Qualities
                 new QualityDefinition(Quality.MOBI)         { Weight = 10, MinSize = 0, MaxSize = 350, GroupWeight = 10 },
                 new QualityDefinition(Quality.EPUB)         { Weight = 11, MinSize = 0, MaxSize = 350, GroupWeight = 11 },
                 new QualityDefinition(Quality.AZW3)         { Weight = 12, MinSize = 0, MaxSize = 350, GroupWeight = 12 },
+                new QualityDefinition(Quality.CBZ)          { Weight = 20, MinSize = 0, MaxSize = null, GroupWeight = 20 },
+                new QualityDefinition(Quality.CBR)          { Weight = 21, MinSize = 0, MaxSize = null, GroupWeight = 21 },
                 new QualityDefinition(Quality.UnknownAudio) { Weight = 50, MinSize = 0, MaxSize = 350, GroupWeight = 50 },
                 new QualityDefinition(Quality.MP3)      { Weight = 100, MinSize = 0, MaxSize = 350, GroupWeight = 100 },
                 new QualityDefinition(Quality.M4B)          { Weight = 105, MinSize = 0, MaxSize = 350, GroupWeight = 105 },

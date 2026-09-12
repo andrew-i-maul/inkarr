@@ -14,32 +14,15 @@ namespace NzbDrone.Core.MediaFiles
         {
             _textExtensions = new Dictionary<string, Quality>(StringComparer.OrdinalIgnoreCase)
             {
-                { ".epub", Quality.EPUB },
-                { ".kepub", Quality.EPUB },
-                { ".mobi", Quality.MOBI },
-                { ".azw3", Quality.AZW3 },
+                { ".cbz", Quality.CBZ },
+                { ".cbr", Quality.CBR },
                 { ".pdf", Quality.PDF },
             };
 
-            _audioExtensions = new Dictionary<string, Quality>(StringComparer.OrdinalIgnoreCase)
-            {
-                { ".flac", Quality.FLAC },
-                { ".ape", Quality.FLAC },
-                { ".wavpack", Quality.FLAC },
-                { ".wav", Quality.FLAC },
-                { ".alac", Quality.FLAC },
-                { ".mp2", Quality.MP3 },
-                { ".mp3", Quality.MP3 },
-                { ".wma", Quality.MP3 },
-                { ".m4a", Quality.MP3 },
-                { ".m4p", Quality.MP3 },
-                { ".m4b", Quality.M4B },
-                { ".aac", Quality.MP3 },
-                { ".mp4a", Quality.MP3 },
-                { ".ogg", Quality.MP3 },
-                { ".oga", Quality.MP3 },
-                { ".vorbis", Quality.MP3 },
-            };
+            // Comics have no audio component; kept as an empty set (rather than removed) so the many
+            // pipeline call sites that just check MediaFileExtensions.AudioExtensions.Contains(...) keep
+            // working correctly without needing changes themselves.
+            _audioExtensions = new Dictionary<string, Quality>(StringComparer.OrdinalIgnoreCase);
         }
 
         public static HashSet<string> TextExtensions => new HashSet<string>(_textExtensions.Keys, StringComparer.OrdinalIgnoreCase);
