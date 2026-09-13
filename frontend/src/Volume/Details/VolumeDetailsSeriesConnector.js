@@ -17,7 +17,7 @@ function createMapStateToProps() {
   return createSelector(
     (state, { seriesId }) => seriesId,
     (state) => state.books,
-    createVolumeSelector(),
+    createAuthorSelector(),
     (state) => state.series,
     createCommandsSelector(),
     createDimensionsSelector(),
@@ -68,7 +68,7 @@ function createMapStateToProps() {
 }
 
 const mapDispatchToProps = {
-  toggleIssuesMonitored,
+  toggleIssuesMonitored: toggleBooksMonitored,
   setSeriesTableOption,
   dispatchSetSeriesSort: setSeriesSort,
   executeCommand

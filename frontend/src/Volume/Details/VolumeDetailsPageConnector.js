@@ -93,7 +93,7 @@ class VolumeDetailsPageConnector extends Component {
     if (!titleSlug) {
       return (
         <NotFound
-          message={translate('SorryThatVolumeCannotBeFound')}
+          message={translate('SorryThatAuthorCannotBeFound')}
         />
       );
     }

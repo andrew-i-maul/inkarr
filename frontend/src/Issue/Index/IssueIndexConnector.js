@@ -15,7 +15,7 @@ import IssueIndex from './IssueIndex';
 
 function createMapStateToProps() {
   return createSelector(
-    createIssueClientSideCollectionItemsSelector('bookIndex'),
+    createBookClientSideCollectionItemsSelector('bookIndex'),
     createCommandExecutingSelector(commandNames.BULK_REFRESH_AUTHOR),
     createCommandExecutingSelector(commandNames.BULK_REFRESH_BOOK),
     createCommandExecutingSelector(commandNames.RSS_SYNC),

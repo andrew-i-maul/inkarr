@@ -15,7 +15,7 @@ import VolumeIndex from './VolumeIndex';
 
 function createMapStateToProps() {
   return createSelector(
-    createVolumeClientSideCollectionItemsSelector('authorIndex'),
+    createAuthorClientSideCollectionItemsSelector('authorIndex'),
     createCommandExecutingSelector(commandNames.BULK_REFRESH_AUTHOR),
     createCommandExecutingSelector(commandNames.RSS_SYNC),
     createCommandExecutingSelector(commandNames.RENAME_AUTHOR),

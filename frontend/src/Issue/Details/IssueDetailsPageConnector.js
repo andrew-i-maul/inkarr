@@ -79,7 +79,7 @@ class IssueDetailsPageConnector extends Component {
     if (!titleSlug) {
       return (
         <NotFound
-          message={translate('SorryThatIssueCannotBeFound')}
+          message={translate('SorryThatBookCannotBeFound')}
         />
       );
     }

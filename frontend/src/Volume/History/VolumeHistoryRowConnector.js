@@ -7,8 +7,8 @@ import VolumeHistoryRow from './VolumeHistoryRow';
 
 function createMapStateToProps() {
   return createSelector(
-    createVolumeSelector(),
-    createIssueSelector(),
+    createAuthorSelector(),
+    createBookSelector(),
     (author, book) => {
       return {
         author,

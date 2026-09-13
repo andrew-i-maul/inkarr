@@ -6,7 +6,7 @@ import VolumeTags from './VolumeTags';
 
 function createMapStateToProps() {
   return createSelector(
-    createVolumeSelector(),
+    createAuthorSelector(),
     createTagsSelector(),
     (author, tagList) => {
       const tags = author.tags

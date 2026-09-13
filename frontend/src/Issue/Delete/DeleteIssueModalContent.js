@@ -110,7 +110,7 @@ class DeleteIssueModalContent extends Component {
             !addImportListExclusion &&
               <div className={styles.deleteFilesMessage}>
                 <div>
-                  {translate('IfYouDontAddAnImportListExclusionAndTheVolumeHasAMetadataProfileOtherThanNoneThenThisIssueMayBeReaddedDuringTheNextVolumeRefresh')}
+                  {translate('IfYouDontAddAnImportListExclusionAndTheAuthorHasAMetadataProfileOtherThanNoneThenThisBookMayBeReaddedDuringTheNextAuthorRefresh')}
                 </div>
               </div>
           }
@@ -119,7 +119,7 @@ class DeleteIssueModalContent extends Component {
             deleteFiles &&
               <div className={styles.deleteFilesMessage}>
                 <div>
-                  {translate('TheIssuesFilesWillBeDeleted')}
+                  {translate('TheBooksFilesWillBeDeleted')}
                 </div>
 
                 {

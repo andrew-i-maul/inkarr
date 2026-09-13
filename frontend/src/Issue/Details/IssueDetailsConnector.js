@@ -45,7 +45,7 @@ function createMapStateToProps() {
     selectIssueFiles,
     (state) => state.books,
     (state) => state.editions,
-    createAllVolumeSelector(),
+    createAllAuthorSelector(),
     createCommandsSelector(),
     createUISettingsSelector(),
     createDimensionsSelector(),
@@ -111,13 +111,13 @@ function createMapStateToProps() {
 
 const mapDispatchToProps = {
   executeCommand,
-  fetchIssueFiles,
-  clearIssueFiles,
+  fetchIssueFiles: fetchBookFiles,
+  clearIssueFiles: clearBookFiles,
   fetchEditions,
   clearEditions,
   clearReleases,
   cancelFetchReleases,
-  toggleIssuesMonitored
+  toggleIssuesMonitored: toggleBooksMonitored
 };
 
 function getMonitoredEditions(props) {

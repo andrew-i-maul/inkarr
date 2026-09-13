@@ -93,7 +93,7 @@ class VolumeDetailsHeader extends Component {
     const fanartUrl = getFanartUrl(images);
     const marqueeWidth = titleWidth - (isSmallScreen ? 85 : 160);
 
-    let bookFilesCountMessage = translate('IssueFilesCountMessage');
+    let bookFilesCountMessage = translate('BookFilesCountMessage');
 
     if (bookFileCount === 1) {
       bookFilesCountMessage = '1 book file';

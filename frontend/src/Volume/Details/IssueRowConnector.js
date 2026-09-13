@@ -24,7 +24,7 @@ const selectIssueFiles = createSelector(
 
 function createMapStateToProps() {
   return createSelector(
-    createVolumeSelector(),
+    createAuthorSelector(),
     selectIssueFiles,
     (state, { id }) => id,
     (author = {}, bookFiles, bookId) => {

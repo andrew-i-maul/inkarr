@@ -202,8 +202,8 @@ class IssueFileEditorTableContent extends Component {
         <ConfirmModal
           isOpen={isConfirmDeleteModalOpen}
           kind={kinds.DANGER}
-          title={translate('DeleteSelectedIssueFiles')}
-          message={translate('DeleteSelectedIssueFilesMessageText')}
+          title={translate('DeleteSelectedBookFiles')}
+          message={translate('DeleteSelectedBookFilesMessageText')}
           confirmLabel={translate('Delete')}
           onConfirm={this.onConfirmDelete}
           onCancel={this.onConfirmDeleteModalClose}

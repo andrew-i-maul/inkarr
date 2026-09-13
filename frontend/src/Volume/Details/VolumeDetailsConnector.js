@@ -105,7 +105,7 @@ function createMapStateToProps() {
     selectIssues,
     selectSeries,
     selectIssueFiles,
-    createAllVolumeSelector(),
+    createAllAuthorSelector(),
     createCommandsSelector(),
     createDimensionsSelector(),
     (titleSlug, books, series, bookFiles, allVolumes, commands, dimensions) => {
@@ -207,10 +207,10 @@ function createMapStateToProps() {
 const mapDispatchToProps = {
   fetchSeries,
   clearSeries,
-  saveIssueEditor,
-  fetchIssueFiles,
-  clearIssueFiles,
-  toggleVolumeMonitored,
+  saveIssueEditor: saveBookEditor,
+  fetchIssueFiles: fetchBookFiles,
+  clearIssueFiles: clearBookFiles,
+  toggleVolumeMonitored: toggleAuthorMonitored,
   fetchQueueDetails,
   clearQueueDetails,
   clearReleases,

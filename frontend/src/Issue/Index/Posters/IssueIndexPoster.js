@@ -161,7 +161,7 @@ class IssueIndexPoster extends Component {
               <SpinnerIconButton
                 className={styles.action}
                 name={icons.REFRESH}
-                title={translate('RefreshIssue')}
+                title={translate('RefreshBook')}
                 isSpinning={isRefreshingIssue}
                 onPress={onRefreshIssuePress}
               />
@@ -171,7 +171,7 @@ class IssueIndexPoster extends Component {
                   <SpinnerIconButton
                     className={styles.action}
                     name={icons.SEARCH}
-                    title={translate('SearchForMonitoredIssues')}
+                    title={translate('SearchForMonitoredBooks')}
                     isSpinning={isSearchingIssue}
                     onPress={onSearchPress}
                   />
@@ -180,14 +180,14 @@ class IssueIndexPoster extends Component {
               <IconButton
                 className={styles.action}
                 name={icons.INTERACTIVE}
-                title={translate('EditVolume')}
+                title={translate('EditAuthor')}
                 onPress={this.onEditVolumePress}
               />
 
               <IconButton
                 className={styles.action}
                 name={icons.EDIT}
-                title={translate('EditIssue')}
+                title={translate('EditBook')}
                 onPress={this.onEditIssuePress}
               />
             </Label>

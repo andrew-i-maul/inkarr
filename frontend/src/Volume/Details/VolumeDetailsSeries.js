@@ -153,7 +153,7 @@ class VolumeDetailsSeries extends Component {
               <Icon
                 className={styles.expandButtonIcon}
                 name={isExpanded ? icons.COLLAPSE : icons.EXPAND}
-                title={isExpanded ? translate('IsExpandedHideIssues') : translate('IsExpandedShowIssues')}
+                title={isExpanded ? translate('IsExpandedHideBooks') : translate('IsExpandedShowBooks')}
                 size={24}
               />
 
@@ -199,7 +199,7 @@ class VolumeDetailsSeries extends Component {
                     iconClassName={styles.collapseButtonIcon}
                     name={icons.COLLAPSE}
                     size={20}
-                    title={translate('HideIssues')}
+                    title={translate('HideBooks')}
                     onPress={this.onExpandPress}
                   />
                 </div>

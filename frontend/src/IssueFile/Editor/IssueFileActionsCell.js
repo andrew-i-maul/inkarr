@@ -87,7 +87,7 @@ class IssueFileActionsCell extends Component {
         <ConfirmModal
           isOpen={isConfirmDeleteModalOpen}
           kind={kinds.DANGER}
-          title={translate('DeleteIssueFile')}
+          title={translate('DeleteBookFile')}
           message={translate('DeleteIssueFileMessageText', [path])}
           confirmLabel={translate('Delete')}
           onConfirm={this.onConfirmDelete}

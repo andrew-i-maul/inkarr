@@ -250,7 +250,7 @@ class VolumeIndexOverviewOptionsModalContent extends Component {
 
             <FormGroup>
               <FormLabel>
-                {translate('ShowLastIssue')}
+                {translate('ShowLastBook')}
               </FormLabel>
 
               <FormInputGroup
@@ -276,7 +276,7 @@ class VolumeIndexOverviewOptionsModalContent extends Component {
 
             <FormGroup>
               <FormLabel>
-                {translate('ShowIssueCount')}
+                {translate('ShowBookCount')}
               </FormLabel>
 
               <FormInputGroup

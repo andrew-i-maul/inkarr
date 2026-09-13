@@ -8,7 +8,7 @@ import DeleteVolumeModalContent from './DeleteVolumeModalContent';
 function createMapStateToProps() {
   return createSelector(
     (state, { authorIds }) => authorIds,
-    createAllVolumeSelector(),
+    createAllAuthorSelector(),
     (authorIds, allVolumes) => {
       const selectedVolume = _.intersectionWith(allVolumes, authorIds, (s, id) => {
         return s.id === id;

@@ -7,13 +7,13 @@ function VolumeMonitorNewItemsOptionsPopoverContent() {
   return (
     <DescriptionList>
       <DescriptionListItem
-        title={translate('AllIssues')}
-        data={translate('DataNewAllIssues')}
+        title={translate('AllBooks')}
+        data={translate('DataNewAllBooks')}
       />
 
       <DescriptionListItem
-        title={translate('NewIssues')}
-        data={translate('DataNewIssues')}
+        title={translate('NewBooks')}
+        data={translate('DataNewBooks')}
       />
 
       <DescriptionListItem

@@ -350,13 +350,13 @@ class VolumeIndex extends Component {
             {
               isEditorActive ?
                 <PageToolbarButton
-                  label={translate('VolumeIndex')}
+                  label={translate('AuthorIndex')}
                   iconName={icons.AUTHOR_CONTINUING}
                   isDisabled={hasNoVolume}
                   onPress={this.onEditorTogglePress}
                 /> :
                 <PageToolbarButton
-                  label={translate('VolumeEditor')}
+                  label={translate('AuthorEditor')}
                   iconName={icons.EDIT}
                   isDisabled={hasNoVolume}
                   onPress={this.onEditorTogglePress}

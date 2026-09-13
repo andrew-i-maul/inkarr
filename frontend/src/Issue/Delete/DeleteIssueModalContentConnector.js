@@ -9,7 +9,7 @@ import DeleteIssueModalContent from './DeleteIssueModalContent';
 
 function createMapStateToProps() {
   return createSelector(
-    createIssueSelector(),
+    createBookSelector(),
     (book) => {
       return book;
     }
@@ -18,7 +18,7 @@ function createMapStateToProps() {
 
 const mapDispatchToProps = {
   push,
-  deleteIssue
+  deleteIssue: deleteBook
 };
 
 class DeleteIssueModalContentConnector extends Component {

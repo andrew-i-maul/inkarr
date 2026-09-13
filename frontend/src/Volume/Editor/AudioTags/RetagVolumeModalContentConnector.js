@@ -11,7 +11,7 @@ import RetagVolumeModalContent from './RetagVolumeModalContent';
 function createMapStateToProps() {
   return createSelector(
     (state, { authorIds }) => authorIds,
-    createAllVolumeSelector(),
+    createAllAuthorSelector(),
     (authorIds, allVolumes) => {
       const author = _.intersectionWith(allVolumes, authorIds, (s, id) => {
         return s.id === id;

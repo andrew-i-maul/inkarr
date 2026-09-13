@@ -24,7 +24,7 @@ function NoVolume(props) {
   return (
     <div>
       <div className={styles.message}>
-        {`No ${itemType} found, to get started you'll want to add a new author or book or add an existing library location (Root Folder) and update.`}
+        {`No ${itemType} found, to get started you'll want to add a new volume or issue or add an existing library location (Root Folder) and update.`}
       </div>
 
       <div className={styles.buttonContainer}>
@@ -41,7 +41,7 @@ function NoVolume(props) {
           to="/add/search"
           kind={kinds.PRIMARY}
         >
-          {translate('AddNewVolume')}
+          {translate('AddNewAuthor')}
         </Button>
       </div>
     </div>
@@ -54,7 +54,7 @@ NoVolume.propTypes = {
 };
 
 NoVolume.defaultProps = {
-  itemType: 'authors'
+  itemType: 'volumes'
 };
 
 export default NoVolume;

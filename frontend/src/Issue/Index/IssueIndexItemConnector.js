@@ -32,9 +32,9 @@ function selectShowSearchAction() {
 
 function createMapStateToProps() {
   return createSelector(
-    createIssueSelector(),
-    createIssueVolumeSelector(),
-    createIssueQualityProfileSelector(),
+    createBookSelector(),
+    createBookAuthorSelector(),
+    createBookQualityProfileSelector(),
     selectShowSearchAction(),
     createExecutingCommandsSelector(),
     (

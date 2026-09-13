@@ -58,7 +58,7 @@ class IssueIndexFooter extends PureComponent {
                     )}
                   />
                   <div>
-                    {translate('ContinuingAllIssuesDownloaded')}
+                    {translate('ContinuingAllBooksDownloaded')}
                   </div>
                 </div>
 
@@ -70,7 +70,7 @@ class IssueIndexFooter extends PureComponent {
                     )}
                   />
                   <div>
-                    {translate('EndedAllIssuesDownloaded')}
+                    {translate('EndedAllBooksDownloaded')}
                   </div>
                 </div>
 
@@ -82,7 +82,7 @@ class IssueIndexFooter extends PureComponent {
                     )}
                   />
                   <div>
-                    {translate('MissingIssuesVolumeMonitored')}
+                    {translate('MissingBooksAuthorMonitored')}
                   </div>
                 </div>
 
@@ -94,7 +94,7 @@ class IssueIndexFooter extends PureComponent {
                     )}
                   />
                   <div>
-                    {translate('MissingIssuesVolumeNotMonitored')}
+                    {translate('MissingBooksAuthorNotMonitored')}
                   </div>
                 </div>
               </div>
@@ -114,12 +114,12 @@ class IssueIndexFooter extends PureComponent {
 
                 <DescriptionList>
                   <DescriptionListItem
-                    title={translate('Volumes')}
+                    title={translate('Authors')}
                     data={authors.size}
                   />
 
                   <DescriptionListItem
-                    title={translate('Issues')}
+                    title={translate('Books')}
                     data={books}
                   />
 

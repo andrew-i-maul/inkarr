@@ -5,7 +5,7 @@ import MediaInfo from './MediaInfo';
 
 function createMapStateToProps() {
   return createSelector(
-    createIssueFileSelector(),
+    createBookFileSelector(),
     (bookFile) => {
       if (bookFile) {
         return {

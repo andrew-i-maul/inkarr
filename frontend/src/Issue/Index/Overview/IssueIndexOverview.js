@@ -212,7 +212,7 @@ class IssueIndexOverview extends Component {
               <div className={styles.actions}>
                 <SpinnerIconButton
                   name={icons.REFRESH}
-                  title={translate('RefreshIssue')}
+                  title={translate('RefreshBook')}
                   isSpinning={isRefreshingIssue}
                   onPress={onRefreshIssuePress}
                 />
@@ -222,7 +222,7 @@ class IssueIndexOverview extends Component {
                     <SpinnerIconButton
                       className={styles.action}
                       name={icons.SEARCH}
-                      title={translate('SearchForMonitoredIssues')}
+                      title={translate('SearchForMonitoredBooks')}
                       isSpinning={isSearchingIssue}
                       onPress={onSearchPress}
                     />
@@ -230,7 +230,7 @@ class IssueIndexOverview extends Component {
 
                 <IconButton
                   name={icons.EDIT}
-                  title={translate('EditVolume')}
+                  title={translate('EditAuthor')}
                   onPress={this.onEditVolumePress}
                 />
               </div>

@@ -12,7 +12,7 @@ import VolumeDetailsHeader from './VolumeDetailsHeader';
 function createMapStateToProps() {
   return createSelector(
     (state) => state.authors,
-    createVolumeSelector(),
+    createAuthorSelector(),
     createDimensionsSelector(),
     (authors, author, dimensions) => {
       const alternateTitles = _.reduce(author.alternateTitles, (acc, alternateTitle) => {
@@ -35,7 +35,7 @@ function createMapStateToProps() {
 }
 
 const mapDispatchToProps = {
-  toggleVolumeMonitored
+  toggleVolumeMonitored: toggleAuthorMonitored
 };
 
 class VolumeDetailsHeaderConnector extends Component {

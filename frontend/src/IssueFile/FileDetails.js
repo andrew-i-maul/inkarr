@@ -80,14 +80,14 @@ function FileDetails(props) {
           {
             audioTags.bookTitle !== undefined &&
               <DescriptionListItem
-                title={translate('Issue')}
+                title={translate('Book')}
                 data={audioTags.bookTitle}
               />
           }
           {
             audioTags.authorTitle !== undefined &&
               <DescriptionListItem
-                title={translate('Volume')}
+                title={translate('Author')}
                 data={audioTags.authorTitle}
               />
           }
@@ -173,7 +173,7 @@ function FileDetails(props) {
                 to={`https://musicbrainz.org/author/${audioTags.authorMBId}`}
               >
                 <DescriptionListItem
-                  title={translate('MusicBrainzVolumeID')}
+                  title={translate('MusicBrainzAuthorID')}
                   data={audioTags.authorMBId}
                 />
               </Link>
@@ -184,7 +184,7 @@ function FileDetails(props) {
                 to={`https://musicbrainz.org/release-group/${audioTags.bookMBId}`}
               >
                 <DescriptionListItem
-                  title={translate('MusicBrainzIssueID')}
+                  title={translate('MusicBrainzBookID')}
                   data={audioTags.bookMBId}
                 />
               </Link>

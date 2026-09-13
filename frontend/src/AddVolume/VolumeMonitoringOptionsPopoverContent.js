@@ -12,33 +12,33 @@ function VolumeMonitoringOptionsPopoverContent() {
       </Alert>
       <DescriptionList>
         <DescriptionListItem
-          title={translate('AllIssues')}
-          data={translate('DataAllIssues')}
+          title={translate('AllBooks')}
+          data={translate('DataAllBooks')}
         />
 
         <DescriptionListItem
-          title={translate('FutureIssues')}
-          data={translate('DataFutureIssues')}
+          title={translate('FutureBooks')}
+          data={translate('DataFutureBooks')}
         />
 
         <DescriptionListItem
-          title={translate('MissingIssues')}
-          data={translate('DataMissingIssues')}
+          title={translate('MissingBooks')}
+          data={translate('DataMissingBooks')}
         />
 
         <DescriptionListItem
-          title={translate('ExistingIssues')}
-          data={translate('DataExistingIssues')}
+          title={translate('ExistingBooks')}
+          data={translate('DataExistingBooks')}
         />
 
         <DescriptionListItem
-          title={translate('FirstIssue')}
-          data={translate('DataFirstIssue')}
+          title={translate('FirstBook')}
+          data={translate('DataFirstBook')}
         />
 
         <DescriptionListItem
-          title={translate('LatestIssue')}
-          data={translate('DataLatestIssue')}
+          title={translate('LatestBook')}
+          data={translate('DataLatestBook')}
         />
 
         <DescriptionListItem

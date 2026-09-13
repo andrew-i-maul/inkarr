@@ -14,8 +14,8 @@ function createMapStateToProps() {
   return createSelector(
     (state) => state.books,
     (state) => state.editions,
-    createIssueSelector(),
-    createVolumeSelector(),
+    createBookSelector(),
+    createAuthorSelector(),
     (bookState, editionState, book, author) => {
       const {
         isSaving,
@@ -55,8 +55,8 @@ function createMapStateToProps() {
 }
 
 const mapDispatchToProps = {
-  dispatchSetIssueValue: setIssueValue,
-  dispatchSaveIssue: saveIssue,
+  dispatchSetIssueValue: setBookValue,
+  dispatchSaveIssue: saveBook,
   dispatchSaveEditions: saveEditions
 };
 

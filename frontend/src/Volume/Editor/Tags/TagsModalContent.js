@@ -98,7 +98,7 @@ class TagsModalContent extends Component {
                 value={applyTags}
                 values={applyTagsOptions}
                 helpTexts={[
-                  translate('ApplyTagsHelpTextHowToApplyVolumes'),
+                  translate('ApplyTagsHelpTextHowToApplyAuthors'),
                   translate('ApplyTagsHelpTextAdd'),
                   translate('ApplyTagsHelpTextRemove'),
                   translate('ApplyTagsHelpTextReplace')

@@ -10,7 +10,7 @@ import IssueSearchCell from './IssueSearchCell';
 function createMapStateToProps() {
   return createSelector(
     (state, { bookId }) => bookId,
-    createVolumeSelector(),
+    createAuthorSelector(),
     createCommandsSelector(),
     (bookId, author, commands) => {
       const isSearching = commands.some((command) => {

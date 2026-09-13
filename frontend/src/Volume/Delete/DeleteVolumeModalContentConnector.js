@@ -8,7 +8,7 @@ import DeleteVolumeModalContent from './DeleteVolumeModalContent';
 
 function createMapStateToProps() {
   return createSelector(
-    createVolumeSelector(),
+    createAuthorSelector(),
     (author) => {
       return author;
     }
@@ -16,7 +16,7 @@ function createMapStateToProps() {
 }
 
 const mapDispatchToProps = {
-  deleteVolume
+  deleteVolume: deleteAuthor
 };
 
 class DeleteVolumeModalContentConnector extends Component {

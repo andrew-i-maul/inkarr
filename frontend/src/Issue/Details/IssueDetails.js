@@ -129,7 +129,7 @@ class IssueDetails extends Component {
             />
 
             <PageToolbarButton
-              label={translate('SearchIssue')}
+              label={translate('SearchBook')}
               iconName={icons.SEARCH}
               isSpinning={isSearching}
               onPress={onSearchPress}
@@ -231,7 +231,7 @@ class IssueDetails extends Component {
             {
               !isFetching && bookFilesError &&
                 <div>
-                  {translate('LoadingIssueFilesFailed')}
+                  {translate('LoadingBookFilesFailed')}
                 </div>
             }
 

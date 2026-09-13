@@ -11,7 +11,7 @@ import EditVolumeModalContent from './EditVolumeModalContent';
 function createIsPathChangingSelector() {
   return createSelector(
     (state) => state.authors.pendingChanges,
-    createVolumeSelector(),
+    createAuthorSelector(),
     (pendingChanges, author) => {
       const path = pendingChanges.path;
 
@@ -28,7 +28,7 @@ function createMapStateToProps() {
   return createSelector(
     (state) => state.authors,
     (state) => state.settings.metadataProfiles,
-    createVolumeSelector(),
+    createAuthorSelector(),
     createIsPathChangingSelector(),
     (authorsState, metadataProfiles, author, isPathChanging) => {
       const {
@@ -63,8 +63,8 @@ function createMapStateToProps() {
 }
 
 const mapDispatchToProps = {
-  dispatchSetVolumeValue: setVolumeValue,
-  dispatchSaveVolume: saveVolume
+  dispatchSetVolumeValue: setAuthorValue,
+  dispatchSaveVolume: saveAuthor
 };
 
 class EditVolumeModalContentConnector extends Component {

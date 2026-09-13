@@ -16,7 +16,7 @@ import VolumeDetailsSeason from './VolumeDetailsSeason';
 function createMapStateToProps() {
   return createSelector(
     createClientSideCollectionSelector('books', 'authorDetails'),
-    createVolumeSelector(),
+    createAuthorSelector(),
     createDimensionsSelector(),
     createUISettingsSelector(),
     (books, author, dimensions, uiSettings) => {
@@ -45,10 +45,10 @@ function createMapStateToProps() {
 }
 
 const mapDispatchToProps = {
-  setVolumeDetailsId,
-  setVolumeDetailsSort,
-  toggleIssuesMonitored,
-  setIssuesTableOption,
+  setVolumeDetailsId: setAuthorDetailsId,
+  setVolumeDetailsSort: setAuthorDetailsSort,
+  toggleIssuesMonitored: toggleBooksMonitored,
+  setIssuesTableOption: setBooksTableOption,
   executeCommand
 };
 

@@ -48,7 +48,7 @@ function IssueStatus(props) {
     return (
       <div className={styles.center}>
         <Label
-          title={translate('IssueAvailableButMissing')}
+          title={translate('BookAvailableButMissing')}
           kind={kinds.DANGER}
         >
           {translate('Missing')}

@@ -33,9 +33,9 @@ function selectShowSearchAction() {
 
 function createMapStateToProps() {
   return createSelector(
-    createVolumeSelector(),
-    createVolumeQualityProfileSelector(),
-    createVolumeMetadataProfileSelector(),
+    createAuthorSelector(),
+    createAuthorQualityProfileSelector(),
+    createAuthorMetadataProfileSelector(),
     selectShowSearchAction(),
     createExecutingCommandsSelector(),
     (

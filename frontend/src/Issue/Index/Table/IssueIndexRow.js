@@ -304,7 +304,7 @@ class IssueIndexRow extends Component {
                 >
                   <SpinnerIconButton
                     name={icons.REFRESH}
-                    title={translate('RefreshIssue')}
+                    title={translate('RefreshBook')}
                     isSpinning={isRefreshingIssue}
                     onPress={onRefreshIssuePress}
                   />
@@ -314,7 +314,7 @@ class IssueIndexRow extends Component {
                       <SpinnerIconButton
                         className={styles.action}
                         name={icons.SEARCH}
-                        title={translate('SearchForMonitoredIssues')}
+                        title={translate('SearchForMonitoredBooks')}
                         isSpinning={isSearchingIssue}
                         onPress={onSearchPress}
                       />
@@ -322,14 +322,14 @@ class IssueIndexRow extends Component {
 
                   <IconButton
                     name={icons.INTERACTIVE}
-                    title={translate('EditVolume')}
+                    title={translate('EditAuthor')}
                     onPress={this.onEditVolumePress}
                   />
 
                   <IconButton
                     className={styles.action}
                     name={icons.EDIT}
-                    title={translate('EditIssue')}
+                    title={translate('EditBook')}
                     onPress={this.onEditIssuePress}
                   />
                 </VirtualTableRowCell>

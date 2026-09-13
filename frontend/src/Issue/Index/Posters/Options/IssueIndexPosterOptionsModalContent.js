@@ -158,7 +158,7 @@ class IssueIndexPosterOptionsModalContent extends Component {
                 type={inputTypes.CHECK}
                 name="showTitle"
                 value={showTitle}
-                helpText={translate('ShowIssueTitleHelpText')}
+                helpText={translate('ShowBookTitleHelpText')}
                 onChange={this.onChangePosterOption}
               />
             </FormGroup>

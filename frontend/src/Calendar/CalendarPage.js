@@ -164,7 +164,7 @@ class CalendarPage extends Component {
 
           {
             !authorError && authorIsPopulated && !hasAuthor &&
-              <NoAuthor />
+              <NoAuthor totalItems={0} />
           }
 
           {

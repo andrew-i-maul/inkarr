@@ -18,7 +18,7 @@ const selectOverview = createSelector(
 
 function createMapStateToProps() {
   return createSelector(
-    createIssueSelector(),
+    createBookSelector(),
     selectOverview,
     createUISettingsSelector(),
     createDimensionsSelector(),
@@ -35,7 +35,7 @@ function createMapStateToProps() {
 }
 
 const mapDispatchToProps = {
-  toggleIssuesMonitored
+  toggleIssuesMonitored: toggleBooksMonitored
 };
 
 class IssueDetailsHeaderConnector extends Component {

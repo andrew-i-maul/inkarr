@@ -151,7 +151,7 @@ class VolumeIndexPoster extends Component {
               <SpinnerIconButton
                 className={styles.action}
                 name={icons.REFRESH}
-                title={translate('RefreshVolume')}
+                title={translate('RefreshAuthor')}
                 isSpinning={isRefreshingVolume}
                 onPress={onRefreshVolumePress}
               />
@@ -161,7 +161,7 @@ class VolumeIndexPoster extends Component {
                   <SpinnerIconButton
                     className={styles.action}
                     name={icons.SEARCH}
-                    title={translate('SearchForMonitoredIssues')}
+                    title={translate('SearchForMonitoredBooks')}
                     isSpinning={isSearchingVolume}
                     onPress={onSearchPress}
                   />
@@ -170,7 +170,7 @@ class VolumeIndexPoster extends Component {
               <IconButton
                 className={styles.action}
                 name={icons.EDIT}
-                title={translate('EditVolume')}
+                title={translate('EditAuthor')}
                 onPress={this.onEditVolumePress}
               />
             </Label>

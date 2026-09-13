@@ -292,7 +292,7 @@ class VolumeDetails extends Component {
               iconName={icons.SEARCH}
               isDisabled={!monitored || !hasMonitoredIssues || !hasIssues}
               isSpinning={isSearching}
-              title={hasMonitoredIssues ? undefined : translate('HasMonitoredIssuesNoMonitoredIssuesForThisVolume')}
+              title={hasMonitoredIssues ? undefined : translate('HasMonitoredBooksNoMonitoredBooksForThisAuthor')}
               onPress={onSearchPress}
             />
 
@@ -321,7 +321,7 @@ class VolumeDetails extends Component {
             <PageToolbarSeparator />
 
             <PageToolbarButton
-              label={translate('IssueMonitoring')}
+              label={translate('BookMonitoring')}
               iconName={icons.MONITORED}
               onPress={this.onMonitorOptionsPress}
             />
@@ -343,12 +343,12 @@ class VolumeDetails extends Component {
             {
               isEditorActive ?
                 <PageToolbarButton
-                  label={translate('IssueList')}
+                  label={translate('BookList')}
                   iconName={icons.AUTHOR_CONTINUING}
                   onPress={this.onIssueEditorTogglePress}
                 /> :
                 <PageToolbarButton
-                  label={translate('IssueEditor')}
+                  label={translate('BookEditor')}
                   iconName={icons.EDIT}
                   onPress={this.onIssueEditorTogglePress}
                 />
@@ -397,7 +397,7 @@ class VolumeDetails extends Component {
                 className={styles.authorUpButton}
                 name={icons.ARROW_UP}
                 size={30}
-                title={translate('GoToVolumeListing')}
+                title={translate('GoToAuthorListing')}
                 to={'/'}
               />
 
@@ -421,7 +421,7 @@ class VolumeDetails extends Component {
             {
               !isFetching && booksError ?
                 <Alert kind={kinds.DANGER}>
-                  {translate('LoadingIssuesFailed')}
+                  {translate('LoadingBooksFailed')}
                 </Alert> :
                 null
             }
@@ -429,7 +429,7 @@ class VolumeDetails extends Component {
             {
               !isFetching && bookFilesError ?
                 <Alert kind={kinds.DANGER}>
-                  {translate('LoadingIssueFilesFailed')}
+                  {translate('LoadingBookFilesFailed')}
                 </Alert> :
                 null
             }
@@ -541,7 +541,7 @@ class VolumeDetails extends Component {
           </div>
 
           <div className={styles.metadataMessage}>
-            {translate('TooManyIssues')}
+            {translate('TooManyBooks')}
             <Link to='/settings/profiles'> {translate('MetadataProfile')} </Link>
             or manually
             <Link to={`/add/search?term=${encodeURIComponent(authorName)}`}> {translate('Search')} </Link>

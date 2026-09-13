@@ -98,7 +98,7 @@ class IssueEditorFooter extends Component {
       <PageContentFooter>
         <div className={styles.inputContainer}>
           <IssueEditorFooterLabel
-            label={translate('MonitorIssue')}
+            label={translate('MonitorBook')}
             isSaving={isSaving && monitored !== NO_CHANGE}
           />
 

@@ -26,7 +26,7 @@ function VolumeStatusCell(props) {
       <Icon
         className={styles.statusIcon}
         name={monitored ? icons.MONITORED : icons.UNMONITORED}
-        title={monitored ? translate('MonitoredVolumeIsMonitored') : translate('MonitoredVolumeIsUnmonitored')}
+        title={monitored ? translate('MonitoredAuthorIsMonitored') : translate('MonitoredAuthorIsUnmonitored')}
       />
 
       <Icon

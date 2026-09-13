@@ -89,13 +89,13 @@ class MonitoringOptionsModalContent extends Component {
     return (
       <ModalContent onModalClose={onModalClose}>
         <ModalHeader>
-          {translate('MonitorIssue')}
+          {translate('MonitorBook')}
         </ModalHeader>
 
         <ModalBody>
           <Alert kind={kinds.INFO}>
             <div>
-              {translate('MonitorIssueExistingOnlyWarning')}
+              {translate('MonitorBookExistingOnlyWarning')}
             </div>
           </Alert>
 

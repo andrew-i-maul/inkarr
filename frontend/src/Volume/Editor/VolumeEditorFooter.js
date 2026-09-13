@@ -184,7 +184,7 @@ class VolumeEditorFooter extends Component {
           <div className={styles.dropdownContainer}>
             <div className={styles.inputContainer}>
               <VolumeEditorFooterLabel
-                label={translate('MonitorVolume')}
+                label={translate('MonitorAuthor')}
                 isSaving={isSaving && monitored !== NO_CHANGE}
               />
 

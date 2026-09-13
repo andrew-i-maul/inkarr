@@ -66,14 +66,14 @@ class IssueIndexActionsCell extends Component {
       >
         <SpinnerIconButton
           name={icons.REFRESH}
-          title={translate('RefreshVolume')}
+          title={translate('RefreshAuthor')}
           isSpinning={isRefreshingVolume}
           onPress={onRefreshVolumePress}
         />
 
         <IconButton
           name={icons.EDIT}
-          title={translate('EditVolume')}
+          title={translate('EditAuthor')}
           onPress={this.onEditVolumePress}
         />
 

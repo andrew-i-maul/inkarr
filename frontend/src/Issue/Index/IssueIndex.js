@@ -353,13 +353,13 @@ class IssueIndex extends Component {
             {
               isEditorActive ?
                 <PageToolbarButton
-                  label={translate('IssueIndex')}
+                  label={translate('BookIndex')}
                   iconName={icons.AUTHOR_CONTINUING}
                   isDisabled={hasNoVolume}
                   onPress={this.onEditorTogglePress}
                 /> :
                 <PageToolbarButton
-                  label={translate('IssueEditor')}
+                  label={translate('BookEditor')}
                   iconName={icons.EDIT}
                   isDisabled={hasNoVolume}
                   onPress={this.onEditorTogglePress}
@@ -491,7 +491,7 @@ class IssueIndex extends Component {
               !error && isPopulated && !items.length &&
                 <NoVolume
                   totalItems={totalItems}
-                  itemType={'books'}
+                  itemType={'issues'}
                 />
             }
           </PageContentBody>
@@ -532,7 +532,7 @@ class IssueIndex extends Component {
         <ConfirmModal
           isOpen={isConfirmSearchModalOpen}
           kind={kinds.DANGER}
-          title={translate('MassIssueSearch')}
+          title={translate('MassBookSearch')}
           message={
             <div>
               <div>

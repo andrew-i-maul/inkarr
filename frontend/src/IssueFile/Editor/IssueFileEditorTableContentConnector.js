@@ -38,7 +38,7 @@ function createMapStateToProps() {
     (state, { bookId }) => bookId,
     createClientSideCollectionSelector('bookFiles'),
     createSchemaSelector(),
-    createVolumeSelector(),
+    createAuthorSelector(),
     (
       bookId,
       bookFiles,

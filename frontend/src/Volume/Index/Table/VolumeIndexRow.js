@@ -377,7 +377,7 @@ class VolumeIndexRow extends Component {
                 >
                   <SpinnerIconButton
                     name={icons.REFRESH}
-                    title={translate('RefreshVolume')}
+                    title={translate('RefreshAuthor')}
                     isSpinning={isRefreshingVolume}
                     onPress={onRefreshVolumePress}
                   />
@@ -387,7 +387,7 @@ class VolumeIndexRow extends Component {
                       <SpinnerIconButton
                         className={styles.action}
                         name={icons.SEARCH}
-                        title={translate('SearchForMonitoredIssues')}
+                        title={translate('SearchForMonitoredBooks')}
                         isSpinning={isSearchingVolume}
                         onPress={onSearchPress}
                       />
@@ -395,7 +395,7 @@ class VolumeIndexRow extends Component {
 
                   <IconButton
                     name={icons.EDIT}
-                    title={translate('EditVolume')}
+                    title={translate('EditAuthor')}
                     onPress={this.onEditVolumePress}
                   />
                 </VirtualTableRowCell>

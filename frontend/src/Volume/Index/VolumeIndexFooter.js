@@ -62,7 +62,7 @@ class VolumeIndexFooter extends PureComponent {
                     )}
                   />
                   <div>
-                    {translate('ContinuingAllIssuesDownloaded')}
+                    {translate('ContinuingAllBooksDownloaded')}
                   </div>
                 </div>
 
@@ -74,7 +74,7 @@ class VolumeIndexFooter extends PureComponent {
                     )}
                   />
                   <div>
-                    {translate('EndedAllIssuesDownloaded')}
+                    {translate('EndedAllBooksDownloaded')}
                   </div>
                 </div>
 
@@ -86,7 +86,7 @@ class VolumeIndexFooter extends PureComponent {
                     )}
                   />
                   <div>
-                    {translate('MissingIssuesVolumeMonitored')}
+                    {translate('MissingBooksAuthorMonitored')}
                   </div>
                 </div>
 
@@ -98,7 +98,7 @@ class VolumeIndexFooter extends PureComponent {
                     )}
                   />
                   <div>
-                    {translate('MissingIssuesVolumeNotMonitored')}
+                    {translate('MissingBooksAuthorNotMonitored')}
                   </div>
                 </div>
               </div>
@@ -106,7 +106,7 @@ class VolumeIndexFooter extends PureComponent {
               <div className={styles.statistics}>
                 <DescriptionList>
                   <DescriptionListItem
-                    title={translate('Volumes')}
+                    title={translate('Authors')}
                     data={count}
                   />
 
@@ -135,7 +135,7 @@ class VolumeIndexFooter extends PureComponent {
 
                 <DescriptionList>
                   <DescriptionListItem
-                    title={translate('Issues')}
+                    title={translate('Books')}
                     data={books}
                   />
 
