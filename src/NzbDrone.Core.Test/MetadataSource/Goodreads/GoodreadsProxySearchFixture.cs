@@ -27,13 +27,13 @@ namespace NzbDrone.Core.Test.MetadataSource.Goodreads
         [TestCase("Robert Harris", 575)]
         [TestCase("Lyndsay Ely", 8056539)]
         [TestCase("Elisa Puricelli Guerra", 4481805)]
-        public void successful_author_search(string title, int expected)
+        public void successful_volume_search(string title, int expected)
         {
             var result = Subject.Search(title);
 
             result.Should().NotBeEmpty();
 
-            result[0].Author.Id.Should().Be(expected);
+            result[0].Volume.Id.Should().Be(expected);
 
             ExceptionVerification.IgnoreWarns();
         }
@@ -41,13 +41,13 @@ namespace NzbDrone.Core.Test.MetadataSource.Goodreads
         [TestCase("Harry Potter and the sorcerer's stone a detailed summary", 72245296)]
         [TestCase("B0192CTMYG", 61209488)]
         [TestCase("9780439554930", 3)]
-        public void successful_book_search(string title, int expected)
+        public void successful_issue_search(string title, int expected)
         {
             var result = Subject.Search(title);
 
             result.Should().NotBeEmpty();
 
-            result[0].BookId.Should().Be(expected);
+            result[0].IssueId.Should().Be(expected);
 
             ExceptionVerification.IgnoreWarns();
         }
@@ -58,7 +58,7 @@ namespace NzbDrone.Core.Test.MetadataSource.Goodreads
         [TestCase("inkarrid: -12")]
         [TestCase("inkarrid: aaaa")]
         [TestCase("adjalkwdjkalwdjklawjdlKAJD")]
-        public void no_author_search_result(string term)
+        public void no_volume_search_result(string term)
         {
             var result = Subject.Search(term);
             result.Should().BeEmpty();

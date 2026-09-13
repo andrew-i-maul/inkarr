@@ -3,9 +3,9 @@ using System.Linq;
 using Inkarr.Http;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
-using NzbDrone.Core.MediaFiles.BookImport.Manual;
+using NzbDrone.Core.MediaFiles.IssueImport.Manual;
 using NzbDrone.Core.Qualities;
 
 namespace Inkarr.Api.V1.ManualImport
@@ -13,20 +13,20 @@ namespace Inkarr.Api.V1.ManualImport
     [V1ApiController]
     public class ManualImportController : Controller
     {
-        private readonly IAuthorService _authorService;
-        private readonly IBookService _bookService;
+        private readonly IVolumeService _volumeService;
+        private readonly IIssueService _issueService;
         private readonly IEditionService _editionService;
         private readonly IManualImportService _manualImportService;
         private readonly Logger _logger;
 
         public ManualImportController(IManualImportService manualImportService,
-                                  IAuthorService authorService,
+                                  IVolumeService volumeService,
                                   IEditionService editionService,
-                                  IBookService bookService,
+                                  IIssueService issueService,
                                   Logger logger)
         {
-            _authorService = authorService;
-            _bookService = bookService;
+            _volumeService = volumeService;
+            _issueService = issueService;
             _editionService = editionService;
             _manualImportService = manualImportService;
             _logger = logger;
@@ -39,18 +39,18 @@ namespace Inkarr.Api.V1.ManualImport
         }
 
         [HttpGet]
-        public List<ManualImportResource> GetMediaFiles(string folder, string downloadId, int? authorId, bool filterExistingFiles = true, bool replaceExistingFiles = true)
+        public List<ManualImportResource> GetMediaFiles(string folder, string downloadId, int? volumeId, bool filterExistingFiles = true, bool replaceExistingFiles = true)
         {
-            NzbDrone.Core.Books.Author author = null;
+            NzbDrone.Core.Issues.Volume volume = null;
 
-            if (authorId > 0)
+            if (volumeId > 0)
             {
-                author = _authorService.GetAuthor(authorId.Value);
+                volume = _volumeService.GetVolume(volumeId.Value);
             }
 
             var filter = filterExistingFiles ? FilterFilesType.Matched : FilterFilesType.None;
 
-            return _manualImportService.GetMediaFiles(folder, downloadId, author, filter, replaceExistingFiles).ToResource().Select(AddQualityWeight).ToList();
+            return _manualImportService.GetMediaFiles(folder, downloadId, volume, filter, replaceExistingFiles).ToResource().Select(AddQualityWeight).ToList();
         }
 
         private ManualImportResource AddQualityWeight(ManualImportResource item)
@@ -75,8 +75,8 @@ namespace Inkarr.Api.V1.ManualImport
                     Id = resource.Id,
                     Path = resource.Path,
                     Name = resource.Name,
-                    Author = resource.AuthorId.HasValue ? _authorService.GetAuthor(resource.AuthorId.Value) : null,
-                    Book = resource.BookId.HasValue ? _bookService.GetBook(resource.BookId.Value) : null,
+                    Volume = resource.VolumeId.HasValue ? _volumeService.GetVolume(resource.VolumeId.Value) : null,
+                    Issue = resource.IssueId.HasValue ? _issueService.GetIssue(resource.IssueId.Value) : null,
                     Edition = resource.ForeignEditionId == null ? null : _editionService.GetEditionByForeignEditionId(resource.ForeignEditionId),
                     Quality = resource.Quality,
                     ReleaseGroup = resource.ReleaseGroup,

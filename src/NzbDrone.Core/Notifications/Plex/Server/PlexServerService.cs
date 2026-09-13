@@ -8,7 +8,7 @@ using NLog;
 using NzbDrone.Common.Cache;
 using NzbDrone.Common.Disk;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.RootFolders;
 using NzbDrone.Core.Validation;
 
@@ -16,8 +16,8 @@ namespace NzbDrone.Core.Notifications.Plex.Server
 {
     public interface IPlexServerService
     {
-        void UpdateLibrary(Author author, PlexServerSettings settings);
-        void UpdateLibrary(IEnumerable<Author> authors, PlexServerSettings settings);
+        void UpdateLibrary(Volume volume, PlexServerSettings settings);
+        void UpdateLibrary(IEnumerable<Volume> volumes, PlexServerSettings settings);
         ValidationFailure Test(PlexServerSettings settings);
     }
 
@@ -36,12 +36,12 @@ namespace NzbDrone.Core.Notifications.Plex.Server
             _logger = logger;
         }
 
-        public void UpdateLibrary(Author author, PlexServerSettings settings)
+        public void UpdateLibrary(Volume volume, PlexServerSettings settings)
         {
-            UpdateLibrary(new[] { author }, settings);
+            UpdateLibrary(new[] { volume }, settings);
         }
 
-        public void UpdateLibrary(IEnumerable<Author> authors, PlexServerSettings settings)
+        public void UpdateLibrary(IEnumerable<Volume> volumes, PlexServerSettings settings)
         {
             try
             {
@@ -53,9 +53,9 @@ namespace NzbDrone.Core.Notifications.Plex.Server
 
                 var sections = GetSections(settings);
 
-                foreach (var author in authors)
+                foreach (var volume in volumes)
                 {
-                    UpdateSections(author, sections, settings);
+                    UpdateSections(volume, sections, settings);
                 }
 
                 _logger.Debug("Finished sending Update Request to Plex Server (took {0} ms)", watch.ElapsedMilliseconds);
@@ -92,10 +92,10 @@ namespace NzbDrone.Core.Notifications.Plex.Server
             return version;
         }
 
-        private void UpdateSections(Author author, List<PlexSection> sections, PlexServerSettings settings)
+        private void UpdateSections(Volume volume, List<PlexSection> sections, PlexServerSettings settings)
         {
-            var rootFolderPath = _rootFolderService.GetBestRootFolderPath(author.Path);
-            var authorRelativePath = rootFolderPath.GetRelativePath(author.Path);
+            var rootFolderPath = _rootFolderService.GetBestRootFolderPath(volume.Path);
+            var volumeRelativePath = rootFolderPath.GetRelativePath(volume.Path);
 
             // Try to update a matching section location before falling back to updating all section locations.
             foreach (var section in sections)
@@ -115,7 +115,7 @@ namespace NzbDrone.Core.Notifications.Plex.Server
                     if (location.Path.PathEquals(mappedPath.FullPath))
                     {
                         _logger.Debug("Updating matching section location, {0}", location.Path);
-                        UpdateSectionPath(authorRelativePath, section, location, settings);
+                        UpdateSectionPath(volumeRelativePath, section, location, settings);
 
                         return;
                     }
@@ -128,15 +128,15 @@ namespace NzbDrone.Core.Notifications.Plex.Server
             {
                 foreach (var location in section.Locations)
                 {
-                    UpdateSectionPath(authorRelativePath, section, location, settings);
+                    UpdateSectionPath(volumeRelativePath, section, location, settings);
                 }
             }
         }
 
-        private void UpdateSectionPath(string authorRelativePath, PlexSection section, PlexSectionLocation location, PlexServerSettings settings)
+        private void UpdateSectionPath(string volumeRelativePath, PlexSection section, PlexSectionLocation location, PlexServerSettings settings)
         {
             var separator = location.Path.Contains('\\') ? "\\" : "/";
-            var locationRelativePath = authorRelativePath.Replace("\\", separator).Replace("/", separator);
+            var locationRelativePath = volumeRelativePath.Replace("\\", separator).Replace("/", separator);
 
             // Plex location paths trim trailing extraneous separator characters, so it doesn't need to be trimmed
             var pathToUpdate = $"{location.Path}{separator}{locationRelativePath}";

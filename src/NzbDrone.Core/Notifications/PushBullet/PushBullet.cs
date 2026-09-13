@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentValidation.Results;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Validation;
 
 namespace NzbDrone.Core.Notifications.PushBullet
@@ -22,32 +22,32 @@ namespace NzbDrone.Core.Notifications.PushBullet
 
         public override void OnGrab(GrabMessage grabMessage)
         {
-            _proxy.SendNotification(BOOK_GRABBED_TITLE_BRANDED, grabMessage.Message, Settings);
+            _proxy.SendNotification(ISSUE_GRABBED_TITLE_BRANDED, grabMessage.Message, Settings);
         }
 
-        public override void OnReleaseImport(BookDownloadMessage message)
+        public override void OnReleaseImport(IssueDownloadMessage message)
         {
-            _proxy.SendNotification(BOOK_DOWNLOADED_TITLE_BRANDED, message.Message, Settings);
+            _proxy.SendNotification(ISSUE_DOWNLOADED_TITLE_BRANDED, message.Message, Settings);
         }
 
-        public override void OnAuthorAdded(Author author)
+        public override void OnVolumeAdded(Volume volume)
         {
-            _proxy.SendNotification(AUTHOR_ADDED_TITLE, author.Name, Settings);
+            _proxy.SendNotification(VOLUME_ADDED_TITLE, volume.Name, Settings);
         }
 
-        public override void OnAuthorDelete(AuthorDeleteMessage deleteMessage)
+        public override void OnVolumeDelete(VolumeDeleteMessage deleteMessage)
         {
-            _proxy.SendNotification(AUTHOR_DELETED_TITLE, deleteMessage.Message, Settings);
+            _proxy.SendNotification(VOLUME_DELETED_TITLE, deleteMessage.Message, Settings);
         }
 
-        public override void OnBookDelete(BookDeleteMessage deleteMessage)
+        public override void OnIssueDelete(IssueDeleteMessage deleteMessage)
         {
-            _proxy.SendNotification(BOOK_DELETED_TITLE, deleteMessage.Message, Settings);
+            _proxy.SendNotification(ISSUE_DELETED_TITLE, deleteMessage.Message, Settings);
         }
 
-        public override void OnBookFileDelete(BookFileDeleteMessage deleteMessage)
+        public override void OnIssueFileDelete(IssueFileDeleteMessage deleteMessage)
         {
-            _proxy.SendNotification(BOOK_FILE_DELETED_TITLE, deleteMessage.Message, Settings);
+            _proxy.SendNotification(ISSUE_FILE_DELETED_TITLE, deleteMessage.Message, Settings);
         }
 
         public override void OnHealthIssue(HealthCheck.HealthCheck healthCheck)
@@ -60,7 +60,7 @@ namespace NzbDrone.Core.Notifications.PushBullet
             _proxy.SendNotification(DOWNLOAD_FAILURE_TITLE_BRANDED, message.Message, Settings);
         }
 
-        public override void OnImportFailure(BookDownloadMessage message)
+        public override void OnImportFailure(IssueDownloadMessage message)
         {
             _proxy.SendNotification(IMPORT_FAILURE_TITLE_BRANDED, message.Message, Settings);
         }

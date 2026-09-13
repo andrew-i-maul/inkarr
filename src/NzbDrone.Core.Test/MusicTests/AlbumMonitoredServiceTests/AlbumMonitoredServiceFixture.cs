@@ -5,26 +5,26 @@ using FizzWare.NBuilder;
 using Moq;
 using NUnit.Framework;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Test.Framework;
 
-namespace NzbDrone.Core.Test.MusicTests.BookMonitoredServiceTests
+namespace NzbDrone.Core.Test.MusicTests.IssueMonitoredServiceTests
 {
     [TestFixture]
-    public class SetBookMontitoredFixture : CoreTest<BookMonitoredService>
+    public class SetIssueMontitoredFixture : CoreTest<IssueMonitoredService>
     {
-        private Author _author;
-        private List<Book> _books;
+        private Volume _volume;
+        private List<Issue> _issues;
 
         [SetUp]
         public void Setup()
         {
-            const int books = 4;
+            const int issues = 4;
 
-            _author = Builder<Author>.CreateNew()
+            _volume = Builder<Volume>.CreateNew()
                                      .Build();
 
-            _books = Builder<Book>.CreateListOfSize(books)
+            _issues = Builder<Issue>.CreateListOfSize(issues)
                                         .All()
                                         .With(e => e.Monitored = true)
                                         .With(e => e.ReleaseDate = DateTime.UtcNow.AddDays(-7))
@@ -39,75 +39,75 @@ namespace NzbDrone.Core.Test.MusicTests.BookMonitoredServiceTests
                                         .Build()
                                         .ToList();
 
-            Mocker.GetMock<IBookService>()
-                  .Setup(s => s.GetBooksByAuthor(It.IsAny<int>()))
-                  .Returns(_books);
+            Mocker.GetMock<IIssueService>()
+                  .Setup(s => s.GetIssuesByVolume(It.IsAny<int>()))
+                  .Returns(_issues);
 
-            Mocker.GetMock<IBookService>()
-                .Setup(s => s.GetAuthorBooksWithFiles(It.IsAny<Author>()))
-                .Returns(new List<Book>());
+            Mocker.GetMock<IIssueService>()
+                .Setup(s => s.GetVolumeIssuesWithFiles(It.IsAny<Volume>()))
+                .Returns(new List<Issue>());
         }
 
         [Test]
-        public void should_be_able_to_monitor_author_without_changing_books()
+        public void should_be_able_to_monitor_volume_without_changing_issues()
         {
-            Subject.SetBookMonitoredStatus(_author, null);
+            Subject.SetIssueMonitoredStatus(_volume, null);
 
-            Mocker.GetMock<IAuthorService>()
-                  .Verify(v => v.UpdateAuthor(It.IsAny<Author>()), Times.Once());
+            Mocker.GetMock<IVolumeService>()
+                  .Verify(v => v.UpdateVolume(It.IsAny<Volume>()), Times.Once());
 
-            Mocker.GetMock<IBookService>()
-                  .Verify(v => v.UpdateMany(It.IsAny<List<Book>>()), Times.Never());
+            Mocker.GetMock<IIssueService>()
+                  .Verify(v => v.UpdateMany(It.IsAny<List<Issue>>()), Times.Never());
         }
 
         [Test]
-        public void should_be_able_to_monitor_books_when_passed_in_author()
+        public void should_be_able_to_monitor_issues_when_passed_in_volume()
         {
-            var booksToMonitor = new List<string> { _books.First().ForeignBookId };
+            var issuesToMonitor = new List<string> { _issues.First().ForeignIssueId };
 
-            Subject.SetBookMonitoredStatus(_author, new MonitoringOptions { Monitored = true, BooksToMonitor = booksToMonitor });
+            Subject.SetIssueMonitoredStatus(_volume, new MonitoringOptions { Monitored = true, IssuesToMonitor = issuesToMonitor });
 
-            Mocker.GetMock<IAuthorService>()
-                .Verify(v => v.UpdateAuthor(It.IsAny<Author>()), Times.Once());
+            Mocker.GetMock<IVolumeService>()
+                .Verify(v => v.UpdateVolume(It.IsAny<Volume>()), Times.Once());
 
-            VerifyMonitored(e => e.ForeignBookId == _books.First().ForeignBookId);
-            VerifyNotMonitored(e => e.ForeignBookId != _books.First().ForeignBookId);
+            VerifyMonitored(e => e.ForeignIssueId == _issues.First().ForeignIssueId);
+            VerifyNotMonitored(e => e.ForeignIssueId != _issues.First().ForeignIssueId);
         }
 
         [Test]
-        public void should_be_able_to_monitor_all_books()
+        public void should_be_able_to_monitor_all_issues()
         {
-            Subject.SetBookMonitoredStatus(_author, new MonitoringOptions { Monitor = MonitorTypes.All });
+            Subject.SetIssueMonitoredStatus(_volume, new MonitoringOptions { Monitor = MonitorTypes.All });
 
-            Mocker.GetMock<IBookService>()
-                  .Verify(v => v.UpdateBook(It.Is<Book>(l => l.Monitored)), Times.Exactly(_books.Count));
+            Mocker.GetMock<IIssueService>()
+                  .Verify(v => v.UpdateIssue(It.Is<Issue>(l => l.Monitored)), Times.Exactly(_issues.Count));
         }
 
         [Test]
-        public void should_be_able_to_monitor_new_books_only()
+        public void should_be_able_to_monitor_new_issues_only()
         {
             var monitoringOptions = new MonitoringOptions
             {
                 Monitor = MonitorTypes.Future
             };
 
-            Subject.SetBookMonitoredStatus(_author, monitoringOptions);
+            Subject.SetIssueMonitoredStatus(_volume, monitoringOptions);
 
             VerifyMonitored(e => e.ReleaseDate.HasValue && e.ReleaseDate.Value.After(DateTime.UtcNow));
             VerifyMonitored(e => !e.ReleaseDate.HasValue);
             VerifyNotMonitored(e => e.ReleaseDate.HasValue && e.ReleaseDate.Value.Before(DateTime.UtcNow));
         }
 
-        private void VerifyMonitored(Func<Book, bool> predicate)
+        private void VerifyMonitored(Func<Issue, bool> predicate)
         {
-            Mocker.GetMock<IBookService>()
-                .Verify(v => v.UpdateBook(It.Is<Book>(b => b.Monitored)), Times.AtLeast(_books.Where(predicate).Count()));
+            Mocker.GetMock<IIssueService>()
+                .Verify(v => v.UpdateIssue(It.Is<Issue>(b => b.Monitored)), Times.AtLeast(_issues.Where(predicate).Count()));
         }
 
-        private void VerifyNotMonitored(Func<Book, bool> predicate)
+        private void VerifyNotMonitored(Func<Issue, bool> predicate)
         {
-            Mocker.GetMock<IBookService>()
-                .Verify(v => v.UpdateBook(It.Is<Book>(b => !b.Monitored)), Times.AtLeast(_books.Where(predicate).Count()));
+            Mocker.GetMock<IIssueService>()
+                .Verify(v => v.UpdateIssue(It.Is<Issue>(b => !b.Monitored)), Times.AtLeast(_issues.Where(predicate).Count()));
         }
     }
 }

@@ -1,34 +1,34 @@
 using NUnit.Framework;
-using NzbDrone.Core.MediaFiles.BookImport.Specifications;
+using NzbDrone.Core.MediaFiles.IssueImport.Specifications;
 using NzbDrone.Core.Test.Framework;
 
-namespace NzbDrone.Core.Test.MediaFiles.BookImport.Specifications
+namespace NzbDrone.Core.Test.MediaFiles.IssueImport.Specifications
 {
     [TestFixture]
     public class UpgradeSpecificationFixture : CoreTest<UpgradeSpecification>
     {
         /*
-        private Author _author;
-        private Book _book;
+        private Volume _volume;
+        private Issue _issue;
         private LocalTrack _localTrack;
 
         [SetUp]
         public void Setup()
         {
-            _author = Builder<Author>.CreateNew()
+            _volume = Builder<Volume>.CreateNew()
                                      .With(e => e.QualityProfile = new QualityProfile
                                      {
                                          Items = Qualities.QualityFixture.GetDefaultQualities(),
                                      }).Build();
 
-            _book = Builder<Book>.CreateNew().Build();
+            _issue = Builder<Issue>.CreateNew().Build();
 
             _localTrack = new LocalTrack
             {
                 Path = @"C:\Test\Imagine Dragons\Imagine.Dragons.Song.1.mp3",
                 Quality = new QualityModel(Quality.MP3, new Revision(version: 1)),
-                Author = _author,
-                Book = _book
+                Volume = _volume,
+                Issue = _issue
             };
         }
 

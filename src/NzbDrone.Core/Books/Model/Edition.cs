@@ -6,7 +6,7 @@ using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Datastore;
 using NzbDrone.Core.MediaFiles;
 
-namespace NzbDrone.Core.Books
+namespace NzbDrone.Core.Issues
 {
     public class Edition : Entity<Edition>
     {
@@ -18,9 +18,9 @@ namespace NzbDrone.Core.Books
             Ratings = new Ratings();
         }
 
-        // These correspond to columns in the Books table
+        // These correspond to columns in the Issues table
         // These are metadata entries
-        public int BookId { get; set; }
+        public int IssueId { get; set; }
         public string ForeignEditionId { get; set; }
         public string TitleSlug { get; set; }
         public string Isbn13 { get; set; }
@@ -29,7 +29,7 @@ namespace NzbDrone.Core.Books
         public string Language { get; set; }
         public string Overview { get; set; }
         public string Format { get; set; }
-        public bool IsEbook { get; set; }
+        public bool IsEissue { get; set; }
         public string Disambiguation { get; set; }
         public string Publisher { get; set; }
         public int PageCount { get; set; }
@@ -44,9 +44,9 @@ namespace NzbDrone.Core.Books
 
         // These are dynamically queried from other tables
         [MemberwiseEqualityIgnore]
-        public LazyLoaded<Book> Book { get; set; }
+        public LazyLoaded<Issue> Issue { get; set; }
         [MemberwiseEqualityIgnore]
-        public LazyLoaded<List<BookFile>> BookFiles { get; set; }
+        public LazyLoaded<List<IssueFile>> IssueFiles { get; set; }
 
         public override string ToString()
         {
@@ -63,7 +63,7 @@ namespace NzbDrone.Core.Books
             Language = other.Language;
             Overview = other.Overview.IsNullOrWhiteSpace() ? Overview : other.Overview;
             Format = other.Format;
-            IsEbook = other.IsEbook;
+            IsEissue = other.IsEissue;
             Disambiguation = other.Disambiguation;
             Publisher = other.Publisher;
             PageCount = other.PageCount;
@@ -76,8 +76,8 @@ namespace NzbDrone.Core.Books
         public override void UseDbFieldsFrom(Edition other)
         {
             Id = other.Id;
-            BookId = other.BookId;
-            Book = other.Book;
+            IssueId = other.IssueId;
+            Issue = other.Issue;
             Monitored = other.Monitored;
             ManualAdd = other.ManualAdd;
         }

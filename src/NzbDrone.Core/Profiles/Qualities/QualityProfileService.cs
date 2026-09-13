@@ -2,10 +2,10 @@ using System.Collections.Generic;
 using System.Linq;
 using NLog;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.CustomFormats;
 using NzbDrone.Core.CustomFormats.Events;
 using NzbDrone.Core.ImportLists;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Lifecycle;
 using NzbDrone.Core.Messaging.Events;
 using NzbDrone.Core.Qualities;
@@ -30,21 +30,21 @@ namespace NzbDrone.Core.Profiles.Qualities
                                          IHandle<CustomFormatDeletedEvent>
     {
         private readonly IProfileRepository _profileRepository;
-        private readonly IAuthorService _authorService;
+        private readonly IVolumeService _volumeService;
         private readonly IImportListFactory _importListFactory;
         private readonly ICustomFormatService _formatService;
         private readonly IRootFolderService _rootFolderService;
         private readonly Logger _logger;
 
         public QualityProfileService(IProfileRepository profileRepository,
-                                     IAuthorService authorService,
+                                     IVolumeService volumeService,
                                      IImportListFactory importListFactory,
                                      ICustomFormatService formatService,
                                      IRootFolderService rootFolderService,
                                      Logger logger)
         {
             _profileRepository = profileRepository;
-            _authorService = authorService;
+            _volumeService = volumeService;
             _importListFactory = importListFactory;
             _rootFolderService = rootFolderService;
             _formatService = formatService;
@@ -63,7 +63,7 @@ namespace NzbDrone.Core.Profiles.Qualities
 
         public void Delete(int id)
         {
-            if (_authorService.GetAllAuthors().Any(c => c.QualityProfileId == id) ||
+            if (_volumeService.GetAllVolumes().Any(c => c.QualityProfileId == id) ||
                 _importListFactory.All().Any(c => c.ProfileId == id) ||
                 _rootFolderService.All().Any(c => c.DefaultQualityProfileId == id))
             {
@@ -98,7 +98,7 @@ namespace NzbDrone.Core.Profiles.Qualities
 
             _logger.Info("Setting up default quality profiles");
 
-            AddDefaultProfile("eBook",
+            AddDefaultProfile("eIssue",
                 Quality.MOBI,
                 Quality.MOBI,
                 Quality.EPUB,

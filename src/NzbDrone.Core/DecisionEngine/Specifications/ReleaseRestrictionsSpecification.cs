@@ -24,12 +24,12 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
         public SpecificationPriority Priority => SpecificationPriority.Default;
         public RejectionType Type => RejectionType.Permanent;
 
-        public virtual Decision IsSatisfiedBy(RemoteBook subject, SearchCriteriaBase searchCriteria)
+        public virtual Decision IsSatisfiedBy(RemoteIssue subject, SearchCriteriaBase searchCriteria)
         {
             _logger.Debug("Checking if release meets restrictions: {0}", subject);
 
             var title = subject.Release.Title;
-            var releaseProfiles = _releaseProfileService.EnabledForTags(subject.Author.Tags, subject.Release.IndexerId);
+            var releaseProfiles = _releaseProfileService.EnabledForTags(subject.Volume.Tags, subject.Release.IndexerId);
 
             var required = releaseProfiles.Where(r => r.Required.Any());
             var ignored = releaseProfiles.Where(r => r.Ignored.Any());

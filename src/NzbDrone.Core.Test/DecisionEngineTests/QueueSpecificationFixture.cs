@@ -4,11 +4,11 @@ using FizzWare.NBuilder;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Configuration;
 using NzbDrone.Core.CustomFormats;
 using NzbDrone.Core.DecisionEngine.Specifications;
 using NzbDrone.Core.Download.TrackedDownloads;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Profiles.Qualities;
 using NzbDrone.Core.Qualities;
@@ -21,12 +21,12 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
     [TestFixture]
     public class QueueSpecificationFixture : CoreTest<QueueSpecification>
     {
-        private Author _author;
-        private Book _book;
-        private RemoteBook _remoteBook;
+        private Volume _volume;
+        private Issue _issue;
+        private RemoteIssue _remoteIssue;
 
-        private Author _otherAuthor;
-        private Book _otherBook;
+        private Volume _otherVolume;
+        private Issue _otherIssue;
 
         private ReleaseInfo _releaseInfo;
 
@@ -37,7 +37,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
 
             CustomFormatsTestHelpers.GivenCustomFormats();
 
-            _author = Builder<Author>.CreateNew()
+            _volume = Builder<Volume>.CreateNew()
                                      .With(e => e.QualityProfile = new QualityProfile
                                      {
                                          UpgradeAllowed = true,
@@ -47,31 +47,31 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
                                      })
                                      .Build();
 
-            _book = Builder<Book>.CreateNew()
-                                       .With(e => e.AuthorId = _author.Id)
+            _issue = Builder<Issue>.CreateNew()
+                                       .With(e => e.VolumeId = _volume.Id)
                                        .Build();
 
-            _otherAuthor = Builder<Author>.CreateNew()
+            _otherVolume = Builder<Volume>.CreateNew()
                                           .With(s => s.Id = 2)
                                           .Build();
 
-            _otherBook = Builder<Book>.CreateNew()
-                                            .With(e => e.AuthorId = _otherAuthor.Id)
+            _otherIssue = Builder<Issue>.CreateNew()
+                                            .With(e => e.VolumeId = _otherVolume.Id)
                                             .With(e => e.Id = 2)
                                             .Build();
 
             _releaseInfo = Builder<ReleaseInfo>.CreateNew()
                                    .Build();
 
-            _remoteBook = Builder<RemoteBook>.CreateNew()
-                                                   .With(r => r.Author = _author)
-                                                   .With(r => r.Books = new List<Book> { _book })
-                                                   .With(r => r.ParsedBookInfo = new ParsedBookInfo { Quality = new QualityModel(Quality.MP3) })
+            _remoteIssue = Builder<RemoteIssue>.CreateNew()
+                                                   .With(r => r.Volume = _volume)
+                                                   .With(r => r.Issues = new List<Issue> { _issue })
+                                                   .With(r => r.ParsedIssueInfo = new ParsedIssueInfo { Quality = new QualityModel(Quality.MP3) })
                                                    .With(r => r.CustomFormats = new List<CustomFormat>())
                                                    .Build();
 
             Mocker.GetMock<ICustomFormatCalculationService>()
-                  .Setup(x => x.ParseCustomFormat(It.IsAny<RemoteBook>(), It.IsAny<long>()))
+                  .Setup(x => x.ParseCustomFormat(It.IsAny<RemoteIssue>(), It.IsAny<long>()))
                   .Returns(new List<CustomFormat>());
         }
 
@@ -85,15 +85,15 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         private void GivenQueueFormats(List<CustomFormat> formats)
         {
             Mocker.GetMock<ICustomFormatCalculationService>()
-                  .Setup(x => x.ParseCustomFormat(It.IsAny<RemoteBook>(), It.IsAny<long>()))
+                  .Setup(x => x.ParseCustomFormat(It.IsAny<RemoteIssue>(), It.IsAny<long>()))
                   .Returns(formats);
         }
 
-        private void GivenQueue(IEnumerable<RemoteBook> remoteBooks, TrackedDownloadState trackedDownloadState = TrackedDownloadState.Downloading)
+        private void GivenQueue(IEnumerable<RemoteIssue> remoteIssues, TrackedDownloadState trackedDownloadState = TrackedDownloadState.Downloading)
         {
-            var queue = remoteBooks.Select(remoteBook => new Queue.Queue
+            var queue = remoteIssues.Select(remoteIssue => new Queue.Queue
             {
-                RemoteBook = remoteBook,
+                RemoteIssue = remoteIssue,
                 TrackedDownloadState = trackedDownloadState
             });
 
@@ -106,32 +106,32 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         public void should_return_true_when_queue_is_empty()
         {
             GivenEmptyQueue();
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeTrue();
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeTrue();
         }
 
         [Test]
-        public void should_return_true_when_author_doesnt_match()
+        public void should_return_true_when_volume_doesnt_match()
         {
-            var remoteBook = Builder<RemoteBook>.CreateNew()
-                                                       .With(r => r.Author = _otherAuthor)
-                                                       .With(r => r.Books = new List<Book> { _book })
+            var remoteIssue = Builder<RemoteIssue>.CreateNew()
+                                                       .With(r => r.Volume = _otherVolume)
+                                                       .With(r => r.Issues = new List<Issue> { _issue })
                                                        .With(r => r.Release = _releaseInfo)
                                                        .With(r => r.CustomFormats = new List<CustomFormat>())
                                                        .Build();
 
-            GivenQueue(new List<RemoteBook> { remoteBook });
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeTrue();
+            GivenQueue(new List<RemoteIssue> { remoteIssue });
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeTrue();
         }
 
         [Test]
         public void should_return_false_if_everything_is_the_same()
         {
-            _author.QualityProfile.Value.Cutoff = Quality.FLAC.Id;
+            _volume.QualityProfile.Value.Cutoff = Quality.FLAC.Id;
 
-            var remoteBook = Builder<RemoteBook>.CreateNew()
-                .With(r => r.Author = _author)
-                .With(r => r.Books = new List<Book> { _book })
-                .With(r => r.ParsedBookInfo = new ParsedBookInfo
+            var remoteIssue = Builder<RemoteIssue>.CreateNew()
+                .With(r => r.Volume = _volume)
+                .With(r => r.Issues = new List<Issue> { _issue })
+                .With(r => r.ParsedIssueInfo = new ParsedIssueInfo
                 {
                     Quality = new QualityModel(Quality.MP3)
                 })
@@ -139,20 +139,20 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
                 .With(r => r.Release = _releaseInfo)
                 .Build();
 
-            GivenQueue(new List<RemoteBook> { remoteBook });
+            GivenQueue(new List<RemoteIssue> { remoteIssue });
 
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeFalse();
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeFalse();
         }
 
         [Test]
         public void should_return_true_when_quality_in_queue_is_lower()
         {
-            _author.QualityProfile.Value.Cutoff = Quality.MP3.Id;
+            _volume.QualityProfile.Value.Cutoff = Quality.MP3.Id;
 
-            var remoteBook = Builder<RemoteBook>.CreateNew()
-                                                      .With(r => r.Author = _author)
-                                                      .With(r => r.Books = new List<Book> { _book })
-                                                      .With(r => r.ParsedBookInfo = new ParsedBookInfo
+            var remoteIssue = Builder<RemoteIssue>.CreateNew()
+                                                      .With(r => r.Volume = _volume)
+                                                      .With(r => r.Issues = new List<Issue> { _issue })
+                                                      .With(r => r.ParsedIssueInfo = new ParsedIssueInfo
                                                       {
                                                           Quality = new QualityModel(Quality.AZW3)
                                                       })
@@ -160,17 +160,17 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
                                                       .With(r => r.CustomFormats = new List<CustomFormat>())
                                                       .Build();
 
-            GivenQueue(new List<RemoteBook> { remoteBook });
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeTrue();
+            GivenQueue(new List<RemoteIssue> { remoteIssue });
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeTrue();
         }
 
         [Test]
-        public void should_return_true_when_book_doesnt_match()
+        public void should_return_true_when_issue_doesnt_match()
         {
-            var remoteBook = Builder<RemoteBook>.CreateNew()
-                                                      .With(r => r.Author = _author)
-                                                      .With(r => r.Books = new List<Book> { _otherBook })
-                                                      .With(r => r.ParsedBookInfo = new ParsedBookInfo
+            var remoteIssue = Builder<RemoteIssue>.CreateNew()
+                                                      .With(r => r.Volume = _volume)
+                                                      .With(r => r.Issues = new List<Issue> { _otherIssue })
+                                                      .With(r => r.ParsedIssueInfo = new ParsedIssueInfo
                                                       {
                                                           Quality = new QualityModel(Quality.MP3)
                                                       })
@@ -178,27 +178,27 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
                                                       .With(r => r.CustomFormats = new List<CustomFormat>())
                                                       .Build();
 
-            GivenQueue(new List<RemoteBook> { remoteBook });
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeTrue();
+            GivenQueue(new List<RemoteIssue> { remoteIssue });
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeTrue();
         }
 
         [Test]
         public void should_return_true_when_qualities_are_the_same_with_higher_custom_format_score()
         {
-            _remoteBook.CustomFormats = new List<CustomFormat> { new CustomFormat("My Format", new ReleaseTitleSpecification { Value = "MP3" }) { Id = 1 } };
+            _remoteIssue.CustomFormats = new List<CustomFormat> { new CustomFormat("My Format", new ReleaseTitleSpecification { Value = "MP3" }) { Id = 1 } };
 
             var lowFormat = new List<CustomFormat> { new CustomFormat("Bad Format", new ReleaseTitleSpecification { Value = "MP3" }) { Id = 2 } };
 
-            CustomFormatsTestHelpers.GivenCustomFormats(_remoteBook.CustomFormats.First(), lowFormat.First());
+            CustomFormatsTestHelpers.GivenCustomFormats(_remoteIssue.CustomFormats.First(), lowFormat.First());
 
-            _author.QualityProfile.Value.FormatItems = CustomFormatsTestHelpers.GetSampleFormatItems("My Format");
+            _volume.QualityProfile.Value.FormatItems = CustomFormatsTestHelpers.GetSampleFormatItems("My Format");
 
             GivenQueueFormats(lowFormat);
 
-            var remoteBook = Builder<RemoteBook>.CreateNew()
-                .With(r => r.Author = _author)
-                .With(r => r.Books = new List<Book> { _book })
-                .With(r => r.ParsedBookInfo = new ParsedBookInfo
+            var remoteIssue = Builder<RemoteIssue>.CreateNew()
+                .With(r => r.Volume = _volume)
+                .With(r => r.Issues = new List<Issue> { _issue })
+                .With(r => r.ParsedIssueInfo = new ParsedIssueInfo
                 {
                     Quality = new QualityModel(Quality.MP3)
                 })
@@ -206,17 +206,17 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
                 .With(r => r.CustomFormats = lowFormat)
                 .Build();
 
-            GivenQueue(new List<RemoteBook> { remoteBook });
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeTrue();
+            GivenQueue(new List<RemoteIssue> { remoteIssue });
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeTrue();
         }
 
         [Test]
         public void should_return_false_when_qualities_are_the_same()
         {
-            var remoteBook = Builder<RemoteBook>.CreateNew()
-                                                      .With(r => r.Author = _author)
-                                                      .With(r => r.Books = new List<Book> { _book })
-                                                      .With(r => r.ParsedBookInfo = new ParsedBookInfo
+            var remoteIssue = Builder<RemoteIssue>.CreateNew()
+                                                      .With(r => r.Volume = _volume)
+                                                      .With(r => r.Issues = new List<Issue> { _issue })
+                                                      .With(r => r.ParsedIssueInfo = new ParsedIssueInfo
                                                       {
                                                           Quality = new QualityModel(Quality.MP3)
                                                       })
@@ -224,19 +224,19 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
                                                       .With(r => r.CustomFormats = new List<CustomFormat>())
                                                       .Build();
 
-            GivenQueue(new List<RemoteBook> { remoteBook });
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeFalse();
+            GivenQueue(new List<RemoteIssue> { remoteIssue });
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeFalse();
         }
 
         [Test]
         public void should_return_false_when_quality_in_queue_is_better()
         {
-            _author.QualityProfile.Value.Cutoff = Quality.FLAC.Id;
+            _volume.QualityProfile.Value.Cutoff = Quality.FLAC.Id;
 
-            var remoteBook = Builder<RemoteBook>.CreateNew()
-                                                      .With(r => r.Author = _author)
-                                                      .With(r => r.Books = new List<Book> { _book })
-                                                      .With(r => r.ParsedBookInfo = new ParsedBookInfo
+            var remoteIssue = Builder<RemoteIssue>.CreateNew()
+                                                      .With(r => r.Volume = _volume)
+                                                      .With(r => r.Issues = new List<Issue> { _issue })
+                                                      .With(r => r.ParsedIssueInfo = new ParsedIssueInfo
                                                       {
                                                           Quality = new QualityModel(Quality.MP3)
                                                       })
@@ -244,17 +244,17 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
                                                       .With(r => r.CustomFormats = new List<CustomFormat>())
                                                       .Build();
 
-            GivenQueue(new List<RemoteBook> { remoteBook });
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeFalse();
+            GivenQueue(new List<RemoteIssue> { remoteIssue });
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeFalse();
         }
 
         [Test]
-        public void should_return_false_if_matching_multi_book_is_in_queue()
+        public void should_return_false_if_matching_multi_issue_is_in_queue()
         {
-            var remoteBook = Builder<RemoteBook>.CreateNew()
-                                                      .With(r => r.Author = _author)
-                                                      .With(r => r.Books = new List<Book> { _book, _otherBook })
-                                                      .With(r => r.ParsedBookInfo = new ParsedBookInfo
+            var remoteIssue = Builder<RemoteIssue>.CreateNew()
+                                                      .With(r => r.Volume = _volume)
+                                                      .With(r => r.Issues = new List<Issue> { _issue, _otherIssue })
+                                                      .With(r => r.ParsedIssueInfo = new ParsedIssueInfo
                                                       {
                                                           Quality = new QualityModel(Quality.MP3)
                                                       })
@@ -262,17 +262,17 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
                                                       .With(r => r.CustomFormats = new List<CustomFormat>())
                                                       .Build();
 
-            GivenQueue(new List<RemoteBook> { remoteBook });
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeFalse();
+            GivenQueue(new List<RemoteIssue> { remoteIssue });
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeFalse();
         }
 
         [Test]
-        public void should_return_false_if_multi_book_has_one_book_in_queue()
+        public void should_return_false_if_multi_issue_has_one_issue_in_queue()
         {
-            var remoteBook = Builder<RemoteBook>.CreateNew()
-                                                      .With(r => r.Author = _author)
-                                                      .With(r => r.Books = new List<Book> { _book })
-                                                      .With(r => r.ParsedBookInfo = new ParsedBookInfo
+            var remoteIssue = Builder<RemoteIssue>.CreateNew()
+                                                      .With(r => r.Volume = _volume)
+                                                      .With(r => r.Issues = new List<Issue> { _issue })
+                                                      .With(r => r.ParsedIssueInfo = new ParsedIssueInfo
                                                       {
                                                           Quality = new QualityModel(Quality.MP3)
                                                       })
@@ -280,19 +280,19 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
                                                       .With(r => r.CustomFormats = new List<CustomFormat>())
                                                       .Build();
 
-            _remoteBook.Books.Add(_otherBook);
+            _remoteIssue.Issues.Add(_otherIssue);
 
-            GivenQueue(new List<RemoteBook> { remoteBook });
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeFalse();
+            GivenQueue(new List<RemoteIssue> { remoteIssue });
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeFalse();
         }
 
         [Test]
-        public void should_return_false_if_multi_part_book_is_already_in_queue()
+        public void should_return_false_if_multi_part_issue_is_already_in_queue()
         {
-            var remoteBook = Builder<RemoteBook>.CreateNew()
-                                                      .With(r => r.Author = _author)
-                                                      .With(r => r.Books = new List<Book> { _book, _otherBook })
-                                                      .With(r => r.ParsedBookInfo = new ParsedBookInfo
+            var remoteIssue = Builder<RemoteIssue>.CreateNew()
+                                                      .With(r => r.Volume = _volume)
+                                                      .With(r => r.Issues = new List<Issue> { _issue, _otherIssue })
+                                                      .With(r => r.ParsedIssueInfo = new ParsedIssueInfo
                                                       {
                                                           Quality = new QualityModel(Quality.MP3)
                                                       })
@@ -300,45 +300,45 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
                                                       .With(r => r.CustomFormats = new List<CustomFormat>())
                                                       .Build();
 
-            _remoteBook.Books.Add(_otherBook);
+            _remoteIssue.Issues.Add(_otherIssue);
 
-            GivenQueue(new List<RemoteBook> { remoteBook });
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeFalse();
+            GivenQueue(new List<RemoteIssue> { remoteIssue });
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeFalse();
         }
 
         [Test]
-        public void should_return_false_if_multi_part_book_has_two_books_in_queue()
+        public void should_return_false_if_multi_part_issue_has_two_issues_in_queue()
         {
-            var remoteBooks = Builder<RemoteBook>.CreateListOfSize(2)
+            var remoteIssues = Builder<RemoteIssue>.CreateListOfSize(2)
                                                        .All()
-                                                       .With(r => r.Author = _author)
+                                                       .With(r => r.Volume = _volume)
                                                        .With(r => r.CustomFormats = new List<CustomFormat>())
-                                                       .With(r => r.ParsedBookInfo = new ParsedBookInfo
+                                                       .With(r => r.ParsedIssueInfo = new ParsedIssueInfo
                                                        {
                                                            Quality = new QualityModel(Quality.MP3)
                                                        })
                                                        .With(r => r.Release = _releaseInfo)
                                                        .TheFirst(1)
-                                                       .With(r => r.Books = new List<Book> { _book })
+                                                       .With(r => r.Issues = new List<Issue> { _issue })
                                                        .TheNext(1)
-                                                       .With(r => r.Books = new List<Book> { _otherBook })
+                                                       .With(r => r.Issues = new List<Issue> { _otherIssue })
                                                        .Build();
 
-            _remoteBook.Books.Add(_otherBook);
-            GivenQueue(remoteBooks);
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeFalse();
+            _remoteIssue.Issues.Add(_otherIssue);
+            GivenQueue(remoteIssues);
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeFalse();
         }
 
         [Test]
         public void should_return_false_when_quality_is_better_and_upgrade_allowed_is_false_for_quality_profile()
         {
-            _author.QualityProfile.Value.Cutoff = Quality.FLAC.Id;
-            _author.QualityProfile.Value.UpgradeAllowed = false;
+            _volume.QualityProfile.Value.Cutoff = Quality.FLAC.Id;
+            _volume.QualityProfile.Value.UpgradeAllowed = false;
 
-            var remoteBook = Builder<RemoteBook>.CreateNew()
-                .With(r => r.Author = _author)
-                .With(r => r.Books = new List<Book> { _book })
-                .With(r => r.ParsedBookInfo = new ParsedBookInfo
+            var remoteIssue = Builder<RemoteIssue>.CreateNew()
+                .With(r => r.Volume = _volume)
+                .With(r => r.Issues = new List<Issue> { _issue })
+                .With(r => r.ParsedIssueInfo = new ParsedIssueInfo
                 {
                     Quality = new QualityModel(Quality.FLAC)
                 })
@@ -346,19 +346,19 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
                 .With(r => r.CustomFormats = new List<CustomFormat>())
                 .Build();
 
-            GivenQueue(new List<RemoteBook> { remoteBook });
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeFalse();
+            GivenQueue(new List<RemoteIssue> { remoteIssue });
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeFalse();
         }
 
         [Test]
         public void should_return_true_if_everything_is_the_same_for_failed_pending()
         {
-            _author.QualityProfile.Value.Cutoff = Quality.FLAC.Id;
+            _volume.QualityProfile.Value.Cutoff = Quality.FLAC.Id;
 
-            var remoteBook = Builder<RemoteBook>.CreateNew()
-                .With(r => r.Author = _author)
-                .With(r => r.Books = new List<Book> { _book })
-                .With(r => r.ParsedBookInfo = new ParsedBookInfo
+            var remoteIssue = Builder<RemoteIssue>.CreateNew()
+                .With(r => r.Volume = _volume)
+                .With(r => r.Issues = new List<Issue> { _issue })
+                .With(r => r.ParsedIssueInfo = new ParsedIssueInfo
                 {
                     Quality = new QualityModel(Quality.MP3)
                 })
@@ -366,25 +366,25 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
                 .With(r => r.CustomFormats = new List<CustomFormat>())
                 .Build();
 
-            GivenQueue(new List<RemoteBook> { remoteBook }, TrackedDownloadState.DownloadFailedPending);
+            GivenQueue(new List<RemoteIssue> { remoteIssue }, TrackedDownloadState.DownloadFailedPending);
 
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeTrue();
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeTrue();
         }
 
         [Test]
         public void should_return_false_if_same_quality_non_proper_in_queue_and_download_propers_is_do_not_upgrade()
         {
-            _remoteBook.ParsedBookInfo.Quality = new QualityModel(Quality.FLAC, new Revision(2));
-            _author.QualityProfile.Value.Cutoff = _remoteBook.ParsedBookInfo.Quality.Quality.Id;
+            _remoteIssue.ParsedIssueInfo.Quality = new QualityModel(Quality.FLAC, new Revision(2));
+            _volume.QualityProfile.Value.Cutoff = _remoteIssue.ParsedIssueInfo.Quality.Quality.Id;
 
             Mocker.GetMock<IConfigService>()
                 .Setup(s => s.DownloadPropersAndRepacks)
                 .Returns(ProperDownloadTypes.DoNotUpgrade);
 
-            var remoteBook = Builder<RemoteBook>.CreateNew()
-                .With(r => r.Author = _author)
-                .With(r => r.Books = new List<Book> { _book })
-                .With(r => r.ParsedBookInfo = new ParsedBookInfo
+            var remoteIssue = Builder<RemoteIssue>.CreateNew()
+                .With(r => r.Volume = _volume)
+                .With(r => r.Issues = new List<Issue> { _issue })
+                .With(r => r.ParsedIssueInfo = new ParsedIssueInfo
                 {
                     Quality = new QualityModel(Quality.FLAC)
                 })
@@ -392,9 +392,9 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
                 .With(r => r.CustomFormats = new List<CustomFormat>())
                 .Build();
 
-            GivenQueue(new List<RemoteBook> { remoteBook });
+            GivenQueue(new List<RemoteIssue> { remoteIssue });
 
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeFalse();
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeFalse();
         }
     }
 }

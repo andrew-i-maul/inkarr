@@ -35,7 +35,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
         public SpecificationPriority Priority => SpecificationPriority.Database;
         public RejectionType Type => RejectionType.Permanent;
 
-        public virtual Decision IsSatisfiedBy(RemoteBook subject, SearchCriteriaBase searchCriteria)
+        public virtual Decision IsSatisfiedBy(RemoteIssue subject, SearchCriteriaBase searchCriteria)
         {
             if (searchCriteria != null)
             {
@@ -46,10 +46,10 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
             var cdhEnabled = _configService.EnableCompletedDownloadHandling;
 
             _logger.Debug("Performing history status check on report");
-            foreach (var book in subject.Books)
+            foreach (var issue in subject.Issues)
             {
-                _logger.Debug("Checking current status of book [{0}] in history", book.Id);
-                var mostRecent = _historyService.MostRecentForBook(book.Id);
+                _logger.Debug("Checking current status of issue [{0}] in history", issue.Id);
+                var mostRecent = _historyService.MostRecentForIssue(issue.Id);
 
                 if (mostRecent != null && mostRecent.EventType == EntityHistoryEventType.Grabbed)
                 {
@@ -60,21 +60,21 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
                         continue;
                     }
 
-                    var customFormats = _formatService.ParseCustomFormat(mostRecent, subject.Author);
+                    var customFormats = _formatService.ParseCustomFormat(mostRecent, subject.Volume);
 
                     // The series will be the same as the one in history since it's the same episode.
                     // Instead of fetching the series from the DB reuse the known series.
                     var cutoffUnmet = _upgradableSpecification.CutoffNotMet(
-                        subject.Author.QualityProfile,
+                        subject.Volume.QualityProfile,
                         new List<QualityModel> { mostRecent.Quality },
                         customFormats,
-                        subject.ParsedBookInfo.Quality);
+                        subject.ParsedIssueInfo.Quality);
 
                     var upgradeable = _upgradableSpecification.IsUpgradable(
-                        subject.Author.QualityProfile,
+                        subject.Volume.QualityProfile,
                         mostRecent.Quality,
                         customFormats,
-                        subject.ParsedBookInfo.Quality,
+                        subject.ParsedIssueInfo.Quality,
                         subject.CustomFormats);
 
                     if (!cutoffUnmet)

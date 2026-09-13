@@ -429,19 +429,19 @@ namespace NzbDrone.Core.Test.Datastore.Migration
                 c.Insert.IntoTable("NamingConfig").Row(new
                 {
                     ReplaceIllegalCharacters = false,
-                    StandardBookFormat = "{Series Title} - S{season:00}E{episode:00} - {Episode Title} {Preferred Words } {Quality Full}",
+                    StandardIssueFormat = "{Series Title} - S{season:00}E{episode:00} - {Episode Title} {Preferred Words } {Quality Full}",
                 });
             });
 
-            var customFormats = db.Query<NamingConfig026>("SELECT \"StandardBookFormat\" FROM \"NamingConfig\"");
+            var customFormats = db.Query<NamingConfig026>("SELECT \"StandardIssueFormat\" FROM \"NamingConfig\"");
 
             customFormats.Should().HaveCount(1);
-            customFormats.First().StandardBookFormat.Should().Be("{Series Title} - S{season:00}E{episode:00} - {Episode Title} {Custom Formats } {Quality Full}");
+            customFormats.First().StandardIssueFormat.Should().Be("{Series Title} - S{season:00}E{episode:00} - {Episode Title} {Custom Formats } {Quality Full}");
         }
 
         private class NamingConfig026
         {
-            public string StandardBookFormat { get; set; }
+            public string StandardIssueFormat { get; set; }
         }
 
         private class ReleaseProfile026

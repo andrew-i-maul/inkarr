@@ -5,9 +5,9 @@ using FizzWare.NBuilder;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.CustomFormats;
 using NzbDrone.Core.DecisionEngine.Specifications;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Profiles.Qualities;
@@ -21,10 +21,10 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
     [Ignore("Pending Inkarr fixes")]
     public class UpgradeDiskSpecificationFixture : CoreTest<UpgradeDiskSpecification>
     {
-        private RemoteBook _parseResultMulti;
-        private RemoteBook _parseResultSingle;
-        private BookFile _firstFile;
-        private BookFile _secondFile;
+        private RemoteIssue _parseResultMulti;
+        private RemoteIssue _parseResultSingle;
+        private IssueFile _firstFile;
+        private IssueFile _secondFile;
 
         [SetUp]
         public void Setup()
@@ -33,13 +33,13 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
 
             CustomFormatsTestHelpers.GivenCustomFormats();
 
-            _firstFile = new BookFile { Quality = new QualityModel(Quality.FLAC, new Revision(version: 2)), DateAdded = DateTime.Now };
-            _secondFile = new BookFile { Quality = new QualityModel(Quality.FLAC, new Revision(version: 2)), DateAdded = DateTime.Now };
+            _firstFile = new IssueFile { Quality = new QualityModel(Quality.FLAC, new Revision(version: 2)), DateAdded = DateTime.Now };
+            _secondFile = new IssueFile { Quality = new QualityModel(Quality.FLAC, new Revision(version: 2)), DateAdded = DateTime.Now };
 
-            var singleBookList = new List<Book> { new Book { BookFiles = new List<BookFile>() } };
-            var doubleBookList = new List<Book> { new Book { BookFiles = new List<BookFile>() }, new Book { BookFiles = new List<BookFile>() }, new Book { BookFiles = new List<BookFile>() } };
+            var singleIssueList = new List<Issue> { new Issue { IssueFiles = new List<IssueFile>() } };
+            var doubleIssueList = new List<Issue> { new Issue { IssueFiles = new List<IssueFile>() }, new Issue { IssueFiles = new List<IssueFile>() }, new Issue { IssueFiles = new List<IssueFile>() } };
 
-            var fakeAuthor = Builder<Author>.CreateNew()
+            var fakeVolume = Builder<Volume>.CreateNew()
                          .With(c => c.QualityProfile = new QualityProfile
                          {
                              UpgradeAllowed = true,
@@ -51,27 +51,27 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
                          .Build();
 
             Mocker.GetMock<IMediaFileService>()
-                  .Setup(c => c.GetFilesByBook(It.IsAny<int>()))
-                  .Returns(new List<BookFile> { _firstFile, _secondFile });
+                  .Setup(c => c.GetFilesByIssue(It.IsAny<int>()))
+                  .Returns(new List<IssueFile> { _firstFile, _secondFile });
 
-            _parseResultMulti = new RemoteBook
+            _parseResultMulti = new RemoteIssue
             {
-                Author = fakeAuthor,
-                ParsedBookInfo = new ParsedBookInfo { Quality = new QualityModel(Quality.MP3, new Revision(version: 2)) },
-                Books = doubleBookList,
+                Volume = fakeVolume,
+                ParsedIssueInfo = new ParsedIssueInfo { Quality = new QualityModel(Quality.MP3, new Revision(version: 2)) },
+                Issues = doubleIssueList,
                 CustomFormats = new List<CustomFormat>()
             };
 
-            _parseResultSingle = new RemoteBook
+            _parseResultSingle = new RemoteIssue
             {
-                Author = fakeAuthor,
-                ParsedBookInfo = new ParsedBookInfo { Quality = new QualityModel(Quality.MP3, new Revision(version: 2)) },
-                Books = singleBookList,
+                Volume = fakeVolume,
+                ParsedIssueInfo = new ParsedIssueInfo { Quality = new QualityModel(Quality.MP3, new Revision(version: 2)) },
+                Issues = singleIssueList,
                 CustomFormats = new List<CustomFormat>()
             };
 
             Mocker.GetMock<ICustomFormatCalculationService>()
-                  .Setup(x => x.ParseCustomFormat(It.IsAny<BookFile>()))
+                  .Setup(x => x.ParseCustomFormat(It.IsAny<IssueFile>()))
                   .Returns(new List<CustomFormat>());
         }
 
@@ -86,9 +86,9 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         }
 
         [Test]
-        public void should_return_true_if_book_has_no_existing_file()
+        public void should_return_true_if_issue_has_no_existing_file()
         {
-            _parseResultSingle.Books.First().BookFiles = new List<BookFile>();
+            _parseResultSingle.Issues.First().IssueFiles = new List<IssueFile>();
 
             Subject.IsSatisfiedBy(_parseResultSingle, null).Accepted.Should().BeTrue();
         }
@@ -107,9 +107,9 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         }
 
         [Test]
-        public void should_return_true_if_single_book_doesnt_exist_on_disk()
+        public void should_return_true_if_single_issue_doesnt_exist_on_disk()
         {
-            _parseResultSingle.Books = new List<Book>();
+            _parseResultSingle.Issues = new List<Issue>();
 
             Subject.IsSatisfiedBy(_parseResultSingle, null).Accepted.Should().BeTrue();
         }
@@ -127,7 +127,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         {
             _firstFile.Quality = new QualityModel(Quality.MP3);
             _secondFile.Quality = new QualityModel(Quality.MP3);
-            _parseResultSingle.ParsedBookInfo.Quality = new QualityModel(Quality.MP3);
+            _parseResultSingle.ParsedIssueInfo.Quality = new QualityModel(Quality.MP3);
             Subject.IsSatisfiedBy(_parseResultSingle, null).Accepted.Should().BeFalse();
         }
 
@@ -141,7 +141,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         public void should_be_true_if_some_tracks_are_upgradable_and_none_are_downgrades()
         {
             WithFirstFileUpgradable();
-            _parseResultSingle.ParsedBookInfo.Quality = _secondFile.Quality;
+            _parseResultSingle.ParsedIssueInfo.Quality = _secondFile.Quality;
             Subject.IsSatisfiedBy(_parseResultSingle, null).Accepted.Should().BeTrue();
         }
 
@@ -149,11 +149,11 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         public void should_be_false_if_some_tracks_are_upgradable_and_some_are_downgrades()
         {
             Mocker.GetMock<ICustomFormatCalculationService>()
-                  .Setup(s => s.ParseCustomFormat(It.IsAny<BookFile>()))
+                  .Setup(s => s.ParseCustomFormat(It.IsAny<IssueFile>()))
                   .Returns(new List<CustomFormat>());
 
             WithFirstFileUpgradable();
-            _parseResultSingle.ParsedBookInfo.Quality = new QualityModel(Quality.MP3);
+            _parseResultSingle.ParsedIssueInfo.Quality = new QualityModel(Quality.MP3);
             Subject.IsSatisfiedBy(_parseResultSingle, null).Accepted.Should().BeFalse();
         }
     }

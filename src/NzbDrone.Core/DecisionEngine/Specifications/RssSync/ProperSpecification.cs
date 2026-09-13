@@ -26,7 +26,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
         public SpecificationPriority Priority => SpecificationPriority.Default;
         public RejectionType Type => RejectionType.Permanent;
 
-        public virtual Decision IsSatisfiedBy(RemoteBook subject, SearchCriteriaBase searchCriteria)
+        public virtual Decision IsSatisfiedBy(RemoteIssue subject, SearchCriteriaBase searchCriteria)
         {
             if (searchCriteria != null)
             {
@@ -41,13 +41,13 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
                 return Decision.Accept();
             }
 
-            foreach (var book in subject.Books)
+            foreach (var issue in subject.Issues)
             {
-                var bookFiles = _mediaFileService.GetFilesByBook(book.Id);
+                var issueFiles = _mediaFileService.GetFilesByIssue(issue.Id);
 
-                foreach (var file in bookFiles)
+                foreach (var file in issueFiles)
                 {
-                    if (_qualityUpgradableSpecification.IsRevisionUpgrade(file.Quality, subject.ParsedBookInfo.Quality))
+                    if (_qualityUpgradableSpecification.IsRevisionUpgrade(file.Quality, subject.ParsedIssueInfo.Quality))
                     {
                         if (downloadPropersAndRepacks == ProperDownloadTypes.DoNotUpgrade)
                         {

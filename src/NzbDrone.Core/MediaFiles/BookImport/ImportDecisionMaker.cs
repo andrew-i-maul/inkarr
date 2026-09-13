@@ -5,33 +5,33 @@ using System.Linq;
 using NLog;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Instrumentation.Extensions;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.DecisionEngine;
 using NzbDrone.Core.Download;
-using NzbDrone.Core.MediaFiles.BookImport.Aggregation;
-using NzbDrone.Core.MediaFiles.BookImport.Identification;
+using NzbDrone.Core.Issues;
+using NzbDrone.Core.MediaFiles.IssueImport.Aggregation;
+using NzbDrone.Core.MediaFiles.IssueImport.Identification;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Profiles.Qualities;
 using NzbDrone.Core.RootFolders;
 
-namespace NzbDrone.Core.MediaFiles.BookImport
+namespace NzbDrone.Core.MediaFiles.IssueImport
 {
     public interface IMakeImportDecision
     {
-        List<ImportDecision<LocalBook>> GetImportDecisions(List<IFileInfo> musicFiles, IdentificationOverrides idOverrides, ImportDecisionMakerInfo itemInfo, ImportDecisionMakerConfig config);
+        List<ImportDecision<LocalIssue>> GetImportDecisions(List<IFileInfo> musicFiles, IdentificationOverrides idOverrides, ImportDecisionMakerInfo itemInfo, ImportDecisionMakerConfig config);
     }
 
     public class IdentificationOverrides
     {
-        public Author Author { get; set; }
-        public Book Book { get; set; }
+        public Volume Volume { get; set; }
+        public Issue Issue { get; set; }
         public Edition Edition { get; set; }
     }
 
     public class ImportDecisionMakerInfo
     {
         public DownloadClientItem DownloadClientItem { get; set; }
-        public ParsedBookInfo ParsedBookInfo { get; set; }
+        public ParsedIssueInfo ParsedIssueInfo { get; set; }
     }
 
     public class ImportDecisionMakerConfig
@@ -40,14 +40,14 @@ namespace NzbDrone.Core.MediaFiles.BookImport
         public bool NewDownload { get; set; }
         public bool SingleRelease { get; set; }
         public bool IncludeExisting { get; set; }
-        public bool AddNewAuthors { get; set; }
+        public bool AddNewVolumes { get; set; }
         public bool KeepAllEditions { get; set; }
     }
 
     public class ImportDecisionMaker : IMakeImportDecision
     {
-        private readonly IEnumerable<IImportDecisionEngineSpecification<LocalBook>> _trackSpecifications;
-        private readonly IEnumerable<IImportDecisionEngineSpecification<LocalEdition>> _bookSpecifications;
+        private readonly IEnumerable<IImportDecisionEngineSpecification<LocalIssue>> _trackSpecifications;
+        private readonly IEnumerable<IImportDecisionEngineSpecification<LocalEdition>> _issueSpecifications;
         private readonly IMediaFileService _mediaFileService;
         private readonly IMetadataTagService _metadataTagService;
         private readonly IAugmentingService _augmentingService;
@@ -56,8 +56,8 @@ namespace NzbDrone.Core.MediaFiles.BookImport
         private readonly IQualityProfileService _qualityProfileService;
         private readonly Logger _logger;
 
-        public ImportDecisionMaker(IEnumerable<IImportDecisionEngineSpecification<LocalBook>> trackSpecifications,
-                                   IEnumerable<IImportDecisionEngineSpecification<LocalEdition>> bookSpecifications,
+        public ImportDecisionMaker(IEnumerable<IImportDecisionEngineSpecification<LocalIssue>> trackSpecifications,
+                                   IEnumerable<IImportDecisionEngineSpecification<LocalEdition>> issueSpecifications,
                                    IMediaFileService mediaFileService,
                                    IMetadataTagService metadataTagService,
                                    IAugmentingService augmentingService,
@@ -67,7 +67,7 @@ namespace NzbDrone.Core.MediaFiles.BookImport
                                    Logger logger)
         {
             _trackSpecifications = trackSpecifications;
-            _bookSpecifications = bookSpecifications;
+            _issueSpecifications = issueSpecifications;
             _mediaFileService = mediaFileService;
             _metadataTagService = metadataTagService;
             _augmentingService = augmentingService;
@@ -77,15 +77,15 @@ namespace NzbDrone.Core.MediaFiles.BookImport
             _logger = logger;
         }
 
-        public Tuple<List<LocalBook>, List<ImportDecision<LocalBook>>> GetLocalTracks(List<IFileInfo> musicFiles, DownloadClientItem downloadClientItem, ParsedBookInfo folderInfo, FilterFilesType filter)
+        public Tuple<List<LocalIssue>, List<ImportDecision<LocalIssue>>> GetLocalTracks(List<IFileInfo> musicFiles, DownloadClientItem downloadClientItem, ParsedIssueInfo folderInfo, FilterFilesType filter)
         {
             var watch = new System.Diagnostics.Stopwatch();
             watch.Start();
 
             var files = _mediaFileService.FilterUnchangedFiles(musicFiles, filter);
 
-            var localTracks = new List<LocalBook>();
-            var decisions = new List<ImportDecision<LocalBook>>();
+            var localTracks = new List<LocalIssue>();
+            var decisions = new List<ImportDecision<LocalIssue>>();
 
             _logger.Debug("Analyzing {0}/{1} files.", files.Count, musicFiles.Count);
 
@@ -94,11 +94,11 @@ namespace NzbDrone.Core.MediaFiles.BookImport
                 return Tuple.Create(localTracks, decisions);
             }
 
-            ParsedBookInfo downloadClientItemInfo = null;
+            ParsedIssueInfo downloadClientItemInfo = null;
 
             if (downloadClientItem != null)
             {
-                downloadClientItemInfo = Parser.Parser.ParseBookTitle(downloadClientItem.Title);
+                downloadClientItemInfo = Parser.Parser.ParseIssueTitle(downloadClientItem.Title);
             }
 
             var i = 1;
@@ -108,9 +108,9 @@ namespace NzbDrone.Core.MediaFiles.BookImport
 
                 var fileTrackInfo = _metadataTagService.ReadTags(file);
 
-                var localTrack = new LocalBook
+                var localTrack = new LocalIssue
                 {
-                    DownloadClientBookInfo = downloadClientItemInfo,
+                    DownloadClientIssueInfo = downloadClientItemInfo,
                     FolderTrackInfo = folderInfo,
                     Path = file.FullName,
                     Part = fileTrackInfo.TrackNumbers.Any() ? fileTrackInfo.TrackNumbers.First() : 1,
@@ -128,13 +128,13 @@ namespace NzbDrone.Core.MediaFiles.BookImport
                 }
                 catch (AugmentingFailedException)
                 {
-                    decisions.Add(new ImportDecision<LocalBook>(localTrack, new Rejection("Unable to parse file")));
+                    decisions.Add(new ImportDecision<LocalIssue>(localTrack, new Rejection("Unable to parse file")));
                 }
                 catch (Exception e)
                 {
                     _logger.Error(e, "Couldn't import file. {0}", localTrack.Path);
 
-                    decisions.Add(new ImportDecision<LocalBook>(localTrack, new Rejection("Unexpected error processing file")));
+                    decisions.Add(new ImportDecision<LocalIssue>(localTrack, new Rejection("Unexpected error processing file")));
                 }
             }
 
@@ -143,12 +143,12 @@ namespace NzbDrone.Core.MediaFiles.BookImport
             return Tuple.Create(localTracks, decisions);
         }
 
-        public List<ImportDecision<LocalBook>> GetImportDecisions(List<IFileInfo> musicFiles, IdentificationOverrides idOverrides, ImportDecisionMakerInfo itemInfo, ImportDecisionMakerConfig config)
+        public List<ImportDecision<LocalIssue>> GetImportDecisions(List<IFileInfo> musicFiles, IdentificationOverrides idOverrides, ImportDecisionMakerInfo itemInfo, ImportDecisionMakerConfig config)
         {
             idOverrides = idOverrides ?? new IdentificationOverrides();
             itemInfo = itemInfo ?? new ImportDecisionMakerInfo();
 
-            var trackData = GetLocalTracks(musicFiles, itemInfo.DownloadClientItem, itemInfo.ParsedBookInfo, config.Filter);
+            var trackData = GetLocalTracks(musicFiles, itemInfo.DownloadClientItem, itemInfo.ParsedIssueInfo, config.Filter);
             var localTracks = trackData.Item1;
             var decisions = trackData.Item2;
 
@@ -158,14 +158,14 @@ namespace NzbDrone.Core.MediaFiles.BookImport
 
             foreach (var release in releases)
             {
-                // make sure the appropriate quality profile is set for the release author
-                // in case it's a new author
+                // make sure the appropriate quality profile is set for the release volume
+                // in case it's a new volume
                 EnsureData(release);
                 release.NewDownload = config.NewDownload;
 
                 var releaseDecision = GetDecision(release, itemInfo.DownloadClientItem);
 
-                foreach (var localTrack in release.LocalBooks)
+                foreach (var localTrack in release.LocalIssues)
                 {
                     if (releaseDecision.Approved)
                     {
@@ -173,7 +173,7 @@ namespace NzbDrone.Core.MediaFiles.BookImport
                     }
                     else
                     {
-                        decisions.Add(new ImportDecision<LocalBook>(localTrack, releaseDecision.Rejections.ToArray()));
+                        decisions.Add(new ImportDecision<LocalIssue>(localTrack, releaseDecision.Rejections.ToArray()));
                     }
                 }
             }
@@ -183,14 +183,14 @@ namespace NzbDrone.Core.MediaFiles.BookImport
 
         private void EnsureData(LocalEdition edition)
         {
-            if (edition.Edition != null && edition.Edition.Book.Value.Author.Value.QualityProfileId == 0)
+            if (edition.Edition != null && edition.Edition.Issue.Value.Volume.Value.QualityProfileId == 0)
             {
-                var rootFolder = _rootFolderService.GetBestRootFolder(edition.LocalBooks.First().Path);
+                var rootFolder = _rootFolderService.GetBestRootFolder(edition.LocalIssues.First().Path);
                 var qualityProfile = _qualityProfileService.Get(rootFolder.DefaultQualityProfileId);
 
-                var author = edition.Edition.Book.Value.Author.Value;
-                author.QualityProfileId = qualityProfile.Id;
-                author.QualityProfile = qualityProfile;
+                var volume = edition.Edition.Issue.Value.Volume.Value;
+                volume.QualityProfileId = qualityProfile.Id;
+                volume.QualityProfile = qualityProfile;
             }
         }
 
@@ -200,11 +200,11 @@ namespace NzbDrone.Core.MediaFiles.BookImport
 
             if (localEdition.Edition == null)
             {
-                decision = new ImportDecision<LocalEdition>(localEdition, new Rejection($"Couldn't find similar book for {localEdition}"));
+                decision = new ImportDecision<LocalEdition>(localEdition, new Rejection($"Couldn't find similar issue for {localEdition}"));
             }
             else
             {
-                var reasons = _bookSpecifications.Select(c => EvaluateSpec(c, localEdition, downloadClientItem))
+                var reasons = _issueSpecifications.Select(c => EvaluateSpec(c, localEdition, downloadClientItem))
                     .Where(c => c != null);
 
                 decision = new ImportDecision<LocalEdition>(localEdition, reasons.ToArray());
@@ -216,35 +216,35 @@ namespace NzbDrone.Core.MediaFiles.BookImport
             }
             else if (decision.Rejections.Any())
             {
-                _logger.Debug("Book rejected for the following reasons: {0}", string.Join(", ", decision.Rejections));
+                _logger.Debug("Issue rejected for the following reasons: {0}", string.Join(", ", decision.Rejections));
             }
             else
             {
-                _logger.Debug("Book accepted");
+                _logger.Debug("Issue accepted");
             }
 
             return decision;
         }
 
-        private ImportDecision<LocalBook> GetDecision(LocalBook localBook, DownloadClientItem downloadClientItem)
+        private ImportDecision<LocalIssue> GetDecision(LocalIssue localIssue, DownloadClientItem downloadClientItem)
         {
-            ImportDecision<LocalBook> decision = null;
+            ImportDecision<LocalIssue> decision = null;
 
-            if (localBook.Book == null)
+            if (localIssue.Issue == null)
             {
-                decision = new ImportDecision<LocalBook>(localBook, new Rejection($"Couldn't parse book from: {localBook.FileTrackInfo}"));
+                decision = new ImportDecision<LocalIssue>(localIssue, new Rejection($"Couldn't parse issue from: {localIssue.FileTrackInfo}"));
             }
             else
             {
-                var reasons = _trackSpecifications.Select(c => EvaluateSpec(c, localBook, downloadClientItem))
+                var reasons = _trackSpecifications.Select(c => EvaluateSpec(c, localIssue, downloadClientItem))
                     .Where(c => c != null);
 
-                decision = new ImportDecision<LocalBook>(localBook, reasons.ToArray());
+                decision = new ImportDecision<LocalIssue>(localIssue, reasons.ToArray());
             }
 
             if (decision == null)
             {
-                _logger.Error("Unable to make a decision on {0}", localBook.Path);
+                _logger.Error("Unable to make a decision on {0}", localIssue.Path);
             }
             else if (decision.Rejections.Any())
             {

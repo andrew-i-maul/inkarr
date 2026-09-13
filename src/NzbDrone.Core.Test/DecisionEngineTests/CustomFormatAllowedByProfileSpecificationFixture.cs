@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using FizzWare.NBuilder;
 using FluentAssertions;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.CustomFormats;
 using NzbDrone.Core.DecisionEngine.Specifications;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Profiles.Qualities;
 using NzbDrone.Core.Qualities;
@@ -18,7 +18,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
 
     public class CustomFormatAllowedByProfileSpecificationFixture : CoreTest<CustomFormatAllowedbyProfileSpecification>
     {
-        private RemoteBook _remoteAlbum;
+        private RemoteIssue _remoteAlbum;
 
         private CustomFormat _format1;
         private CustomFormat _format2;
@@ -32,7 +32,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
             _format2 = new CustomFormat("Cool Format");
             _format2.Id = 2;
 
-            var fakeArtist = Builder<Author>.CreateNew()
+            var fakeArtist = Builder<Volume>.CreateNew()
                 .With(c => c.QualityProfile = new QualityProfile
                 {
                     Cutoff = Quality.FLAC.Id,
@@ -40,10 +40,10 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
                 })
                 .Build();
 
-            _remoteAlbum = new RemoteBook
+            _remoteAlbum = new RemoteIssue
             {
-                Author = fakeArtist,
-                ParsedBookInfo = new ParsedBookInfo { Quality = new QualityModel(Quality.MP3, new Revision(version: 2)) },
+                Volume = fakeArtist,
+                ParsedIssueInfo = new ParsedIssueInfo { Quality = new QualityModel(Quality.MP3, new Revision(version: 2)) },
             };
 
             CustomFormatsTestHelpers.GivenCustomFormats(_format1, _format2);
@@ -53,8 +53,8 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         public void should_allow_if_format_score_greater_than_min()
         {
             _remoteAlbum.CustomFormats = new List<CustomFormat> { _format1 };
-            _remoteAlbum.Author.QualityProfile.Value.FormatItems = CustomFormatsTestHelpers.GetSampleFormatItems(_format1.Name);
-            _remoteAlbum.CustomFormatScore = _remoteAlbum.Author.QualityProfile.Value.CalculateCustomFormatScore(_remoteAlbum.CustomFormats);
+            _remoteAlbum.Volume.QualityProfile.Value.FormatItems = CustomFormatsTestHelpers.GetSampleFormatItems(_format1.Name);
+            _remoteAlbum.CustomFormatScore = _remoteAlbum.Volume.QualityProfile.Value.CalculateCustomFormatScore(_remoteAlbum.CustomFormats);
 
             Subject.IsSatisfiedBy(_remoteAlbum, null).Accepted.Should().BeTrue();
         }
@@ -63,11 +63,11 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         public void should_deny_if_format_score_not_greater_than_min()
         {
             _remoteAlbum.CustomFormats = new List<CustomFormat> { _format2 };
-            _remoteAlbum.Author.QualityProfile.Value.FormatItems = CustomFormatsTestHelpers.GetSampleFormatItems(_format1.Name);
-            _remoteAlbum.CustomFormatScore = _remoteAlbum.Author.QualityProfile.Value.CalculateCustomFormatScore(_remoteAlbum.CustomFormats);
+            _remoteAlbum.Volume.QualityProfile.Value.FormatItems = CustomFormatsTestHelpers.GetSampleFormatItems(_format1.Name);
+            _remoteAlbum.CustomFormatScore = _remoteAlbum.Volume.QualityProfile.Value.CalculateCustomFormatScore(_remoteAlbum.CustomFormats);
 
             Console.WriteLine(_remoteAlbum.CustomFormatScore);
-            Console.WriteLine(_remoteAlbum.Author.QualityProfile.Value.MinFormatScore);
+            Console.WriteLine(_remoteAlbum.Volume.QualityProfile.Value.MinFormatScore);
 
             Subject.IsSatisfiedBy(_remoteAlbum, null).Accepted.Should().BeFalse();
         }
@@ -76,8 +76,8 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         public void should_deny_if_format_score_not_greater_than_min_2()
         {
             _remoteAlbum.CustomFormats = new List<CustomFormat> { _format2, _format1 };
-            _remoteAlbum.Author.QualityProfile.Value.FormatItems = CustomFormatsTestHelpers.GetSampleFormatItems(_format1.Name);
-            _remoteAlbum.CustomFormatScore = _remoteAlbum.Author.QualityProfile.Value.CalculateCustomFormatScore(_remoteAlbum.CustomFormats);
+            _remoteAlbum.Volume.QualityProfile.Value.FormatItems = CustomFormatsTestHelpers.GetSampleFormatItems(_format1.Name);
+            _remoteAlbum.CustomFormatScore = _remoteAlbum.Volume.QualityProfile.Value.CalculateCustomFormatScore(_remoteAlbum.CustomFormats);
 
             Subject.IsSatisfiedBy(_remoteAlbum, null).Accepted.Should().BeFalse();
         }
@@ -86,8 +86,8 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         public void should_allow_if_all_format_is_defined_in_profile()
         {
             _remoteAlbum.CustomFormats = new List<CustomFormat> { _format2, _format1 };
-            _remoteAlbum.Author.QualityProfile.Value.FormatItems = CustomFormatsTestHelpers.GetSampleFormatItems(_format1.Name, _format2.Name);
-            _remoteAlbum.CustomFormatScore = _remoteAlbum.Author.QualityProfile.Value.CalculateCustomFormatScore(_remoteAlbum.CustomFormats);
+            _remoteAlbum.Volume.QualityProfile.Value.FormatItems = CustomFormatsTestHelpers.GetSampleFormatItems(_format1.Name, _format2.Name);
+            _remoteAlbum.CustomFormatScore = _remoteAlbum.Volume.QualityProfile.Value.CalculateCustomFormatScore(_remoteAlbum.CustomFormats);
 
             Subject.IsSatisfiedBy(_remoteAlbum, null).Accepted.Should().BeTrue();
         }
@@ -96,8 +96,8 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         public void should_deny_if_no_format_was_parsed_and_min_score_positive()
         {
             _remoteAlbum.CustomFormats = new List<CustomFormat> { };
-            _remoteAlbum.Author.QualityProfile.Value.FormatItems = CustomFormatsTestHelpers.GetSampleFormatItems(_format1.Name, _format2.Name);
-            _remoteAlbum.CustomFormatScore = _remoteAlbum.Author.QualityProfile.Value.CalculateCustomFormatScore(_remoteAlbum.CustomFormats);
+            _remoteAlbum.Volume.QualityProfile.Value.FormatItems = CustomFormatsTestHelpers.GetSampleFormatItems(_format1.Name, _format2.Name);
+            _remoteAlbum.CustomFormatScore = _remoteAlbum.Volume.QualityProfile.Value.CalculateCustomFormatScore(_remoteAlbum.CustomFormats);
 
             Subject.IsSatisfiedBy(_remoteAlbum, null).Accepted.Should().BeFalse();
         }
@@ -106,9 +106,9 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         public void should_allow_if_no_format_was_parsed_min_score_is_zero()
         {
             _remoteAlbum.CustomFormats = new List<CustomFormat> { };
-            _remoteAlbum.Author.QualityProfile.Value.FormatItems = CustomFormatsTestHelpers.GetSampleFormatItems(_format1.Name, _format2.Name);
-            _remoteAlbum.Author.QualityProfile.Value.MinFormatScore = 0;
-            _remoteAlbum.CustomFormatScore = _remoteAlbum.Author.QualityProfile.Value.CalculateCustomFormatScore(_remoteAlbum.CustomFormats);
+            _remoteAlbum.Volume.QualityProfile.Value.FormatItems = CustomFormatsTestHelpers.GetSampleFormatItems(_format1.Name, _format2.Name);
+            _remoteAlbum.Volume.QualityProfile.Value.MinFormatScore = 0;
+            _remoteAlbum.CustomFormatScore = _remoteAlbum.Volume.QualityProfile.Value.CalculateCustomFormatScore(_remoteAlbum.CustomFormats);
 
             Subject.IsSatisfiedBy(_remoteAlbum, null).Accepted.Should().BeTrue();
         }

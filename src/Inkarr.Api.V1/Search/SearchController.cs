@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Inkarr.Api.V1.Author;
-using Inkarr.Api.V1.Books;
+using Inkarr.Api.V1.Issues;
+using Inkarr.Api.V1.Volume;
 using Inkarr.Http;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Core.MediaCover;
@@ -40,40 +40,40 @@ namespace Inkarr.Api.V1.Search
                 var resource = new SearchResource();
                 resource.Id = id++;
 
-                if (result is NzbDrone.Core.Books.Author author)
+                if (result is NzbDrone.Core.Issues.Volume volume)
                 {
-                    resource.Author = author.ToResource();
-                    resource.ForeignId = author.ForeignAuthorId;
+                    resource.Volume = volume.ToResource();
+                    resource.ForeignId = volume.ForeignVolumeId;
 
-                    _coverMapper.ConvertToLocalUrls(resource.Author.Id, MediaCoverEntity.Author, resource.Author.Images);
+                    _coverMapper.ConvertToLocalUrls(resource.Volume.Id, MediaCoverEntity.Volume, resource.Volume.Images);
 
-                    var poster = resource.Author.Images.FirstOrDefault(c => c.CoverType == MediaCoverTypes.Poster);
+                    var poster = resource.Volume.Images.FirstOrDefault(c => c.CoverType == MediaCoverTypes.Poster);
 
                     if (poster != null)
                     {
-                        resource.Author.RemotePoster = poster.RemoteUrl;
+                        resource.Volume.RemotePoster = poster.RemoteUrl;
                     }
 
-                    resource.Author.Folder = _fileNameBuilder.GetAuthorFolder(author);
+                    resource.Volume.Folder = _fileNameBuilder.GetVolumeFolder(volume);
                 }
-                else if (result is NzbDrone.Core.Books.Book book)
+                else if (result is NzbDrone.Core.Issues.Issue issue)
                 {
-                    resource.Book = book.ToResource();
-                    resource.Book.Overview = book.Editions.Value.Single(x => x.Monitored).Overview;
-                    resource.Book.Author = book.Author.Value.ToResource();
-                    resource.Book.Editions = book.Editions.Value.ToResource();
-                    resource.ForeignId = book.ForeignBookId;
+                    resource.Issue = issue.ToResource();
+                    resource.Issue.Overview = issue.Editions.Value.Single(x => x.Monitored).Overview;
+                    resource.Issue.Volume = issue.Volume.Value.ToResource();
+                    resource.Issue.Editions = issue.Editions.Value.ToResource();
+                    resource.ForeignId = issue.ForeignIssueId;
 
-                    _coverMapper.ConvertToLocalUrls(resource.Book.Id, MediaCoverEntity.Book, resource.Book.Images);
+                    _coverMapper.ConvertToLocalUrls(resource.Issue.Id, MediaCoverEntity.Issue, resource.Issue.Images);
 
-                    var cover = resource.Book.Images.FirstOrDefault(c => c.CoverType == MediaCoverTypes.Cover);
+                    var cover = resource.Issue.Images.FirstOrDefault(c => c.CoverType == MediaCoverTypes.Cover);
 
                     if (cover != null)
                     {
-                        resource.Book.RemoteCover = cover.RemoteUrl;
+                        resource.Issue.RemoteCover = cover.RemoteUrl;
                     }
 
-                    resource.Book.Author.Folder = _fileNameBuilder.GetAuthorFolder(book.Author);
+                    resource.Issue.Volume.Folder = _fileNameBuilder.GetVolumeFolder(issue.Volume);
                 }
                 else
                 {

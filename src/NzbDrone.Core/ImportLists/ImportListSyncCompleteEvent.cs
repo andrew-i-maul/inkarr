@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using NzbDrone.Common.Messaging;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 
 namespace NzbDrone.Core.ImportLists
 {
     public class ImportListSyncCompleteEvent : IEvent
     {
-        public List<Book> ProcessedDecisions { get; private set; }
+        public List<Issue> ProcessedDecisions { get; private set; }
 
-        public ImportListSyncCompleteEvent(List<Book> processedDecisions)
+        public ImportListSyncCompleteEvent(List<Issue> processedDecisions)
         {
             ProcessedDecisions = processedDecisions;
         }

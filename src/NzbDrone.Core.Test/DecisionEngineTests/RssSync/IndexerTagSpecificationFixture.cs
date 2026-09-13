@@ -3,11 +3,11 @@ using FizzWare.NBuilder;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Datastore;
 using NzbDrone.Core.DecisionEngine.Specifications.RssSync;
 using NzbDrone.Core.Indexers;
 using NzbDrone.Core.IndexerSearch.Definitions;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Test.Framework;
 
@@ -18,11 +18,11 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
     {
         private IndexerTagSpecification _specification;
 
-        private RemoteBook _parseResultMulti;
+        private RemoteIssue _parseResultMulti;
         private IndexerDefinition _fakeIndexerDefinition;
-        private Author _fakeAuthor;
-        private Book _firstBook;
-        private Book _secondBook;
+        private Volume _fakeVolume;
+        private Issue _firstIssue;
+        private Issue _secondIssue;
         private ReleaseInfo _fakeRelease;
 
         [SetUp]
@@ -45,7 +45,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
 
             _specification = Mocker.Resolve<IndexerTagSpecification>();
 
-            _fakeAuthor = Builder<Author>.CreateNew()
+            _fakeVolume = Builder<Volume>.CreateNew()
                 .With(c => c.Monitored = true)
                 .With(c => c.Tags = new HashSet<int>())
                 .Build();
@@ -55,82 +55,82 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
                 IndexerId = 1
             };
 
-            _firstBook = new Book { Monitored = true };
-            _secondBook = new Book { Monitored = true };
+            _firstIssue = new Issue { Monitored = true };
+            _secondIssue = new Issue { Monitored = true };
 
-            var doubleBookList = new List<Book> { _firstBook, _secondBook };
+            var doubleIssueList = new List<Issue> { _firstIssue, _secondIssue };
 
-            _parseResultMulti = new RemoteBook
+            _parseResultMulti = new RemoteIssue
             {
-                Author = _fakeAuthor,
-                Books = doubleBookList,
+                Volume = _fakeVolume,
+                Issues = doubleIssueList,
                 Release = _fakeRelease
             };
         }
 
         [Test]
-        public void indexer_and_author_without_tags_should_return_true()
+        public void indexer_and_volume_without_tags_should_return_true()
         {
             _fakeIndexerDefinition.Tags = new HashSet<int>();
-            _fakeAuthor.Tags = new HashSet<int>();
+            _fakeVolume.Tags = new HashSet<int>();
 
-            _specification.IsSatisfiedBy(_parseResultMulti, new BookSearchCriteria { MonitoredBooksOnly = true }).Accepted.Should().BeTrue();
+            _specification.IsSatisfiedBy(_parseResultMulti, new IssueSearchCriteria { MonitoredIssuesOnly = true }).Accepted.Should().BeTrue();
         }
 
         [Test]
-        public void indexer_with_tags_author_without_tags_should_return_false()
+        public void indexer_with_tags_volume_without_tags_should_return_false()
         {
             _fakeIndexerDefinition.Tags = new HashSet<int> { 123 };
-            _fakeAuthor.Tags = new HashSet<int>();
+            _fakeVolume.Tags = new HashSet<int>();
 
-            _specification.IsSatisfiedBy(_parseResultMulti, new BookSearchCriteria { MonitoredBooksOnly = true }).Accepted.Should().BeFalse();
+            _specification.IsSatisfiedBy(_parseResultMulti, new IssueSearchCriteria { MonitoredIssuesOnly = true }).Accepted.Should().BeFalse();
         }
 
         [Test]
-        public void indexer_without_tags_author_with_tags_should_return_true()
+        public void indexer_without_tags_volume_with_tags_should_return_true()
         {
             _fakeIndexerDefinition.Tags = new HashSet<int>();
-            _fakeAuthor.Tags = new HashSet<int> { 123 };
+            _fakeVolume.Tags = new HashSet<int> { 123 };
 
-            _specification.IsSatisfiedBy(_parseResultMulti, new BookSearchCriteria { MonitoredBooksOnly = true }).Accepted.Should().BeTrue();
+            _specification.IsSatisfiedBy(_parseResultMulti, new IssueSearchCriteria { MonitoredIssuesOnly = true }).Accepted.Should().BeTrue();
         }
 
         [Test]
-        public void indexer_with_tags_author_with_matching_tags_should_return_true()
+        public void indexer_with_tags_volume_with_matching_tags_should_return_true()
         {
             _fakeIndexerDefinition.Tags = new HashSet<int> { 123, 456 };
-            _fakeAuthor.Tags = new HashSet<int> { 123, 789 };
+            _fakeVolume.Tags = new HashSet<int> { 123, 789 };
 
-            _specification.IsSatisfiedBy(_parseResultMulti, new BookSearchCriteria { MonitoredBooksOnly = true }).Accepted.Should().BeTrue();
+            _specification.IsSatisfiedBy(_parseResultMulti, new IssueSearchCriteria { MonitoredIssuesOnly = true }).Accepted.Should().BeTrue();
         }
 
         [Test]
-        public void indexer_with_tags_author_with_different_tags_should_return_false()
+        public void indexer_with_tags_volume_with_different_tags_should_return_false()
         {
             _fakeIndexerDefinition.Tags = new HashSet<int> { 456 };
-            _fakeAuthor.Tags = new HashSet<int> { 123, 789 };
+            _fakeVolume.Tags = new HashSet<int> { 123, 789 };
 
-            _specification.IsSatisfiedBy(_parseResultMulti, new BookSearchCriteria { MonitoredBooksOnly = true }).Accepted.Should().BeFalse();
+            _specification.IsSatisfiedBy(_parseResultMulti, new IssueSearchCriteria { MonitoredIssuesOnly = true }).Accepted.Should().BeFalse();
         }
 
         [Test]
         public void release_without_indexerid_should_return_true()
         {
             _fakeIndexerDefinition.Tags = new HashSet<int> { 456 };
-            _fakeAuthor.Tags = new HashSet<int> { 123, 789 };
+            _fakeVolume.Tags = new HashSet<int> { 123, 789 };
             _fakeRelease.IndexerId = 0;
 
-            _specification.IsSatisfiedBy(_parseResultMulti, new BookSearchCriteria { MonitoredBooksOnly = true }).Accepted.Should().BeTrue();
+            _specification.IsSatisfiedBy(_parseResultMulti, new IssueSearchCriteria { MonitoredIssuesOnly = true }).Accepted.Should().BeTrue();
         }
 
         [Test]
         public void release_with_invalid_indexerid_should_return_true()
         {
             _fakeIndexerDefinition.Tags = new HashSet<int> { 456 };
-            _fakeAuthor.Tags = new HashSet<int> { 123, 789 };
+            _fakeVolume.Tags = new HashSet<int> { 123, 789 };
             _fakeRelease.IndexerId = 2;
 
-            _specification.IsSatisfiedBy(_parseResultMulti, new BookSearchCriteria { MonitoredBooksOnly = true }).Accepted.Should().BeTrue();
+            _specification.IsSatisfiedBy(_parseResultMulti, new IssueSearchCriteria { MonitoredIssuesOnly = true }).Accepted.Should().BeTrue();
         }
     }
 }

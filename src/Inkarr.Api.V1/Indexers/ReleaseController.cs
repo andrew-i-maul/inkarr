@@ -7,12 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using NLog;
 using NzbDrone.Common.Cache;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.DecisionEngine;
 using NzbDrone.Core.Download;
 using NzbDrone.Core.Exceptions;
 using NzbDrone.Core.Indexers;
 using NzbDrone.Core.IndexerSearch;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Parser;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Validation;
@@ -28,20 +28,20 @@ namespace Inkarr.Api.V1.Indexers
         private readonly IMakeDownloadDecision _downloadDecisionMaker;
         private readonly IPrioritizeDownloadDecision _prioritizeDownloadDecision;
         private readonly IDownloadService _downloadService;
-        private readonly IAuthorService _authorService;
-        private readonly IBookService _bookService;
+        private readonly IVolumeService _volumeService;
+        private readonly IIssueService _issueService;
         private readonly IParsingService _parsingService;
         private readonly Logger _logger;
 
-        private readonly ICached<RemoteBook> _remoteBookCache;
+        private readonly ICached<RemoteIssue> _remoteIssueCache;
 
         public ReleaseController(IFetchAndParseRss rssFetcherAndParser,
                              ISearchForReleases releaseSearchService,
                              IMakeDownloadDecision downloadDecisionMaker,
                              IPrioritizeDownloadDecision prioritizeDownloadDecision,
                              IDownloadService downloadService,
-                             IAuthorService authorService,
-                             IBookService bookService,
+                             IVolumeService volumeService,
+                             IIssueService issueService,
                              IParsingService parsingService,
                              ICacheManager cacheManager,
                              Logger logger)
@@ -51,15 +51,15 @@ namespace Inkarr.Api.V1.Indexers
             _downloadDecisionMaker = downloadDecisionMaker;
             _prioritizeDownloadDecision = prioritizeDownloadDecision;
             _downloadService = downloadService;
-            _authorService = authorService;
-            _bookService = bookService;
+            _volumeService = volumeService;
+            _issueService = issueService;
             _parsingService = parsingService;
             _logger = logger;
 
             PostValidator.RuleFor(s => s.IndexerId).ValidId();
             PostValidator.RuleFor(s => s.Guid).NotEmpty();
 
-            _remoteBookCache = cacheManager.GetCache<RemoteBook>(GetType(), "remoteBooks");
+            _remoteIssueCache = cacheManager.GetCache<RemoteIssue>(GetType(), "remoteIssues");
         }
 
         [HttpPost]
@@ -67,9 +67,9 @@ namespace Inkarr.Api.V1.Indexers
         {
             ValidateResource(release);
 
-            var remoteBook = _remoteBookCache.Find(GetCacheKey(release));
+            var remoteIssue = _remoteIssueCache.Find(GetCacheKey(release));
 
-            if (remoteBook == null)
+            if (remoteIssue == null)
             {
                 _logger.Debug("Couldn't find requested release in cache, cache timeout probably expired.");
 
@@ -78,53 +78,53 @@ namespace Inkarr.Api.V1.Indexers
 
             try
             {
-                if (remoteBook.Author == null)
+                if (remoteIssue.Volume == null)
                 {
-                    if (release.BookId.HasValue)
+                    if (release.IssueId.HasValue)
                     {
-                        var book = _bookService.GetBook(release.BookId.Value);
+                        var issue = _issueService.GetIssue(release.IssueId.Value);
 
-                        remoteBook.Author = _authorService.GetAuthor(book.AuthorId);
-                        remoteBook.Books = new List<Book> { book };
+                        remoteIssue.Volume = _volumeService.GetVolume(issue.VolumeId);
+                        remoteIssue.Issues = new List<Issue> { issue };
                     }
-                    else if (release.AuthorId.HasValue)
+                    else if (release.VolumeId.HasValue)
                     {
-                        var author = _authorService.GetAuthor(release.AuthorId.Value);
-                        var books = _parsingService.GetBooks(remoteBook.ParsedBookInfo, author);
+                        var volume = _volumeService.GetVolume(release.VolumeId.Value);
+                        var issues = _parsingService.GetIssues(remoteIssue.ParsedIssueInfo, volume);
 
-                        if (books.Empty())
+                        if (issues.Empty())
                         {
-                            throw new NzbDroneClientException(HttpStatusCode.NotFound, "Unable to parse books in the release");
+                            throw new NzbDroneClientException(HttpStatusCode.NotFound, "Unable to parse issues in the release");
                         }
 
-                        remoteBook.Author = author;
-                        remoteBook.Books = books;
+                        remoteIssue.Volume = volume;
+                        remoteIssue.Issues = issues;
                     }
                     else
                     {
-                        throw new NzbDroneClientException(HttpStatusCode.NotFound, "Unable to find matching author and books");
+                        throw new NzbDroneClientException(HttpStatusCode.NotFound, "Unable to find matching volume and issues");
                     }
                 }
-                else if (remoteBook.Books.Empty())
+                else if (remoteIssue.Issues.Empty())
                 {
-                    var books = _parsingService.GetBooks(remoteBook.ParsedBookInfo, remoteBook.Author);
+                    var issues = _parsingService.GetIssues(remoteIssue.ParsedIssueInfo, remoteIssue.Volume);
 
-                    if (books.Empty() && release.BookId.HasValue)
+                    if (issues.Empty() && release.IssueId.HasValue)
                     {
-                        var book = _bookService.GetBook(release.BookId.Value);
+                        var issue = _issueService.GetIssue(release.IssueId.Value);
 
-                        books = new List<Book> { book };
+                        issues = new List<Issue> { issue };
                     }
 
-                    remoteBook.Books = books;
+                    remoteIssue.Issues = issues;
                 }
 
-                if (remoteBook.Books.Empty())
+                if (remoteIssue.Issues.Empty())
                 {
-                    throw new NzbDroneClientException(HttpStatusCode.NotFound, "Unable to parse books in the release");
+                    throw new NzbDroneClientException(HttpStatusCode.NotFound, "Unable to parse issues in the release");
                 }
 
-                await _downloadService.DownloadReport(remoteBook, release.DownloadClientId);
+                await _downloadService.DownloadReport(remoteIssue, release.DownloadClientId);
             }
             catch (ReleaseDownloadException ex)
             {
@@ -136,49 +136,49 @@ namespace Inkarr.Api.V1.Indexers
         }
 
         [HttpGet]
-        public async Task<List<ReleaseResource>> GetReleases(int? bookId, int? authorId)
+        public async Task<List<ReleaseResource>> GetReleases(int? issueId, int? volumeId)
         {
-            if (bookId.HasValue)
+            if (issueId.HasValue)
             {
-                return await GetBookReleases(int.Parse(Request.Query["bookId"]));
+                return await GetIssueReleases(int.Parse(Request.Query["issueId"]));
             }
 
-            if (authorId.HasValue)
+            if (volumeId.HasValue)
             {
-                return await GetAuthorReleases(int.Parse(Request.Query["authorId"]));
+                return await GetVolumeReleases(int.Parse(Request.Query["volumeId"]));
             }
 
             return await GetRss();
         }
 
-        private async Task<List<ReleaseResource>> GetBookReleases(int bookId)
+        private async Task<List<ReleaseResource>> GetIssueReleases(int issueId)
         {
             try
             {
-                var decisions = await _releaseSearchService.BookSearch(bookId, true, true, true);
+                var decisions = await _releaseSearchService.IssueSearch(issueId, true, true, true);
                 var prioritizedDecisions = _prioritizeDownloadDecision.PrioritizeDecisions(decisions);
 
                 return MapDecisions(prioritizedDecisions);
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Book search failed");
+                _logger.Error(ex, "Issue search failed");
                 throw new NzbDroneClientException(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
 
-        private async Task<List<ReleaseResource>> GetAuthorReleases(int authorId)
+        private async Task<List<ReleaseResource>> GetVolumeReleases(int volumeId)
         {
             try
             {
-                var decisions = await _releaseSearchService.AuthorSearch(authorId, false, true, true);
+                var decisions = await _releaseSearchService.VolumeSearch(volumeId, false, true, true);
                 var prioritizedDecisions = _prioritizeDownloadDecision.PrioritizeDecisions(decisions);
 
                 return MapDecisions(prioritizedDecisions);
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Author search failed");
+                _logger.Error(ex, "Volume search failed");
                 throw new NzbDroneClientException(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -195,7 +195,7 @@ namespace Inkarr.Api.V1.Indexers
         protected override ReleaseResource MapDecision(DownloadDecision decision, int initialWeight)
         {
             var resource = base.MapDecision(decision, initialWeight);
-            _remoteBookCache.Set(GetCacheKey(resource), decision.RemoteBook, TimeSpan.FromMinutes(30));
+            _remoteIssueCache.Set(GetCacheKey(resource), decision.RemoteIssue, TimeSpan.FromMinutes(30));
 
             return resource;
         }

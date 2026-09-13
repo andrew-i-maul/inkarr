@@ -12,7 +12,7 @@ namespace Inkarr.Http.Extensions
         // See src/Inkarr.Api.V1/Queue/QueueModule.cs
         private static readonly HashSet<string> VALID_SORT_KEYS = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            "authors.sortname", //Workaround authors table properties not being added on isValidSortKey call
+            "volumes.sortname", //Workaround volumes table properties not being added on isValidSortKey call
             "timeleft",
             "estimatedCompletionTime",
             "protocol",

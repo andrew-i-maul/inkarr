@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Configuration;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.ThingiProvider;
 
@@ -20,33 +20,33 @@ namespace NzbDrone.Core.Notifications.Webhook
 
         public WebhookGrabPayload BuildOnGrabPayload(GrabMessage message)
         {
-            var remoteBook = message.RemoteBook;
+            var remoteIssue = message.RemoteIssue;
             var quality = message.Quality;
 
             return new WebhookGrabPayload
             {
                 EventType = WebhookEventType.Grab,
                 InstanceName = _configFileProvider.InstanceName,
-                Author = new WebhookAuthor(message.Author),
-                Books = remoteBook.Books.ConvertAll(x => new WebhookBook(x)),
-                Release = new WebhookRelease(quality, remoteBook),
+                Volume = new WebhookVolume(message.Volume),
+                Issues = remoteIssue.Issues.ConvertAll(x => new WebhookIssue(x)),
+                Release = new WebhookRelease(quality, remoteIssue),
                 DownloadClient = message.DownloadClientName,
                 DownloadClientType = message.DownloadClientType,
                 DownloadId = message.DownloadId
             };
         }
 
-        public WebhookImportPayload BuildOnReleaseImportPayload(BookDownloadMessage message)
+        public WebhookImportPayload BuildOnReleaseImportPayload(IssueDownloadMessage message)
         {
-            var trackFiles = message.BookFiles;
+            var trackFiles = message.IssueFiles;
 
             var payload = new WebhookImportPayload
             {
                 EventType = WebhookEventType.Download,
                 InstanceName = _configFileProvider.InstanceName,
-                Author = new WebhookAuthor(message.Author),
-                Book = new WebhookBook(message.Book),
-                BookFiles = trackFiles.ConvertAll(x => new WebhookBookFile(x)),
+                Volume = new WebhookVolume(message.Volume),
+                Issue = new WebhookIssue(message.Issue),
+                IssueFiles = trackFiles.ConvertAll(x => new WebhookIssueFile(x)),
                 IsUpgrade = message.OldFiles.Any(),
                 DownloadClient = message.DownloadClientInfo?.Name,
                 DownloadClientType = message.DownloadClientInfo?.Type,
@@ -55,75 +55,75 @@ namespace NzbDrone.Core.Notifications.Webhook
 
             if (message.OldFiles.Any())
             {
-                payload.DeletedFiles = message.OldFiles.ConvertAll(x => new WebhookBookFile(x));
+                payload.DeletedFiles = message.OldFiles.ConvertAll(x => new WebhookIssueFile(x));
             }
 
             return payload;
         }
 
-        public WebhookRenamePayload BuildOnRenamePayload(Author author, List<RenamedBookFile> renamedFiles)
+        public WebhookRenamePayload BuildOnRenamePayload(Volume volume, List<RenamedIssueFile> renamedFiles)
         {
             return new WebhookRenamePayload
             {
                 EventType = WebhookEventType.Rename,
                 InstanceName = _configFileProvider.InstanceName,
-                Author = new WebhookAuthor(author),
-                RenamedBookFiles = renamedFiles.ConvertAll(x => new WebhookRenamedBookFile(x))
+                Volume = new WebhookVolume(volume),
+                RenamedIssueFiles = renamedFiles.ConvertAll(x => new WebhookRenamedIssueFile(x))
             };
         }
 
-        public WebhookRetagPayload BuildOnBookRetagPayload(BookRetagMessage message)
+        public WebhookRetagPayload BuildOnIssueRetagPayload(IssueRetagMessage message)
         {
             return new WebhookRetagPayload
             {
                 EventType = WebhookEventType.Retag,
                 InstanceName = _configFileProvider.InstanceName,
-                Author = new WebhookAuthor(message.Author),
-                BookFile = new WebhookBookFile(message.BookFile)
+                Volume = new WebhookVolume(message.Volume),
+                IssueFile = new WebhookIssueFile(message.IssueFile)
             };
         }
 
-        public WebhookBookDeletePayload BuildOnBookDelete(BookDeleteMessage deleteMessage)
+        public WebhookIssueDeletePayload BuildOnIssueDelete(IssueDeleteMessage deleteMessage)
         {
-            return new WebhookBookDeletePayload
+            return new WebhookIssueDeletePayload
             {
-                EventType = WebhookEventType.BookDelete,
+                EventType = WebhookEventType.IssueDelete,
                 InstanceName = _configFileProvider.InstanceName,
-                Author = new WebhookAuthor(deleteMessage.Book.Author),
-                Book = new WebhookBook(deleteMessage.Book),
+                Volume = new WebhookVolume(deleteMessage.Issue.Volume),
+                Issue = new WebhookIssue(deleteMessage.Issue),
                 DeletedFiles = deleteMessage.DeletedFiles
             };
         }
 
-        public WebhookBookFileDeletePayload BuildOnBookFileDelete(BookFileDeleteMessage deleteMessage)
+        public WebhookIssueFileDeletePayload BuildOnIssueFileDelete(IssueFileDeleteMessage deleteMessage)
         {
-            return new WebhookBookFileDeletePayload
+            return new WebhookIssueFileDeletePayload
             {
-                EventType = WebhookEventType.BookFileDelete,
+                EventType = WebhookEventType.IssueFileDelete,
                 InstanceName = _configFileProvider.InstanceName,
-                Author = new WebhookAuthor(deleteMessage.Book.Author),
-                Book = new WebhookBook(deleteMessage.Book),
-                BookFile = new WebhookBookFile(deleteMessage.BookFile)
+                Volume = new WebhookVolume(deleteMessage.Issue.Volume),
+                Issue = new WebhookIssue(deleteMessage.Issue),
+                IssueFile = new WebhookIssueFile(deleteMessage.IssueFile)
             };
         }
 
-        public WebhookAuthorAddedPayload BuildOnAuthorAdded(Author author)
+        public WebhookVolumeAddedPayload BuildOnVolumeAdded(Volume volume)
         {
-            return new WebhookAuthorAddedPayload
+            return new WebhookVolumeAddedPayload
             {
-                EventType = WebhookEventType.AuthorAdded,
+                EventType = WebhookEventType.VolumeAdded,
                 InstanceName = _configFileProvider.InstanceName,
-                Author = new WebhookAuthor(author)
+                Volume = new WebhookVolume(volume)
             };
         }
 
-        public WebhookAuthorDeletePayload BuildOnAuthorDelete(AuthorDeleteMessage deleteMessage)
+        public WebhookVolumeDeletePayload BuildOnVolumeDelete(VolumeDeleteMessage deleteMessage)
         {
-            return new WebhookAuthorDeletePayload
+            return new WebhookVolumeDeletePayload
             {
-                EventType = WebhookEventType.AuthorDelete,
+                EventType = WebhookEventType.VolumeDelete,
                 InstanceName = _configFileProvider.InstanceName,
-                Author = new WebhookAuthor(deleteMessage.Author),
+                Volume = new WebhookVolume(deleteMessage.Volume),
                 DeletedFiles = deleteMessage.DeletedFiles
             };
         }
@@ -159,16 +159,16 @@ namespace NzbDrone.Core.Notifications.Webhook
             {
                 EventType = WebhookEventType.Test,
                 InstanceName = _configFileProvider.InstanceName,
-                Author = new WebhookAuthor()
+                Volume = new WebhookVolume()
                 {
                     Id = 1,
                     Name = "Test Name",
                     Path = "C:\\testpath",
                     GoodreadsId = "aaaaa-aaa-aaaa-aaaaaa"
                 },
-                Books = new List<WebhookBook>()
+                Issues = new List<WebhookIssue>()
                     {
-                            new WebhookBook()
+                            new WebhookIssue()
                             {
                                 Id = 123,
                                 Title = "Test title"

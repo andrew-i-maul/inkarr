@@ -2,27 +2,27 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NzbDrone.Common;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Datastore;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Messaging.Events;
 
 namespace NzbDrone.Core.MediaFiles
 {
-    public interface IMediaFileRepository : IBasicRepository<BookFile>
+    public interface IMediaFileRepository : IBasicRepository<IssueFile>
     {
-        List<BookFile> GetFilesByAuthor(int authorId);
-        List<BookFile> GetFilesByAuthorMetadataId(int authorMetadataId);
-        List<BookFile> GetFilesByBook(int bookId);
-        List<BookFile> GetFilesByEdition(int editionId);
-        List<BookFile> GetUnmappedFiles();
-        List<BookFile> GetFilesWithBasePath(string path);
-        List<BookFile> GetFileWithPath(List<string> paths);
-        BookFile GetFileWithPath(string path);
-        void DeleteFilesByBook(int bookId);
-        void UnlinkFilesByBook(int bookId);
+        List<IssueFile> GetFilesByVolume(int volumeId);
+        List<IssueFile> GetFilesByVolumeMetadataId(int volumeMetadataId);
+        List<IssueFile> GetFilesByIssue(int issueId);
+        List<IssueFile> GetFilesByEdition(int editionId);
+        List<IssueFile> GetUnmappedFiles();
+        List<IssueFile> GetFilesWithBasePath(string path);
+        List<IssueFile> GetFileWithPath(List<string> paths);
+        IssueFile GetFileWithPath(string path);
+        void DeleteFilesByIssue(int issueId);
+        void UnlinkFilesByIssue(int issueId);
     }
 
-    public class MediaFileRepository : BasicRepository<BookFile>, IMediaFileRepository
+    public class MediaFileRepository : BasicRepository<IssueFile>, IMediaFileRepository
     {
         public MediaFileRepository(IMainDatabase database, IEventAggregator eventAggregator)
             : base(database, eventAggregator)
@@ -32,103 +32,103 @@ namespace NzbDrone.Core.MediaFiles
         // always join with all the other good stuff
         // needed more often than not so better to load it all now
         protected override SqlBuilder Builder() => new SqlBuilder(_database.DatabaseType)
-            .LeftJoin<BookFile, Edition>((b, e) => b.EditionId == e.Id)
-            .LeftJoin<Edition, Book>((e, b) => e.BookId == b.Id)
-            .LeftJoin<Book, Author>((book, author) => book.AuthorMetadataId == author.AuthorMetadataId)
-            .LeftJoin<Author, AuthorMetadata>((a, m) => a.AuthorMetadataId == m.Id);
+            .LeftJoin<IssueFile, Edition>((b, e) => b.EditionId == e.Id)
+            .LeftJoin<Edition, Issue>((e, b) => e.IssueId == b.Id)
+            .LeftJoin<Issue, Volume>((issue, volume) => issue.VolumeMetadataId == volume.VolumeMetadataId)
+            .LeftJoin<Volume, VolumeMetadata>((a, m) => a.VolumeMetadataId == m.Id);
 
-        protected override List<BookFile> Query(SqlBuilder builder) => Query(_database, builder).ToList();
+        protected override List<IssueFile> Query(SqlBuilder builder) => Query(_database, builder).ToList();
 
-        public static IEnumerable<BookFile> Query(IDatabase database, SqlBuilder builder)
+        public static IEnumerable<IssueFile> Query(IDatabase database, SqlBuilder builder)
         {
-            return database.QueryJoined<BookFile, Edition, Book, Author, AuthorMetadata>(builder, (file, edition, book, author, metadata) => Map(file, edition, book, author, metadata));
+            return database.QueryJoined<IssueFile, Edition, Issue, Volume, VolumeMetadata>(builder, (file, edition, issue, volume, metadata) => Map(file, edition, issue, volume, metadata));
         }
 
-        private static BookFile Map(BookFile file, Edition edition, Book book, Author author, AuthorMetadata metadata)
+        private static IssueFile Map(IssueFile file, Edition edition, Issue issue, Volume volume, VolumeMetadata metadata)
         {
             file.Edition = edition;
 
             if (edition != null)
             {
-                edition.Book = book;
+                edition.Issue = issue;
             }
 
-            if (author != null)
+            if (volume != null)
             {
-                author.Metadata = metadata;
+                volume.Metadata = metadata;
             }
 
-            file.Author = author;
+            file.Volume = volume;
 
             return file;
         }
 
-        public List<BookFile> GetFilesByAuthor(int authorId)
+        public List<IssueFile> GetFilesByVolume(int volumeId)
         {
-            return Query(Builder().Where<Author>(a => a.Id == authorId));
+            return Query(Builder().Where<Volume>(a => a.Id == volumeId));
         }
 
-        public List<BookFile> GetFilesByAuthorMetadataId(int authorMetadataId)
+        public List<IssueFile> GetFilesByVolumeMetadataId(int volumeMetadataId)
         {
-            return Query(Builder().Where<Book>(b => b.AuthorMetadataId == authorMetadataId));
+            return Query(Builder().Where<Issue>(b => b.VolumeMetadataId == volumeMetadataId));
         }
 
-        public List<BookFile> GetFilesByBook(int bookId)
+        public List<IssueFile> GetFilesByIssue(int issueId)
         {
-            return Query(Builder().Where<Book>(b => b.Id == bookId));
+            return Query(Builder().Where<Issue>(b => b.Id == issueId));
         }
 
-        public List<BookFile> GetFilesByEdition(int editionId)
+        public List<IssueFile> GetFilesByEdition(int editionId)
         {
-            return Query(Builder().Where<BookFile>(f => f.EditionId == editionId));
+            return Query(Builder().Where<IssueFile>(f => f.EditionId == editionId));
         }
 
-        public List<BookFile> GetUnmappedFiles()
+        public List<IssueFile> GetUnmappedFiles()
         {
-            return _database.Query<BookFile>(new SqlBuilder(_database.DatabaseType).Select(typeof(BookFile))
-                                              .Where<BookFile>(t => t.EditionId == 0)).ToList();
+            return _database.Query<IssueFile>(new SqlBuilder(_database.DatabaseType).Select(typeof(IssueFile))
+                                              .Where<IssueFile>(t => t.EditionId == 0)).ToList();
         }
 
-        public void DeleteFilesByBook(int bookId)
+        public void DeleteFilesByIssue(int issueId)
         {
-            var fileIds = GetFilesByBook(bookId).Select(x => x.Id).ToList();
+            var fileIds = GetFilesByIssue(issueId).Select(x => x.Id).ToList();
             Delete(x => fileIds.Contains(x.Id));
         }
 
-        public void UnlinkFilesByBook(int bookId)
+        public void UnlinkFilesByIssue(int issueId)
         {
-            var files = GetFilesByBook(bookId);
+            var files = GetFilesByIssue(issueId);
             files.ForEach(x => x.EditionId = 0);
             SetFields(files, f => f.EditionId);
         }
 
-        public List<BookFile> GetFilesWithBasePath(string path)
+        public List<IssueFile> GetFilesWithBasePath(string path)
         {
             // ensure path ends with a single trailing path separator to avoid matching partial paths
             var safePath = path.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
-            return _database.Query<BookFile>(new SqlBuilder(_database.DatabaseType).Where<BookFile>(x => x.Path.StartsWith(safePath))).ToList();
+            return _database.Query<IssueFile>(new SqlBuilder(_database.DatabaseType).Where<IssueFile>(x => x.Path.StartsWith(safePath))).ToList();
         }
 
-        public BookFile GetFileWithPath(string path)
+        public IssueFile GetFileWithPath(string path)
         {
             return Query(x => x.Path == path).SingleOrDefault();
         }
 
-        public List<BookFile> GetFileWithPath(List<string> paths)
+        public List<IssueFile> GetFileWithPath(List<string> paths)
         {
             // use more limited join for speed
             var builder = new SqlBuilder(_database.DatabaseType)
-                .LeftJoin<BookFile, Edition>((f, t) => f.EditionId == t.Id);
+                .LeftJoin<IssueFile, Edition>((f, t) => f.EditionId == t.Id);
 
-            var all = _database.QueryJoined<BookFile, Edition>(builder, (file, book) => MapTrack(file, book)).ToList();
+            var all = _database.QueryJoined<IssueFile, Edition>(builder, (file, issue) => MapTrack(file, issue)).ToList();
 
             var joined = all.Join(paths, x => x.Path, x => x, (file, path) => file, PathEqualityComparer.Instance).ToList();
             return joined;
         }
 
-        private BookFile MapTrack(BookFile file, Edition book)
+        private IssueFile MapTrack(IssueFile file, Edition issue)
         {
-            file.Edition = book;
+            file.Edition = issue;
             return file;
         }
     }

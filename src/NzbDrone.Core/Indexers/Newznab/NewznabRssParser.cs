@@ -88,8 +88,8 @@ namespace NzbDrone.Core.Indexers.Newznab
         {
             releaseInfo = base.ProcessItem(item, releaseInfo);
 
-            releaseInfo.Author = GetAuthor(item);
-            releaseInfo.Book = GetBook(item);
+            releaseInfo.Volume = GetVolume(item);
+            releaseInfo.Issue = GetIssue(item);
 
             return releaseInfo;
         }
@@ -171,25 +171,25 @@ namespace NzbDrone.Core.Indexers.Newznab
             return cats;
         }
 
-        protected virtual string GetAuthor(XElement item)
+        protected virtual string GetVolume(XElement item)
         {
-            var authorString = TryGetNewznabAttribute(item, "author");
+            var volumeString = TryGetNewznabAttribute(item, "volume");
 
-            if (!authorString.IsNullOrWhiteSpace())
+            if (!volumeString.IsNullOrWhiteSpace())
             {
-                return authorString;
+                return volumeString;
             }
 
             return "";
         }
 
-        protected virtual string GetBook(XElement item)
+        protected virtual string GetIssue(XElement item)
         {
-            var bookString = TryGetNewznabAttribute(item, "booktitle");
+            var issueString = TryGetNewznabAttribute(item, "issuetitle");
 
-            if (!bookString.IsNullOrWhiteSpace())
+            if (!issueString.IsNullOrWhiteSpace())
             {
-                return bookString;
+                return issueString;
             }
 
             return "";

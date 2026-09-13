@@ -10,11 +10,11 @@ using NzbDrone.Common.Instrumentation;
 using NzbDrone.Common.Instrumentation.Extensions;
 using NzbDrone.Core.Parser.Model;
 
-namespace NzbDrone.Core.MediaFiles.BookImport.Identification
+namespace NzbDrone.Core.MediaFiles.IssueImport.Identification
 {
     public interface ITrackGroupingService
     {
-        List<LocalEdition> GroupTracks(List<LocalBook> localTracks);
+        List<LocalEdition> GroupTracks(List<LocalIssue> localTracks);
     }
 
     public class TrackGroupingService : ITrackGroupingService
@@ -23,9 +23,9 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
 
         private static readonly List<string> MultiDiscMarkers = new () { @"dis[ck]", @"cd" };
         private static readonly string MultiDiscPatternFormat = @"^(?<root>.*%s[\W_]*)\d";
-        private static readonly List<string> VariousAuthorTitles = new () { "", "various authors", "various", "va", "unknown" };
+        private static readonly List<string> VariousVolumeTitles = new () { "", "various volumes", "various", "va", "unknown" };
 
-        public List<LocalEdition> GroupTracks(List<LocalBook> localTracks)
+        public List<LocalEdition> GroupTracks(List<LocalIssue> localTracks)
         {
             _logger.ProgressInfo($"Grouping {localTracks.Count} tracks");
 
@@ -36,11 +36,11 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
 
             foreach (var file in textFiles)
             {
-                releases.Add(new LocalEdition(new List<LocalBook> { file }));
+                releases.Add(new LocalEdition(new List<LocalIssue> { file }));
             }
 
             // first attempt, assume grouped by folder
-            var unprocessed = new List<LocalBook>();
+            var unprocessed = new List<LocalIssue>();
             foreach (var group in GroupTracksByDirectory(localTracks.Except(textFiles).ToList()))
             {
                 var tracks = group.ToList();
@@ -54,11 +54,11 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
                 }
             }
 
-            // If anything didn't get grouped correctly, try grouping by Book (to pick up VA)
-            var unprocessed2 = new List<LocalBook>();
-            foreach (var group in unprocessed.GroupBy(x => x.FileTrackInfo.BookTitle))
+            // If anything didn't get grouped correctly, try grouping by Issue (to pick up VA)
+            var unprocessed2 = new List<LocalIssue>();
+            foreach (var group in unprocessed.GroupBy(x => x.FileTrackInfo.IssueTitle))
             {
-                _logger.Debug("Falling back to grouping by book tag");
+                _logger.Debug("Falling back to grouping by issue tag");
                 var tracks = group.ToList();
                 if (LooksLikeSingleRelease(tracks))
                 {
@@ -70,10 +70,10 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
                 }
             }
 
-            // Finally fall back to grouping by Book/Author pair
-            foreach (var group in unprocessed2.GroupBy(x => new { x.FileTrackInfo.AuthorTitle, x.FileTrackInfo.BookTitle }))
+            // Finally fall back to grouping by Issue/Volume pair
+            foreach (var group in unprocessed2.GroupBy(x => new { x.FileTrackInfo.VolumeTitle, x.FileTrackInfo.IssueTitle }))
             {
-                _logger.Debug("Falling back to grouping by book+author tag");
+                _logger.Debug("Falling back to grouping by issue+volume tag");
                 releases.Add(new LocalEdition(group.ToList()));
             }
 
@@ -112,39 +112,39 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
             return true;
         }
 
-        public static bool LooksLikeSingleRelease(List<LocalBook> tracks)
+        public static bool LooksLikeSingleRelease(List<LocalIssue> tracks)
         {
             // returns true if we think all the tracks belong to a single release
 
-            // author/book tags must be the same for 75% of tracks, with no more than 25% having different values
-            // (except in the case of various authors)
-            const double bookTagThreshold = 0.25;
-            const double authorTagThreshold = 0.25;
+            // volume/issue tags must be the same for 75% of tracks, with no more than 25% having different values
+            // (except in the case of various volumes)
+            const double issueTagThreshold = 0.25;
+            const double volumeTagThreshold = 0.25;
             const double tagFuzz = 0.9;
 
-            // check that any Book/Release MBID is unique
-            if (tracks.Select(x => x.FileTrackInfo.BookMBId).Distinct().Count(x => x.IsNotNullOrWhiteSpace()) > 1 ||
+            // check that any Issue/Release MBID is unique
+            if (tracks.Select(x => x.FileTrackInfo.IssueMBId).Distinct().Count(x => x.IsNotNullOrWhiteSpace()) > 1 ||
                 tracks.Select(x => x.FileTrackInfo.ReleaseMBId).Distinct().Count(x => x.IsNotNullOrWhiteSpace()) > 1)
             {
                 _logger.Trace("LooksLikeSingleRelease: MBIDs are not unique");
                 return false;
             }
 
-            // check that there's a common book tag.
-            var bookTags = tracks.Select(x => x.FileTrackInfo.BookTitle);
-            if (!HasCommonEntry(bookTags, bookTagThreshold, tagFuzz))
+            // check that there's a common issue tag.
+            var issueTags = tracks.Select(x => x.FileTrackInfo.IssueTitle);
+            if (!HasCommonEntry(issueTags, issueTagThreshold, tagFuzz))
             {
-                _logger.Trace("LooksLikeSingleRelease: No common book tag");
+                _logger.Trace("LooksLikeSingleRelease: No common issue tag");
                 return false;
             }
 
-            // If not various authors, make sure authors are sensible
-            if (!IsVariousAuthors(tracks))
+            // If not various volumes, make sure volumes are sensible
+            if (!IsVariousVolumes(tracks))
             {
-                var authorTags = tracks.Select(x => x.FileTrackInfo.AuthorTitle);
-                if (!HasCommonEntry(authorTags, authorTagThreshold, tagFuzz))
+                var volumeTags = tracks.Select(x => x.FileTrackInfo.VolumeTitle);
+                if (!HasCommonEntry(volumeTags, volumeTagThreshold, tagFuzz))
                 {
-                    _logger.Trace("LooksLikeSingleRelease: No common author tag");
+                    _logger.Trace("LooksLikeSingleRelease: No common volume tag");
                     return false;
                 }
             }
@@ -152,22 +152,22 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
             return true;
         }
 
-        public static bool IsVariousAuthors(List<LocalBook> tracks)
+        public static bool IsVariousVolumes(List<LocalIssue> tracks)
         {
             // checks whether most common title is a known VA title
-            // Also checks whether more than 75% of tracks have a distinct author and that the most common author
+            // Also checks whether more than 75% of tracks have a distinct volume and that the most common volume
             // is responsible for < 25% of tracks
-            const double authorTagThreshold = 0.75;
+            const double volumeTagThreshold = 0.75;
             const double tagFuzz = 0.9;
 
-            var authorTags = tracks.Select(x => x.FileTrackInfo.AuthorTitle).ToList();
+            var volumeTags = tracks.Select(x => x.FileTrackInfo.VolumeTitle).ToList();
 
-            if (!HasCommonEntry(authorTags, authorTagThreshold, tagFuzz))
+            if (!HasCommonEntry(volumeTags, volumeTagThreshold, tagFuzz))
             {
                 return true;
             }
 
-            if (VariousAuthorTitles.Contains(authorTags.GroupBy(x => x).OrderByDescending(x => x.Count()).First().Key, StringComparer.OrdinalIgnoreCase))
+            if (VariousVolumeTitles.Contains(volumeTags.GroupBy(x => x).OrderByDescending(x => x.Count()).First().Key, StringComparer.OrdinalIgnoreCase))
             {
                 return true;
             }
@@ -175,7 +175,7 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
             return false;
         }
 
-        private IEnumerable<List<LocalBook>> GroupTracksByDirectory(List<LocalBook> tracks)
+        private IEnumerable<List<LocalIssue>> GroupTracksByDirectory(List<LocalIssue> tracks)
         {
             // we want to check for layouts like:
             // xx/CD1/1.mp3
@@ -194,7 +194,7 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
             _logger.Trace("Folders:\n{0}", string.Join("\n", distinctFolders));
 
             Regex subdirRegex = null;
-            var output = new List<LocalBook>();
+            var output = new List<LocalIssue>();
             foreach (var folder in distinctFolders)
             {
                 if (subdirRegex != null)
@@ -214,7 +214,7 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
                     _logger.Trace("Yielding from 1:\n{0}", string.Join("\n", output));
                     yield return output;
 
-                    output = new List<LocalBook>();
+                    output = new List<LocalIssue>();
                 }
 
                 // reset and put current folder into output
@@ -246,7 +246,7 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
                     yield return output;
 
                     // reset output
-                    output = new List<LocalBook>();
+                    output = new List<LocalIssue>();
                 }
             }
 

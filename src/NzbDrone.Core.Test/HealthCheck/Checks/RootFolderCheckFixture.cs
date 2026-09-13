@@ -4,9 +4,9 @@ using FizzWare.NBuilder;
 using Moq;
 using NUnit.Framework;
 using NzbDrone.Common.Disk;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.HealthCheck.Checks;
 using NzbDrone.Core.ImportLists;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Localization;
 using NzbDrone.Core.RootFolders;
 using NzbDrone.Core.Test.Framework;
@@ -27,7 +27,7 @@ namespace NzbDrone.Core.Test.HealthCheck.Checks
 
         private void GivenMissingRootFolder(string rootFolderPath)
         {
-            var author = Builder<Author>.CreateListOfSize(1)
+            var volume = Builder<Volume>.CreateListOfSize(1)
                                         .Build()
                                         .ToList();
 
@@ -35,9 +35,9 @@ namespace NzbDrone.Core.Test.HealthCheck.Checks
                 .Build()
                 .ToList();
 
-            Mocker.GetMock<IAuthorService>()
-                  .Setup(s => s.AllAuthorPaths())
-                  .Returns(author.ToDictionary(x => x.Id, x => x.Path));
+            Mocker.GetMock<IVolumeService>()
+                  .Setup(s => s.AllVolumePaths())
+                  .Returns(volume.ToDictionary(x => x.Id, x => x.Path));
 
             Mocker.GetMock<IImportListFactory>()
                 .Setup(s => s.All())
@@ -53,10 +53,10 @@ namespace NzbDrone.Core.Test.HealthCheck.Checks
         }
 
         [Test]
-        public void should_not_return_error_when_no_book()
+        public void should_not_return_error_when_no_issue()
         {
-            Mocker.GetMock<IAuthorService>()
-                  .Setup(s => s.AllAuthorPaths())
+            Mocker.GetMock<IVolumeService>()
+                  .Setup(s => s.AllVolumePaths())
                   .Returns(new Dictionary<int, string>());
 
             Mocker.GetMock<IImportListFactory>()
@@ -67,9 +67,9 @@ namespace NzbDrone.Core.Test.HealthCheck.Checks
         }
 
         [Test]
-        public void should_return_error_if_book_parent_is_missing()
+        public void should_return_error_if_issue_parent_is_missing()
         {
-            GivenMissingRootFolder(@"C:\Books".AsOsAgnostic());
+            GivenMissingRootFolder(@"C:\Issues".AsOsAgnostic());
 
             Subject.Check().ShouldBeError();
         }
@@ -78,7 +78,7 @@ namespace NzbDrone.Core.Test.HealthCheck.Checks
         public void should_return_error_if_series_path_is_for_posix_os()
         {
             WindowsOnly();
-            GivenMissingRootFolder("/mnt/books");
+            GivenMissingRootFolder("/mnt/issues");
 
             Subject.Check().ShouldBeError();
         }
@@ -87,7 +87,7 @@ namespace NzbDrone.Core.Test.HealthCheck.Checks
         public void should_return_error_if_series_path_is_for_windows()
         {
             PosixOnly();
-            GivenMissingRootFolder(@"C:\Books");
+            GivenMissingRootFolder(@"C:\Issues");
 
             Subject.Check().ShouldBeError();
         }

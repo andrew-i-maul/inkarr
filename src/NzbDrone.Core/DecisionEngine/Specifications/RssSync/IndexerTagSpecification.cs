@@ -22,9 +22,9 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
         public SpecificationPriority Priority => SpecificationPriority.Default;
         public RejectionType Type => RejectionType.Permanent;
 
-        public virtual Decision IsSatisfiedBy(RemoteBook subject, SearchCriteriaBase searchCriteria)
+        public virtual Decision IsSatisfiedBy(RemoteIssue subject, SearchCriteriaBase searchCriteria)
         {
-            if (subject.Release == null || subject.Author?.Tags == null || subject.Release.IndexerId == 0)
+            if (subject.Release == null || subject.Volume?.Tags == null || subject.Release.IndexerId == 0)
             {
                 return Decision.Accept();
             }
@@ -43,11 +43,11 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
             // If indexer has tags, check that at least one of them is present on the series
             var indexerTags = indexer.Tags;
 
-            if (indexerTags.Any() && indexerTags.Intersect(subject.Author.Tags).Empty())
+            if (indexerTags.Any() && indexerTags.Intersect(subject.Volume.Tags).Empty())
             {
-                _logger.Debug("Indexer {0} has tags. None of these are present on author {1}. Rejecting", subject.Release.Indexer, subject.Author);
+                _logger.Debug("Indexer {0} has tags. None of these are present on volume {1}. Rejecting", subject.Release.Indexer, subject.Volume);
 
-                return Decision.Reject("Author tags do not match any of the indexer tags");
+                return Decision.Reject("Volume tags do not match any of the indexer tags");
             }
 
             return Decision.Accept();

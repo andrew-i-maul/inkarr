@@ -8,7 +8,7 @@ namespace NzbDrone.Integration.Test
     [TestFixture]
     public class CorsFixture : IntegrationTest
     {
-        private RestRequest BuildGet(string route = "author")
+        private RestRequest BuildGet(string route = "volume")
         {
             var request = new RestRequest(route, Method.GET);
             request.AddHeader("Origin", "http://a.different.domain");
@@ -17,7 +17,7 @@ namespace NzbDrone.Integration.Test
             return request;
         }
 
-        private RestRequest BuildOptions(string route = "author")
+        private RestRequest BuildOptions(string route = "volume")
         {
             var request = new RestRequest(route, Method.OPTIONS);
             request.AddHeader("Origin", "http://a.different.domain");

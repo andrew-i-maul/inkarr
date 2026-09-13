@@ -15,14 +15,14 @@ namespace NzbDrone.Core.Notifications
         List<INotification> OnUpgradeEnabled(bool filterBlockedNotifications = true);
         List<INotification> OnRenameEnabled(bool filterBlockedNotifications = true);
         List<INotification> OnHealthIssueEnabled(bool filterBlockedNotifications = true);
-        List<INotification> OnAuthorAddedEnabled(bool filterBlockedNotifications = true);
-        List<INotification> OnAuthorDeleteEnabled(bool filterBlockedNotifications = true);
-        List<INotification> OnBookDeleteEnabled(bool filterBlockedNotifications = true);
-        List<INotification> OnBookFileDeleteEnabled(bool filterBlockedNotifications = true);
-        List<INotification> OnBookFileDeleteForUpgradeEnabled(bool filterBlockedNotifications = true);
+        List<INotification> OnVolumeAddedEnabled(bool filterBlockedNotifications = true);
+        List<INotification> OnVolumeDeleteEnabled(bool filterBlockedNotifications = true);
+        List<INotification> OnIssueDeleteEnabled(bool filterBlockedNotifications = true);
+        List<INotification> OnIssueFileDeleteEnabled(bool filterBlockedNotifications = true);
+        List<INotification> OnIssueFileDeleteForUpgradeEnabled(bool filterBlockedNotifications = true);
         List<INotification> OnDownloadFailureEnabled(bool filterBlockedNotifications = true);
         List<INotification> OnImportFailureEnabled(bool filterBlockedNotifications = true);
-        List<INotification> OnBookRetagEnabled(bool filterBlockedNotifications = true);
+        List<INotification> OnIssueRetagEnabled(bool filterBlockedNotifications = true);
         List<INotification> OnApplicationUpdateEnabled(bool filterBlockedNotifications = true);
     }
 
@@ -83,54 +83,54 @@ namespace NzbDrone.Core.Notifications
             return GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnRename).ToList();
         }
 
-        public List<INotification> OnAuthorAddedEnabled(bool filterBlockedNotifications = true)
+        public List<INotification> OnVolumeAddedEnabled(bool filterBlockedNotifications = true)
         {
             if (filterBlockedNotifications)
             {
-                return FilterBlockedNotifications(GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnAuthorAdded)).ToList();
+                return FilterBlockedNotifications(GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnVolumeAdded)).ToList();
             }
 
-            return GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnAuthorAdded).ToList();
+            return GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnVolumeAdded).ToList();
         }
 
-        public List<INotification> OnAuthorDeleteEnabled(bool filterBlockedNotifications = true)
+        public List<INotification> OnVolumeDeleteEnabled(bool filterBlockedNotifications = true)
         {
             if (filterBlockedNotifications)
             {
-                return FilterBlockedNotifications(GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnAuthorDelete)).ToList();
+                return FilterBlockedNotifications(GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnVolumeDelete)).ToList();
             }
 
-            return GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnAuthorDelete).ToList();
+            return GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnVolumeDelete).ToList();
         }
 
-        public List<INotification> OnBookDeleteEnabled(bool filterBlockedNotifications = true)
+        public List<INotification> OnIssueDeleteEnabled(bool filterBlockedNotifications = true)
         {
             if (filterBlockedNotifications)
             {
-                return FilterBlockedNotifications(GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnBookDelete)).ToList();
+                return FilterBlockedNotifications(GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnIssueDelete)).ToList();
             }
 
-            return GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnBookDelete).ToList();
+            return GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnIssueDelete).ToList();
         }
 
-        public List<INotification> OnBookFileDeleteEnabled(bool filterBlockedNotifications = true)
+        public List<INotification> OnIssueFileDeleteEnabled(bool filterBlockedNotifications = true)
         {
             if (filterBlockedNotifications)
             {
-                return FilterBlockedNotifications(GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnBookFileDelete)).ToList();
+                return FilterBlockedNotifications(GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnIssueFileDelete)).ToList();
             }
 
-            return GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnBookFileDelete).ToList();
+            return GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnIssueFileDelete).ToList();
         }
 
-        public List<INotification> OnBookFileDeleteForUpgradeEnabled(bool filterBlockedNotifications = true)
+        public List<INotification> OnIssueFileDeleteForUpgradeEnabled(bool filterBlockedNotifications = true)
         {
             if (filterBlockedNotifications)
             {
-                return FilterBlockedNotifications(GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnBookFileDeleteForUpgrade)).ToList();
+                return FilterBlockedNotifications(GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnIssueFileDeleteForUpgrade)).ToList();
             }
 
-            return GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnBookFileDeleteForUpgrade).ToList();
+            return GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnIssueFileDeleteForUpgrade).ToList();
         }
 
         public List<INotification> OnHealthIssueEnabled(bool filterBlockedNotifications = true)
@@ -163,14 +163,14 @@ namespace NzbDrone.Core.Notifications
             return GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnImportFailure).ToList();
         }
 
-        public List<INotification> OnBookRetagEnabled(bool filterBlockedNotifications = true)
+        public List<INotification> OnIssueRetagEnabled(bool filterBlockedNotifications = true)
         {
             if (filterBlockedNotifications)
             {
-                return FilterBlockedNotifications(GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnBookRetag)).ToList();
+                return FilterBlockedNotifications(GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnIssueRetag)).ToList();
             }
 
-            return GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnBookRetag).ToList();
+            return GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnIssueRetag).ToList();
         }
 
         public List<INotification> OnApplicationUpdateEnabled(bool filterBlockedNotifications = true)
@@ -207,15 +207,15 @@ namespace NzbDrone.Core.Notifications
             definition.SupportsOnReleaseImport = provider.SupportsOnReleaseImport;
             definition.SupportsOnUpgrade = provider.SupportsOnUpgrade;
             definition.SupportsOnRename = provider.SupportsOnRename;
-            definition.SupportsOnAuthorAdded = provider.SupportsOnAuthorAdded;
-            definition.SupportsOnAuthorDelete = provider.SupportsOnAuthorDelete;
-            definition.SupportsOnBookDelete = provider.SupportsOnBookDelete;
-            definition.SupportsOnBookFileDelete = provider.SupportsOnBookFileDelete;
-            definition.SupportsOnBookFileDeleteForUpgrade = provider.SupportsOnBookFileDeleteForUpgrade;
+            definition.SupportsOnVolumeAdded = provider.SupportsOnVolumeAdded;
+            definition.SupportsOnVolumeDelete = provider.SupportsOnVolumeDelete;
+            definition.SupportsOnIssueDelete = provider.SupportsOnIssueDelete;
+            definition.SupportsOnIssueFileDelete = provider.SupportsOnIssueFileDelete;
+            definition.SupportsOnIssueFileDeleteForUpgrade = provider.SupportsOnIssueFileDeleteForUpgrade;
             definition.SupportsOnHealthIssue = provider.SupportsOnHealthIssue;
             definition.SupportsOnDownloadFailure = provider.SupportsOnDownloadFailure;
             definition.SupportsOnImportFailure = provider.SupportsOnImportFailure;
-            definition.SupportsOnBookRetag = provider.SupportsOnBookRetag;
+            definition.SupportsOnIssueRetag = provider.SupportsOnIssueRetag;
             definition.SupportsOnApplicationUpdate = provider.SupportsOnApplicationUpdate;
         }
 

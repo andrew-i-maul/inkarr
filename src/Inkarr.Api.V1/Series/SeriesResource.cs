@@ -8,12 +8,12 @@ namespace Inkarr.Api.V1.Series
     {
         public string Title { get; set; }
         public string Description { get; set; }
-        public List<SeriesBookLinkResource> Links { get; set; }
+        public List<SeriesIssueLinkResource> Links { get; set; }
     }
 
     public static class SeriesResourceMapper
     {
-        public static SeriesResource ToResource(this NzbDrone.Core.Books.Series model)
+        public static SeriesResource ToResource(this NzbDrone.Core.Issues.Series model)
         {
             if (model == null)
             {
@@ -29,7 +29,7 @@ namespace Inkarr.Api.V1.Series
             };
         }
 
-        public static List<SeriesResource> ToResource(this IEnumerable<NzbDrone.Core.Books.Series> models)
+        public static List<SeriesResource> ToResource(this IEnumerable<NzbDrone.Core.Issues.Series> models)
         {
             return models?.Select(ToResource).ToList();
         }

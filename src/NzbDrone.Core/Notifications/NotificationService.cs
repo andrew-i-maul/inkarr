@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using NLog;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
-using NzbDrone.Core.Books.Events;
 using NzbDrone.Core.Download;
 using NzbDrone.Core.HealthCheck;
+using NzbDrone.Core.Issues;
+using NzbDrone.Core.Issues.Events;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.MediaFiles.Events;
 using NzbDrone.Core.Messaging.Events;
@@ -17,17 +17,17 @@ using NzbDrone.Core.Update.History.Events;
 namespace NzbDrone.Core.Notifications
 {
     public class NotificationService
-        : IHandle<BookGrabbedEvent>,
-          IHandle<BookImportedEvent>,
-          IHandle<AuthorRenamedEvent>,
-          IHandle<AuthorAddedEvent>,
-          IHandle<AuthorDeletedEvent>,
-          IHandle<BookDeletedEvent>,
-          IHandle<BookFileDeletedEvent>,
+        : IHandle<IssueGrabbedEvent>,
+          IHandle<IssueImportedEvent>,
+          IHandle<VolumeRenamedEvent>,
+          IHandle<VolumeAddedEvent>,
+          IHandle<VolumeDeletedEvent>,
+          IHandle<IssueDeletedEvent>,
+          IHandle<IssueFileDeletedEvent>,
           IHandle<HealthCheckFailedEvent>,
           IHandle<DownloadFailedEvent>,
-          IHandle<BookImportIncompleteEvent>,
-          IHandle<BookFileRetaggedEvent>,
+          IHandle<IssueImportIncompleteEvent>,
+          IHandle<IssueFileRetaggedEvent>,
           IHandleAsync<DeleteCompletedEvent>,
           IHandle<UpdateInstalledEvent>
     {
@@ -42,7 +42,7 @@ namespace NzbDrone.Core.Notifications
             _logger = logger;
         }
 
-        private string GetMessage(Author author, List<Book> books, QualityModel quality)
+        private string GetMessage(Volume volume, List<Issue> issues, QualityModel quality)
         {
             var qualityString = quality.Quality.ToString();
 
@@ -51,23 +51,23 @@ namespace NzbDrone.Core.Notifications
                 qualityString += " Proper";
             }
 
-            var bookTitles = string.Join(" + ", books.Select(e => e.Title));
+            var issueTitles = string.Join(" + ", issues.Select(e => e.Title));
 
             return string.Format("{0} - {1} - [{2}]",
-                                    author.Name,
-                                    bookTitles,
+                                    volume.Name,
+                                    issueTitles,
                                     qualityString);
         }
 
-        private string GetBookDownloadMessage(Author author, Book book, List<BookFile> tracks)
+        private string GetIssueDownloadMessage(Volume volume, Issue issue, List<IssueFile> tracks)
         {
             return string.Format("{0} - {1} ({2} Files Imported)",
-                author.Name,
-                book.Title,
+                volume.Name,
+                issue.Title,
                 tracks.Count);
         }
 
-        private string GetBookIncompleteImportMessage(string source)
+        private string GetIssueIncompleteImportMessage(string source)
         {
             return string.Format("Inkarr failed to Import all files for {0}",
                 source);
@@ -79,14 +79,14 @@ namespace NzbDrone.Core.Notifications
             return text.IsNullOrWhiteSpace() ? "<missing>" : text;
         }
 
-        private string GetTrackRetagMessage(Author author, BookFile bookFile, Dictionary<string, Tuple<string, string>> diff)
+        private string GetTrackRetagMessage(Volume volume, IssueFile issueFile, Dictionary<string, Tuple<string, string>> diff)
         {
             return string.Format("{0}:\n{1}",
-                                 bookFile.Path,
+                                 issueFile.Path,
                                  string.Join("\n", diff.Select(x => $"{x.Key}: {FormatMissing(x.Value.Item1)} → {FormatMissing(x.Value.Item2)}")));
         }
 
-        private bool ShouldHandleAuthor(ProviderDefinition definition, Author author)
+        private bool ShouldHandleVolume(ProviderDefinition definition, Volume volume)
         {
             if (definition.Tags.Empty())
             {
@@ -94,14 +94,14 @@ namespace NzbDrone.Core.Notifications
                 return true;
             }
 
-            if (definition.Tags.Intersect(author.Tags).Any())
+            if (definition.Tags.Intersect(volume.Tags).Any())
             {
-                _logger.Debug("Notification and author have one or more intersecting tags.");
+                _logger.Debug("Notification and volume have one or more intersecting tags.");
                 return true;
             }
 
             //TODO: this message could be more clear
-            _logger.Debug("{0} does not have any intersecting tags with {1}. Notification will not be sent.", definition.Name, author.Name);
+            _logger.Debug("{0} does not have any intersecting tags with {1}. Notification will not be sent.", definition.Name, volume.Name);
             return false;
         }
 
@@ -120,14 +120,14 @@ namespace NzbDrone.Core.Notifications
             return false;
         }
 
-        public void Handle(BookGrabbedEvent message)
+        public void Handle(IssueGrabbedEvent message)
         {
             var grabMessage = new GrabMessage
             {
-                Message = GetMessage(message.Book.Author, message.Book.Books, message.Book.ParsedBookInfo.Quality),
-                Author = message.Book.Author,
-                Quality = message.Book.ParsedBookInfo.Quality,
-                RemoteBook = message.Book,
+                Message = GetMessage(message.Issue.Volume, message.Issue.Issues, message.Issue.ParsedIssueInfo.Quality),
+                Volume = message.Issue.Volume,
+                Quality = message.Issue.ParsedIssueInfo.Quality,
+                RemoteIssue = message.Issue,
                 DownloadClientName = message.DownloadClientName,
                 DownloadClientType = message.DownloadClient,
                 DownloadId = message.DownloadId
@@ -137,7 +137,7 @@ namespace NzbDrone.Core.Notifications
             {
                 try
                 {
-                    if (!ShouldHandleAuthor(notification.Definition, message.Book.Author))
+                    if (!ShouldHandleVolume(notification.Definition, message.Issue.Volume))
                     {
                         continue;
                     }
@@ -153,21 +153,21 @@ namespace NzbDrone.Core.Notifications
             }
         }
 
-        public void Handle(BookImportedEvent message)
+        public void Handle(IssueImportedEvent message)
         {
             if (!message.NewDownload)
             {
                 return;
             }
 
-            var downloadMessage = new BookDownloadMessage
+            var downloadMessage = new IssueDownloadMessage
             {
-                Message = GetBookDownloadMessage(message.Author, message.Book, message.ImportedBooks),
-                Author = message.Author,
-                Book = message.Book,
+                Message = GetIssueDownloadMessage(message.Volume, message.Issue, message.ImportedIssues),
+                Volume = message.Volume,
+                Issue = message.Issue,
                 DownloadClientInfo = message.DownloadClientInfo,
                 DownloadId = message.DownloadId,
-                BookFiles = message.ImportedBooks,
+                IssueFiles = message.ImportedIssues,
                 OldFiles = message.OldFiles,
             };
 
@@ -175,7 +175,7 @@ namespace NzbDrone.Core.Notifications
             {
                 try
                 {
-                    if (ShouldHandleAuthor(notification.Definition, message.Author))
+                    if (ShouldHandleVolume(notification.Definition, message.Volume))
                     {
                         if (downloadMessage.OldFiles.Empty() || ((NotificationDefinition)notification.Definition).OnUpgrade)
                         {
@@ -192,15 +192,15 @@ namespace NzbDrone.Core.Notifications
             }
         }
 
-        public void Handle(AuthorRenamedEvent message)
+        public void Handle(VolumeRenamedEvent message)
         {
             foreach (var notification in _notificationFactory.OnRenameEnabled())
             {
                 try
                 {
-                    if (ShouldHandleAuthor(notification.Definition, message.Author))
+                    if (ShouldHandleVolume(notification.Definition, message.Volume))
                     {
-                        notification.OnRename(message.Author, message.RenamedFiles);
+                        notification.OnRename(message.Volume, message.RenamedFiles);
                         _notificationStatusService.RecordSuccess(notification.Definition.Id);
                     }
                 }
@@ -212,90 +212,90 @@ namespace NzbDrone.Core.Notifications
             }
         }
 
-        public void Handle(AuthorAddedEvent message)
+        public void Handle(VolumeAddedEvent message)
         {
-            foreach (var notification in _notificationFactory.OnAuthorAddedEnabled())
+            foreach (var notification in _notificationFactory.OnVolumeAddedEnabled())
             {
                 try
                 {
-                    if (ShouldHandleAuthor(notification.Definition, message.Author))
+                    if (ShouldHandleVolume(notification.Definition, message.Volume))
                     {
-                        notification.OnAuthorAdded(message.Author);
+                        notification.OnVolumeAdded(message.Volume);
                         _notificationStatusService.RecordSuccess(notification.Definition.Id);
                     }
                 }
                 catch (Exception ex)
                 {
                     _notificationStatusService.RecordFailure(notification.Definition.Id);
-                    _logger.Warn(ex, "Unable to send OnAuthorAdded notification to: " + notification.Definition.Name);
+                    _logger.Warn(ex, "Unable to send OnVolumeAdded notification to: " + notification.Definition.Name);
                 }
             }
         }
 
-        public void Handle(AuthorDeletedEvent message)
+        public void Handle(VolumeDeletedEvent message)
         {
-            var deleteMessage = new AuthorDeleteMessage(message.Author, message.DeleteFiles);
+            var deleteMessage = new VolumeDeleteMessage(message.Volume, message.DeleteFiles);
 
-            foreach (var notification in _notificationFactory.OnAuthorDeleteEnabled())
+            foreach (var notification in _notificationFactory.OnVolumeDeleteEnabled())
             {
                 try
                 {
-                    if (ShouldHandleAuthor(notification.Definition, deleteMessage.Author))
+                    if (ShouldHandleVolume(notification.Definition, deleteMessage.Volume))
                     {
-                        notification.OnAuthorDelete(deleteMessage);
+                        notification.OnVolumeDelete(deleteMessage);
                         _notificationStatusService.RecordSuccess(notification.Definition.Id);
                     }
                 }
                 catch (Exception ex)
                 {
                     _notificationStatusService.RecordFailure(notification.Definition.Id);
-                    _logger.Warn(ex, "Unable to send OnAuthorDelete notification to: " + notification.Definition.Name);
+                    _logger.Warn(ex, "Unable to send OnVolumeDelete notification to: " + notification.Definition.Name);
                 }
             }
         }
 
-        public void Handle(BookDeletedEvent message)
+        public void Handle(IssueDeletedEvent message)
         {
-            var deleteMessage = new BookDeleteMessage(message.Book, message.DeleteFiles);
+            var deleteMessage = new IssueDeleteMessage(message.Issue, message.DeleteFiles);
 
-            foreach (var notification in _notificationFactory.OnBookDeleteEnabled())
+            foreach (var notification in _notificationFactory.OnIssueDeleteEnabled())
             {
                 try
                 {
-                    if (ShouldHandleAuthor(notification.Definition, deleteMessage.Book.Author))
+                    if (ShouldHandleVolume(notification.Definition, deleteMessage.Issue.Volume))
                     {
-                        notification.OnBookDelete(deleteMessage);
+                        notification.OnIssueDelete(deleteMessage);
                         _notificationStatusService.RecordSuccess(notification.Definition.Id);
                     }
                 }
                 catch (Exception ex)
                 {
                     _notificationStatusService.RecordFailure(notification.Definition.Id);
-                    _logger.Warn(ex, "Unable to send OnBookDelete notification to: " + notification.Definition.Name);
+                    _logger.Warn(ex, "Unable to send OnIssueDelete notification to: " + notification.Definition.Name);
                 }
             }
         }
 
-        public void Handle(BookFileDeletedEvent message)
+        public void Handle(IssueFileDeletedEvent message)
         {
-            var deleteMessage = new BookFileDeleteMessage();
+            var deleteMessage = new IssueFileDeleteMessage();
 
-            var book = new List<Book> { message.BookFile.Edition.Value.Book };
+            var issue = new List<Issue> { message.IssueFile.Edition.Value.Issue };
 
-            deleteMessage.Message = GetMessage(message.BookFile.Author, book, message.BookFile.Quality);
-            deleteMessage.BookFile = message.BookFile;
-            deleteMessage.Book = message.BookFile.Edition.Value.Book;
+            deleteMessage.Message = GetMessage(message.IssueFile.Volume, issue, message.IssueFile.Quality);
+            deleteMessage.IssueFile = message.IssueFile;
+            deleteMessage.Issue = message.IssueFile.Edition.Value.Issue;
             deleteMessage.Reason = message.Reason;
 
-            foreach (var notification in _notificationFactory.OnBookFileDeleteEnabled())
+            foreach (var notification in _notificationFactory.OnIssueFileDeleteEnabled())
             {
                 try
                 {
-                    if (message.Reason != MediaFiles.DeleteMediaFileReason.Upgrade || ((NotificationDefinition)notification.Definition).OnBookFileDeleteForUpgrade)
+                    if (message.Reason != MediaFiles.DeleteMediaFileReason.Upgrade || ((NotificationDefinition)notification.Definition).OnIssueFileDeleteForUpgrade)
                     {
-                        if (ShouldHandleAuthor(notification.Definition, message.BookFile.Author))
+                        if (ShouldHandleVolume(notification.Definition, message.IssueFile.Volume))
                         {
-                            notification.OnBookFileDelete(deleteMessage);
+                            notification.OnIssueFileDelete(deleteMessage);
                             _notificationStatusService.RecordSuccess(notification.Definition.Id);
                         }
                     }
@@ -303,7 +303,7 @@ namespace NzbDrone.Core.Notifications
                 catch (Exception ex)
                 {
                     _notificationStatusService.RecordFailure(notification.Definition.Id);
-                    _logger.Warn(ex, "Unable to send OnBookFileDelete notification to: " + notification.Definition.Name);
+                    _logger.Warn(ex, "Unable to send OnIssueFileDelete notification to: " + notification.Definition.Name);
                 }
             }
         }
@@ -350,7 +350,7 @@ namespace NzbDrone.Core.Notifications
             {
                 try
                 {
-                    if (ShouldHandleAuthor(notification.Definition, message.TrackedDownload.RemoteBook.Author))
+                    if (ShouldHandleVolume(notification.Definition, message.TrackedDownload.RemoteIssue.Volume))
                     {
                         notification.OnDownloadFailure(downloadFailedMessage);
                         _notificationStatusService.RecordSuccess(notification.Definition.Id);
@@ -364,19 +364,19 @@ namespace NzbDrone.Core.Notifications
             }
         }
 
-        public void Handle(BookImportIncompleteEvent message)
+        public void Handle(IssueImportIncompleteEvent message)
         {
             // TODO: Build out this message so that we can pass on what failed and what was successful
-            var downloadMessage = new BookDownloadMessage
+            var downloadMessage = new IssueDownloadMessage
             {
-                Message = GetBookIncompleteImportMessage(message.TrackedDownload.DownloadItem.Title)
+                Message = GetIssueIncompleteImportMessage(message.TrackedDownload.DownloadItem.Title)
             };
 
             foreach (var notification in _notificationFactory.OnImportFailureEnabled())
             {
                 try
                 {
-                    if (ShouldHandleAuthor(notification.Definition, message.TrackedDownload.RemoteBook.Author))
+                    if (ShouldHandleVolume(notification.Definition, message.TrackedDownload.RemoteIssue.Volume))
                     {
                         notification.OnImportFailure(downloadMessage);
                         _notificationStatusService.RecordSuccess(notification.Definition.Id);
@@ -390,32 +390,32 @@ namespace NzbDrone.Core.Notifications
             }
         }
 
-        public void Handle(BookFileRetaggedEvent message)
+        public void Handle(IssueFileRetaggedEvent message)
         {
-            var retagMessage = new BookRetagMessage
+            var retagMessage = new IssueRetagMessage
             {
-                Message = GetTrackRetagMessage(message.Author, message.BookFile, message.Diff),
-                Author = message.Author,
-                Book = message.BookFile.Edition.Value.Book.Value,
-                BookFile = message.BookFile,
+                Message = GetTrackRetagMessage(message.Volume, message.IssueFile, message.Diff),
+                Volume = message.Volume,
+                Issue = message.IssueFile.Edition.Value.Issue.Value,
+                IssueFile = message.IssueFile,
                 Diff = message.Diff,
                 Scrubbed = message.Scrubbed
             };
 
-            foreach (var notification in _notificationFactory.OnBookRetagEnabled())
+            foreach (var notification in _notificationFactory.OnIssueRetagEnabled())
             {
                 try
                 {
-                    if (ShouldHandleAuthor(notification.Definition, message.Author))
+                    if (ShouldHandleVolume(notification.Definition, message.Volume))
                     {
-                        notification.OnBookRetag(retagMessage);
+                        notification.OnIssueRetag(retagMessage);
                         _notificationStatusService.RecordSuccess(notification.Definition.Id);
                     }
                 }
                 catch (Exception ex)
                 {
                     _notificationStatusService.RecordFailure(notification.Definition.Id);
-                    _logger.Warn(ex, "Unable to send OnBookRetag notification to: " + notification.Definition.Name);
+                    _logger.Warn(ex, "Unable to send OnIssueRetag notification to: " + notification.Definition.Name);
                 }
             }
         }

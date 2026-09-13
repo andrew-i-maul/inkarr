@@ -26,9 +26,9 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
         public SpecificationPriority Priority => SpecificationPriority.Default;
         public RejectionType Type => RejectionType.Permanent;
 
-        public virtual Decision IsSatisfiedBy(RemoteBook subject, SearchCriteriaBase searchCriteria)
+        public virtual Decision IsSatisfiedBy(RemoteIssue subject, SearchCriteriaBase searchCriteria)
         {
-            foreach (var file in subject.Books.SelectMany(c => c.BookFiles.Value))
+            foreach (var file in subject.Issues.SelectMany(c => c.IssueFiles.Value))
             {
                 if (file == null)
                 {
@@ -37,10 +37,10 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
 
                 var customFormats = _formatService.ParseCustomFormat(file);
 
-                if (!_upgradableSpecification.IsUpgradable(subject.Author.QualityProfile,
+                if (!_upgradableSpecification.IsUpgradable(subject.Volume.QualityProfile,
                                                            file.Quality,
                                                            customFormats,
-                                                           subject.ParsedBookInfo.Quality,
+                                                           subject.ParsedIssueInfo.Quality,
                                                            subject.CustomFormats))
                 {
                     return Decision.Reject("Existing files on disk is of equal or higher preference: {0}", file.Quality.Quality.Name);

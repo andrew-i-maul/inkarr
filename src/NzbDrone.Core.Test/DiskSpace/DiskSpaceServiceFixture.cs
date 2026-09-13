@@ -5,8 +5,8 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using NzbDrone.Common.Disk;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.DiskSpace;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.RootFolders;
 using NzbDrone.Core.Test.Framework;
 using NzbDrone.Test.Common;
@@ -17,15 +17,15 @@ namespace NzbDrone.Core.Test.DiskSpace
     public class DiskSpaceServiceFixture : CoreTest<DiskSpaceService>
     {
         private RootFolder _rootDir;
-        private string _authorFolder1;
-        private string _authorFolder2;
+        private string _volumeFolder1;
+        private string _volumeFolder2;
 
         [SetUp]
         public void SetUp()
         {
             _rootDir = new RootFolder { Path = @"G:\fasdlfsdf".AsOsAgnostic() };
-            _authorFolder1 = Path.Combine(_rootDir.Path, "author1");
-            _authorFolder2 = Path.Combine(_rootDir.Path, "author2");
+            _volumeFolder1 = Path.Combine(_rootDir.Path, "volume1");
+            _volumeFolder2 = Path.Combine(_rootDir.Path, "volume2");
 
             Mocker.GetMock<IRootFolderService>()
                   .Setup(x => x.All())
@@ -51,14 +51,14 @@ namespace NzbDrone.Core.Test.DiskSpace
                   .Setup(v => v.GetTotalSize(It.IsAny<string>()))
                   .Returns(0);
 
-            GivenAuthor();
+            GivenVolume();
         }
 
-        private void GivenAuthor(params Author[] author)
+        private void GivenVolume(params Volume[] volume)
         {
-            Mocker.GetMock<IAuthorService>()
-                  .Setup(v => v.GetAllAuthors())
-                  .Returns(author.ToList());
+            Mocker.GetMock<IVolumeService>()
+                  .Setup(v => v.GetAllVolumes())
+                  .Returns(volume.ToList());
         }
 
         private void GivenExistingFolder(string folder)
@@ -69,11 +69,11 @@ namespace NzbDrone.Core.Test.DiskSpace
         }
 
         [Test]
-        public void should_check_diskspace_for_author_folders()
+        public void should_check_diskspace_for_volume_folders()
         {
-            GivenAuthor(new Author { Path = _authorFolder1 });
+            GivenVolume(new Volume { Path = _volumeFolder1 });
 
-            GivenExistingFolder(_authorFolder1);
+            GivenExistingFolder(_volumeFolder1);
 
             var freeSpace = Subject.GetFreeSpace();
 
@@ -83,10 +83,10 @@ namespace NzbDrone.Core.Test.DiskSpace
         [Test]
         public void should_check_diskspace_for_same_root_folder_only_once()
         {
-            GivenAuthor(new Author { Path = _authorFolder1 }, new Author { Path = _authorFolder2 });
+            GivenVolume(new Volume { Path = _volumeFolder1 }, new Volume { Path = _volumeFolder2 });
 
-            GivenExistingFolder(_authorFolder1);
-            GivenExistingFolder(_authorFolder2);
+            GivenExistingFolder(_volumeFolder1);
+            GivenExistingFolder(_volumeFolder2);
 
             var freeSpace = Subject.GetFreeSpace();
 

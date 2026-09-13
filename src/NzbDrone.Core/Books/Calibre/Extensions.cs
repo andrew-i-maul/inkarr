@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text.Json;
 using NzbDrone.Common.Extensions;
 
-namespace NzbDrone.Core.Books.Calibre
+namespace NzbDrone.Core.Issues.Calibre
 {
     public static class Extensions
     {

@@ -14,34 +14,34 @@ namespace NzbDrone.Core.Housekeeping.Housekeepers
 
         public void Clean()
         {
-            DeleteOrphanedByAuthor();
-            DeleteOrphanedByBook();
+            DeleteOrphanedByVolume();
+            DeleteOrphanedByIssue();
             DeleteOrphanedByTrackFile();
-            DeleteWhereBookIdIsZero();
+            DeleteWhereIssueIdIsZero();
             DeleteWhereTrackFileIsZero();
         }
 
-        private void DeleteOrphanedByAuthor()
+        private void DeleteOrphanedByVolume()
         {
             using var mapper = _database.OpenConnection();
             mapper.Execute(@"DELETE FROM ""MetadataFiles""
                              WHERE ""Id"" IN (
                              SELECT ""MetadataFiles"".""Id"" FROM ""MetadataFiles""
-                             LEFT OUTER JOIN ""Authors""
-                             ON ""MetadataFiles"".""AuthorId"" = ""Authors"".""Id""
-                             WHERE ""Authors"".""Id"" IS NULL)");
+                             LEFT OUTER JOIN ""Volumes""
+                             ON ""MetadataFiles"".""VolumeId"" = ""Volumes"".""Id""
+                             WHERE ""Volumes"".""Id"" IS NULL)");
         }
 
-        private void DeleteOrphanedByBook()
+        private void DeleteOrphanedByIssue()
         {
             using var mapper = _database.OpenConnection();
             mapper.Execute(@"DELETE FROM ""MetadataFiles""
                              WHERE ""Id"" IN (
                              SELECT ""MetadataFiles"".""Id"" FROM ""MetadataFiles""
-                             LEFT OUTER JOIN ""Books""
-                             ON ""MetadataFiles"".""BookId"" = ""Books"".""Id""
-                             WHERE ""MetadataFiles"".""BookId"" > 0
-                             AND ""Books"".""Id"" IS NULL)");
+                             LEFT OUTER JOIN ""Issues""
+                             ON ""MetadataFiles"".""IssueId"" = ""Issues"".""Id""
+                             WHERE ""MetadataFiles"".""IssueId"" > 0
+                             AND ""Issues"".""Id"" IS NULL)");
         }
 
         private void DeleteOrphanedByTrackFile()
@@ -50,20 +50,20 @@ namespace NzbDrone.Core.Housekeeping.Housekeepers
             mapper.Execute(@"DELETE FROM ""MetadataFiles""
                              WHERE ""Id"" IN (
                              SELECT ""MetadataFiles"".""Id"" FROM ""MetadataFiles""
-                             LEFT OUTER JOIN ""BookFiles""
-                             ON ""MetadataFiles"".""BookFileId"" = ""BookFiles"".""Id""
-                             WHERE ""MetadataFiles"".""BookFileId"" > 0
-                             AND ""BookFiles"".""Id"" IS NULL)");
+                             LEFT OUTER JOIN ""IssueFiles""
+                             ON ""MetadataFiles"".""IssueFileId"" = ""IssueFiles"".""Id""
+                             WHERE ""MetadataFiles"".""IssueFileId"" > 0
+                             AND ""IssueFiles"".""Id"" IS NULL)");
         }
 
-        private void DeleteWhereBookIdIsZero()
+        private void DeleteWhereIssueIdIsZero()
         {
             using var mapper = _database.OpenConnection();
             mapper.Execute(@"DELETE FROM ""MetadataFiles""
                              WHERE ""Id"" IN (
                              SELECT ""Id"" FROM ""MetadataFiles""
                              WHERE ""Type"" IN (2, 4)
-                             AND ""BookId"" = 0)");
+                             AND ""IssueId"" = 0)");
         }
 
         private void DeleteWhereTrackFileIsZero()
@@ -73,7 +73,7 @@ namespace NzbDrone.Core.Housekeeping.Housekeepers
                              WHERE ""Id"" IN (
                              SELECT ""Id"" FROM ""MetadataFiles""
                              WHERE ""Type"" IN (2, 4)
-                             AND ""BookFileId"" = 0)");
+                             AND ""IssueFileId"" = 0)");
         }
     }
 }

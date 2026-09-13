@@ -8,7 +8,7 @@ using MimeKit;
 using NLog;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Http.Dispatchers;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 
 namespace NzbDrone.Core.Notifications.Email
@@ -32,44 +32,44 @@ namespace NzbDrone.Core.Notifications.Email
         {
             var body = $"{grabMessage.Message} sent to queue.";
 
-            SendEmail(Settings, BOOK_GRABBED_TITLE_BRANDED, body);
+            SendEmail(Settings, ISSUE_GRABBED_TITLE_BRANDED, body);
         }
 
-        public override void OnReleaseImport(BookDownloadMessage message)
+        public override void OnReleaseImport(IssueDownloadMessage message)
         {
             var body = $"{message.Message} Downloaded and sorted.";
 
-            var paths = Settings.AttachFiles ? message.BookFiles.SelectList(a => a.Path) : null;
+            var paths = Settings.AttachFiles ? message.IssueFiles.SelectList(a => a.Path) : null;
 
-            SendEmail(Settings, BOOK_DOWNLOADED_TITLE_BRANDED, body, false, paths);
+            SendEmail(Settings, ISSUE_DOWNLOADED_TITLE_BRANDED, body, false, paths);
         }
 
-        public override void OnAuthorAdded(Author author)
+        public override void OnVolumeAdded(Volume volume)
         {
-            var body = $"{author.Name} added to library.";
+            var body = $"{volume.Name} added to library.";
 
-            SendEmail(Settings, AUTHOR_ADDED_TITLE_BRANDED, body);
+            SendEmail(Settings, VOLUME_ADDED_TITLE_BRANDED, body);
         }
 
-        public override void OnAuthorDelete(AuthorDeleteMessage deleteMessage)
-        {
-            var body = deleteMessage.Message;
-
-            SendEmail(Settings, AUTHOR_DELETED_TITlE_BRANDED, body);
-        }
-
-        public override void OnBookDelete(BookDeleteMessage deleteMessage)
+        public override void OnVolumeDelete(VolumeDeleteMessage deleteMessage)
         {
             var body = deleteMessage.Message;
 
-            SendEmail(Settings, AUTHOR_DELETED_TITlE_BRANDED, body);
+            SendEmail(Settings, VOLUME_DELETED_TITlE_BRANDED, body);
         }
 
-        public override void OnBookFileDelete(BookFileDeleteMessage deleteMessage)
+        public override void OnIssueDelete(IssueDeleteMessage deleteMessage)
         {
             var body = deleteMessage.Message;
 
-            SendEmail(Settings, AUTHOR_DELETED_TITlE_BRANDED, body);
+            SendEmail(Settings, VOLUME_DELETED_TITlE_BRANDED, body);
+        }
+
+        public override void OnIssueFileDelete(IssueFileDeleteMessage deleteMessage)
+        {
+            var body = deleteMessage.Message;
+
+            SendEmail(Settings, VOLUME_DELETED_TITlE_BRANDED, body);
         }
 
         public override void OnHealthIssue(HealthCheck.HealthCheck message)
@@ -82,7 +82,7 @@ namespace NzbDrone.Core.Notifications.Email
             SendEmail(Settings, DOWNLOAD_FAILURE_TITLE_BRANDED, message.Message);
         }
 
-        public override void OnImportFailure(BookDownloadMessage message)
+        public override void OnImportFailure(IssueDownloadMessage message)
         {
             SendEmail(Settings, IMPORT_FAILURE_TITLE_BRANDED, message.Message);
         }
@@ -145,11 +145,11 @@ namespace NzbDrone.Core.Notifications.Email
                     {
                         var bytes = System.IO.File.ReadAllBytes(url);
                         builder.Attachments.Add(url, bytes);
-                        _logger.Trace("Attaching ebook file: {0}", url);
+                        _logger.Trace("Attaching eissue file: {0}", url);
                     }
                     else
                     {
-                        _logger.Trace("Skipping audiobook file: {0}", url);
+                        _logger.Trace("Skipping audioissue file: {0}", url);
                     }
                 }
 

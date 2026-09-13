@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using FluentValidation.Results;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 
 namespace NzbDrone.Core.Notifications.Prowl
 {
@@ -19,32 +19,32 @@ namespace NzbDrone.Core.Notifications.Prowl
 
         public override void OnGrab(GrabMessage message)
         {
-            _prowlProxy.SendNotification(BOOK_GRABBED_TITLE, message.Message, Settings);
+            _prowlProxy.SendNotification(ISSUE_GRABBED_TITLE, message.Message, Settings);
         }
 
-        public override void OnReleaseImport(BookDownloadMessage message)
+        public override void OnReleaseImport(IssueDownloadMessage message)
         {
-            _prowlProxy.SendNotification(BOOK_DOWNLOADED_TITLE, message.Message, Settings);
+            _prowlProxy.SendNotification(ISSUE_DOWNLOADED_TITLE, message.Message, Settings);
         }
 
-        public override void OnAuthorAdded(Author author)
+        public override void OnVolumeAdded(Volume volume)
         {
-            _prowlProxy.SendNotification(AUTHOR_ADDED_TITLE, author.Name, Settings);
+            _prowlProxy.SendNotification(VOLUME_ADDED_TITLE, volume.Name, Settings);
         }
 
-        public override void OnAuthorDelete(AuthorDeleteMessage deleteMessage)
+        public override void OnVolumeDelete(VolumeDeleteMessage deleteMessage)
         {
-            _prowlProxy.SendNotification(AUTHOR_DELETED_TITLE, deleteMessage.Message, Settings);
+            _prowlProxy.SendNotification(VOLUME_DELETED_TITLE, deleteMessage.Message, Settings);
         }
 
-        public override void OnBookDelete(BookDeleteMessage deleteMessage)
+        public override void OnIssueDelete(IssueDeleteMessage deleteMessage)
         {
-            _prowlProxy.SendNotification(BOOK_DELETED_TITLE, deleteMessage.Message, Settings);
+            _prowlProxy.SendNotification(ISSUE_DELETED_TITLE, deleteMessage.Message, Settings);
         }
 
-        public override void OnBookFileDelete(BookFileDeleteMessage deleteMessage)
+        public override void OnIssueFileDelete(IssueFileDeleteMessage deleteMessage)
         {
-            _prowlProxy.SendNotification(BOOK_FILE_DELETED_TITLE, deleteMessage.Message, Settings);
+            _prowlProxy.SendNotification(ISSUE_FILE_DELETED_TITLE, deleteMessage.Message, Settings);
         }
 
         public override void OnHealthIssue(HealthCheck.HealthCheck healthCheck)

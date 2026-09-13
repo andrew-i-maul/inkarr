@@ -2,11 +2,11 @@ using FizzWare.NBuilder;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Datastore;
 using NzbDrone.Core.DecisionEngine.Specifications;
 using NzbDrone.Core.Indexers;
 using NzbDrone.Core.Indexers.TorrentRss;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Test.Common;
 
@@ -15,22 +15,22 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.Search
     [TestFixture]
     public class TorrentSeedingSpecificationFixture : TestBase<TorrentSeedingSpecification>
     {
-        private Author _author;
-        private RemoteBook _remoteBook;
+        private Volume _volume;
+        private RemoteIssue _remoteIssue;
         private IndexerDefinition _indexerDefinition;
 
         [SetUp]
         public void Setup()
         {
-            _author = Builder<Author>.CreateNew().With(s => s.Id = 1).Build();
+            _volume = Builder<Volume>.CreateNew().With(s => s.Id = 1).Build();
 
-            _remoteBook = new RemoteBook
+            _remoteIssue = new RemoteIssue
             {
-                Author = _author,
+                Volume = _volume,
                 Release = new TorrentInfo
                 {
                     IndexerId = 1,
-                    Title = "Author - Book [FLAC-RlsGrp]",
+                    Title = "Volume - Issue [FLAC-RlsGrp]",
                     Seeders = 0
                 }
             };
@@ -47,27 +47,27 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.Search
 
         private void GivenReleaseSeeders(int? seeders)
         {
-            (_remoteBook.Release as TorrentInfo).Seeders = seeders;
+            (_remoteIssue.Release as TorrentInfo).Seeders = seeders;
         }
 
         [Test]
         public void should_return_true_if_not_torrent()
         {
-            _remoteBook.Release = new ReleaseInfo
+            _remoteIssue.Release = new ReleaseInfo
             {
                 IndexerId = 1,
-                Title = "Author - Book [FLAC-RlsGrp]"
+                Title = "Volume - Issue [FLAC-RlsGrp]"
             };
 
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeTrue();
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeTrue();
         }
 
         [Test]
         public void should_return_true_if_indexer_not_specified()
         {
-            _remoteBook.Release.IndexerId = 0;
+            _remoteIssue.Release.IndexerId = 0;
 
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeTrue();
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeTrue();
         }
 
         [Test]
@@ -77,7 +77,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.Search
                   .Setup(v => v.Get(It.IsAny<int>()))
                   .Callback<int>(i => { throw new ModelNotFoundException(typeof(IndexerDefinition), i); });
 
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeTrue();
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeTrue();
         }
 
         [Test]
@@ -85,7 +85,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.Search
         {
             GivenReleaseSeeders(null);
 
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeTrue();
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeTrue();
         }
 
         [TestCase(5)]
@@ -94,7 +94,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.Search
         {
             GivenReleaseSeeders(seeders);
 
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeTrue();
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeTrue();
         }
 
         [TestCase(0)]
@@ -103,7 +103,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.Search
         {
             GivenReleaseSeeders(seeders);
 
-            Subject.IsSatisfiedBy(_remoteBook, null).Accepted.Should().BeFalse();
+            Subject.IsSatisfiedBy(_remoteIssue, null).Accepted.Should().BeFalse();
         }
     }
 }

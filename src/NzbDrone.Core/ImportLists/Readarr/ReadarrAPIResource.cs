@@ -2,11 +2,11 @@ using System.Collections.Generic;
 
 namespace NzbDrone.Core.ImportLists.Readarr
 {
-    public class ReadarrAuthor
+    public class ReadarrVolume
     {
-        public string AuthorName { get; set; }
+        public string VolumeName { get; set; }
         public int Id { get; set; }
-        public string ForeignAuthorId { get; set; }
+        public string ForeignVolumeId { get; set; }
         public string Overview { get; set; }
         public List<MediaCover.MediaCover> Images { get; set; }
         public bool Monitored { get; set; }
@@ -24,16 +24,16 @@ namespace NzbDrone.Core.ImportLists.Readarr
         public bool Monitored { get; set; }
     }
 
-    public class ReadarrBook
+    public class ReadarrIssue
     {
         public string Title { get; set; }
-        public string ForeignBookId { get; set; }
+        public string ForeignIssueId { get; set; }
         public string ForeignEditionId { get; set; }
         public string Overview { get; set; }
         public List<MediaCover.MediaCover> Images { get; set; }
         public bool Monitored { get; set; }
-        public ReadarrAuthor Author { get; set; }
-        public int AuthorId { get; set; }
+        public ReadarrVolume Volume { get; set; }
+        public int VolumeId { get; set; }
         public List<ReadarrEdition> Editions { get; set; }
     }
 

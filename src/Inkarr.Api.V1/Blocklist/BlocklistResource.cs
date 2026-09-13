@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Inkarr.Api.V1.Author;
 using Inkarr.Api.V1.CustomFormats;
+using Inkarr.Api.V1.Volume;
 using Inkarr.Http.REST;
 using NzbDrone.Core.CustomFormats;
 using NzbDrone.Core.Indexers;
@@ -11,8 +11,8 @@ namespace Inkarr.Api.V1.Blocklist
 {
     public class BlocklistResource : RestResource
     {
-        public int AuthorId { get; set; }
-        public List<int> BookIds { get; set; }
+        public int VolumeId { get; set; }
+        public List<int> IssueIds { get; set; }
         public string SourceTitle { get; set; }
         public QualityModel Quality { get; set; }
         public List<CustomFormatResource> CustomFormats { get; set; }
@@ -21,7 +21,7 @@ namespace Inkarr.Api.V1.Blocklist
         public string Indexer { get; set; }
         public string Message { get; set; }
 
-        public AuthorResource Author { get; set; }
+        public VolumeResource Volume { get; set; }
     }
 
     public static class BlocklistResourceMapper
@@ -37,17 +37,17 @@ namespace Inkarr.Api.V1.Blocklist
             {
                 Id = model.Id,
 
-                AuthorId = model.AuthorId,
-                BookIds = model.BookIds,
+                VolumeId = model.VolumeId,
+                IssueIds = model.IssueIds,
                 SourceTitle = model.SourceTitle,
                 Quality = model.Quality,
-                CustomFormats = formatCalculator.ParseCustomFormat(model, model.Author).ToResource(false),
+                CustomFormats = formatCalculator.ParseCustomFormat(model, model.Volume).ToResource(false),
                 Date = model.Date,
                 Protocol = model.Protocol,
                 Indexer = model.Indexer,
                 Message = model.Message,
 
-                Author = model.Author.ToResource()
+                Volume = model.Volume.ToResource()
             };
         }
     }

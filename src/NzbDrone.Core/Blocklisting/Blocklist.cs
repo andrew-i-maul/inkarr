@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Datastore;
 using NzbDrone.Core.Indexers;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Qualities;
 
@@ -10,9 +10,9 @@ namespace NzbDrone.Core.Blocklisting
 {
     public class Blocklist : ModelBase
     {
-        public int AuthorId { get; set; }
-        public Author Author { get; set; }
-        public List<int> BookIds { get; set; }
+        public int VolumeId { get; set; }
+        public Volume Volume { get; set; }
+        public List<int> IssueIds { get; set; }
         public string SourceTitle { get; set; }
         public QualityModel Quality { get; set; }
         public DateTime Date { get; set; }

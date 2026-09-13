@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using FluentValidation.Results;
 using NzbDrone.Common.EnvironmentInfo;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 
 namespace NzbDrone.Core.Notifications.Synology
@@ -19,7 +19,7 @@ namespace NzbDrone.Core.Notifications.Synology
         public override string Link => "https://www.synology.com";
         public override string Name => "Synology Indexer";
 
-        public override void OnReleaseImport(BookDownloadMessage message)
+        public override void OnReleaseImport(IssueDownloadMessage message)
         {
             if (Settings.UpdateLibrary)
             {
@@ -30,7 +30,7 @@ namespace NzbDrone.Core.Notifications.Synology
                     _indexerProxy.DeleteFile(fullPath);
                 }
 
-                foreach (var newFile in message.BookFiles)
+                foreach (var newFile in message.IssueFiles)
                 {
                     var fullPath = newFile.Path;
 
@@ -39,46 +39,46 @@ namespace NzbDrone.Core.Notifications.Synology
             }
         }
 
-        public override void OnRename(Author author, List<RenamedBookFile> renamedFiles)
+        public override void OnRename(Volume volume, List<RenamedIssueFile> renamedFiles)
         {
             if (Settings.UpdateLibrary)
             {
-                _indexerProxy.UpdateFolder(author.Path);
+                _indexerProxy.UpdateFolder(volume.Path);
             }
         }
 
-        public override void OnAuthorDelete(AuthorDeleteMessage deleteMessage)
+        public override void OnVolumeDelete(VolumeDeleteMessage deleteMessage)
         {
             if (Settings.UpdateLibrary)
             {
-                _indexerProxy.DeleteFolder(deleteMessage.Author.Path);
+                _indexerProxy.DeleteFolder(deleteMessage.Volume.Path);
             }
         }
 
-        public override void OnBookDelete(BookDeleteMessage deleteMessage)
+        public override void OnIssueDelete(IssueDeleteMessage deleteMessage)
         {
             if (Settings.UpdateLibrary && deleteMessage.DeletedFiles)
             {
-                foreach (var bookFile in deleteMessage.Book.BookFiles.Value)
+                foreach (var issueFile in deleteMessage.Issue.IssueFiles.Value)
                 {
-                    _indexerProxy.DeleteFile(bookFile.Path);
+                    _indexerProxy.DeleteFile(issueFile.Path);
                 }
             }
         }
 
-        public override void OnBookFileDelete(BookFileDeleteMessage deleteMessage)
+        public override void OnIssueFileDelete(IssueFileDeleteMessage deleteMessage)
         {
             if (Settings.UpdateLibrary)
             {
-                _indexerProxy.DeleteFile(deleteMessage.BookFile.Path);
+                _indexerProxy.DeleteFile(deleteMessage.IssueFile.Path);
             }
         }
 
-        public override void OnBookRetag(BookRetagMessage message)
+        public override void OnIssueRetag(IssueRetagMessage message)
         {
             if (Settings.UpdateLibrary)
             {
-                _indexerProxy.UpdateFolder(message.Author.Path);
+                _indexerProxy.UpdateFolder(message.Volume.Path);
             }
         }
 

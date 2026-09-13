@@ -6,8 +6,8 @@ using FluentValidation;
 using FluentValidation.Results;
 using Moq;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Exceptions;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MetadataSource;
 using NzbDrone.Core.Organizer;
 using NzbDrone.Core.Test.Framework;
@@ -16,206 +16,206 @@ using NzbDrone.Test.Common;
 namespace NzbDrone.Core.Test.MusicTests
 {
     [TestFixture]
-    public class AddAuthorFixture : CoreTest<AddAuthorService>
+    public class AddVolumeFixture : CoreTest<AddVolumeService>
     {
-        private Author _fakeAuthor;
+        private Volume _fakeVolume;
 
         [SetUp]
         public void Setup()
         {
-            _fakeAuthor = Builder<Author>
+            _fakeVolume = Builder<Volume>
                 .CreateNew()
                 .With(s => s.Path = null)
                 .Build();
-            _fakeAuthor.Books = new List<Book>();
+            _fakeVolume.Issues = new List<Issue>();
 
-            Mocker.GetMock<IAuthorService>()
-                .Setup(s => s.AddAuthor(It.IsAny<Author>(), It.IsAny<bool>()))
-                .Returns<Author, bool>((author, _) => author);
+            Mocker.GetMock<IVolumeService>()
+                .Setup(s => s.AddVolume(It.IsAny<Volume>(), It.IsAny<bool>()))
+                .Returns<Volume, bool>((volume, _) => volume);
         }
 
-        private void GivenValidAuthor(string inkarrId)
+        private void GivenValidVolume(string inkarrId)
         {
-            Mocker.GetMock<IProvideAuthorInfo>()
-                .Setup(s => s.GetAuthorInfo(inkarrId, false))
-                .Returns(_fakeAuthor);
+            Mocker.GetMock<IProvideVolumeInfo>()
+                .Setup(s => s.GetVolumeInfo(inkarrId, false))
+                .Returns(_fakeVolume);
         }
 
         private void GivenValidPath()
         {
             Mocker.GetMock<IBuildFileNames>()
-                  .Setup(s => s.GetAuthorFolder(It.IsAny<Author>(), null))
-                  .Returns<Author, NamingConfig>((c, n) => c.Name);
+                  .Setup(s => s.GetVolumeFolder(It.IsAny<Volume>(), null))
+                  .Returns<Volume, NamingConfig>((c, n) => c.Name);
 
-            Mocker.GetMock<IAddAuthorValidator>()
-                  .Setup(s => s.Validate(It.IsAny<Author>()))
+            Mocker.GetMock<IAddVolumeValidator>()
+                  .Setup(s => s.Validate(It.IsAny<Volume>()))
                   .Returns(new ValidationResult());
         }
 
         [Test]
-        public void should_be_able_to_add_a_author_without_passing_in_name()
+        public void should_be_able_to_add_a_volume_without_passing_in_name()
         {
-            var newAuthor = new Author
+            var newVolume = new Volume
             {
-                ForeignAuthorId = "ce09ea31-3d4a-4487-a797-e315175457a0",
+                ForeignVolumeId = "ce09ea31-3d4a-4487-a797-e315175457a0",
                 RootFolderPath = @"C:\Test\Music"
             };
 
-            GivenValidAuthor(newAuthor.ForeignAuthorId);
+            GivenValidVolume(newVolume.ForeignVolumeId);
             GivenValidPath();
 
-            var author = Subject.AddAuthor(newAuthor);
+            var volume = Subject.AddVolume(newVolume);
 
-            author.Name.Should().Be(_fakeAuthor.Name);
+            volume.Name.Should().Be(_fakeVolume.Name);
         }
 
         [Test]
         public void should_have_proper_path()
         {
-            var newAuthor = new Author
+            var newVolume = new Volume
             {
-                ForeignAuthorId = "ce09ea31-3d4a-4487-a797-e315175457a0",
+                ForeignVolumeId = "ce09ea31-3d4a-4487-a797-e315175457a0",
                 RootFolderPath = @"C:\Test\Music"
             };
 
-            GivenValidAuthor(newAuthor.ForeignAuthorId);
+            GivenValidVolume(newVolume.ForeignVolumeId);
             GivenValidPath();
 
-            var author = Subject.AddAuthor(newAuthor);
+            var volume = Subject.AddVolume(newVolume);
 
-            author.Path.Should().Be(Path.Combine(newAuthor.RootFolderPath, _fakeAuthor.Name));
+            volume.Path.Should().Be(Path.Combine(newVolume.RootFolderPath, _fakeVolume.Name));
         }
 
         [Test]
-        public void should_throw_if_author_validation_fails()
+        public void should_throw_if_volume_validation_fails()
         {
-            var newAuthor = new Author
+            var newVolume = new Volume
             {
-                ForeignAuthorId = "ce09ea31-3d4a-4487-a797-e315175457a0",
+                ForeignVolumeId = "ce09ea31-3d4a-4487-a797-e315175457a0",
                 Path = @"C:\Test\Music\Name1"
             };
 
-            GivenValidAuthor(newAuthor.ForeignAuthorId);
+            GivenValidVolume(newVolume.ForeignVolumeId);
 
-            Mocker.GetMock<IAddAuthorValidator>()
-                  .Setup(s => s.Validate(It.IsAny<Author>()))
+            Mocker.GetMock<IAddVolumeValidator>()
+                  .Setup(s => s.Validate(It.IsAny<Volume>()))
                   .Returns(new ValidationResult(new List<ValidationFailure>
                                                 {
                                                     new ValidationFailure("Path", "Test validation failure")
                                                 }));
 
-            Assert.Throws<ValidationException>(() => Subject.AddAuthor(newAuthor));
+            Assert.Throws<ValidationException>(() => Subject.AddVolume(newVolume));
         }
 
         [Test]
-        public void should_throw_if_author_cannot_be_found()
+        public void should_throw_if_volume_cannot_be_found()
         {
-            var newAuthor = new Author
+            var newVolume = new Volume
             {
-                ForeignAuthorId = "ce09ea31-3d4a-4487-a797-e315175457a0",
+                ForeignVolumeId = "ce09ea31-3d4a-4487-a797-e315175457a0",
                 Path = @"C:\Test\Music\Name1"
             };
 
-            Mocker.GetMock<IProvideAuthorInfo>()
-                  .Setup(s => s.GetAuthorInfo(newAuthor.ForeignAuthorId, false))
-                  .Throws(new AuthorNotFoundException(newAuthor.ForeignAuthorId));
+            Mocker.GetMock<IProvideVolumeInfo>()
+                  .Setup(s => s.GetVolumeInfo(newVolume.ForeignVolumeId, false))
+                  .Throws(new VolumeNotFoundException(newVolume.ForeignVolumeId));
 
-            Mocker.GetMock<IAddAuthorValidator>()
-                  .Setup(s => s.Validate(It.IsAny<Author>()))
+            Mocker.GetMock<IAddVolumeValidator>()
+                  .Setup(s => s.Validate(It.IsAny<Volume>()))
                   .Returns(new ValidationResult(new List<ValidationFailure>
                                                 {
                                                     new ValidationFailure("Path", "Test validation failure")
                                                 }));
 
-            Assert.Throws<ValidationException>(() => Subject.AddAuthor(newAuthor));
+            Assert.Throws<ValidationException>(() => Subject.AddVolume(newVolume));
 
             ExceptionVerification.ExpectedErrors(1);
         }
 
         [Test]
-        public void should_disambiguate_if_author_folder_exists()
+        public void should_disambiguate_if_volume_folder_exists()
         {
-            var newAuthor = new Author
+            var newVolume = new Volume
             {
-                ForeignAuthorId = "ce09ea31-3d4a-4487-a797-e315175457a0",
+                ForeignVolumeId = "ce09ea31-3d4a-4487-a797-e315175457a0",
                 Path = @"C:\Test\Music\Name1",
             };
 
-            _fakeAuthor.Metadata = Builder<AuthorMetadata>.CreateNew().With(x => x.Disambiguation = "Disambiguation").Build();
+            _fakeVolume.Metadata = Builder<VolumeMetadata>.CreateNew().With(x => x.Disambiguation = "Disambiguation").Build();
 
-            GivenValidAuthor(newAuthor.ForeignAuthorId);
+            GivenValidVolume(newVolume.ForeignVolumeId);
             GivenValidPath();
 
-            Mocker.GetMock<IAuthorService>()
-                .Setup(x => x.AuthorPathExists(newAuthor.Path))
+            Mocker.GetMock<IVolumeService>()
+                .Setup(x => x.VolumePathExists(newVolume.Path))
                 .Returns(true);
 
-            var author = Subject.AddAuthor(newAuthor);
-            author.Path.Should().Be(newAuthor.Path + " (Disambiguation)");
+            var volume = Subject.AddVolume(newVolume);
+            volume.Path.Should().Be(newVolume.Path + " (Disambiguation)");
         }
 
         [Test]
-        public void should_disambiguate_with_numbers_if_author_folder_still_exists()
+        public void should_disambiguate_with_numbers_if_volume_folder_still_exists()
         {
-            var newAuthor = new Author
+            var newVolume = new Volume
             {
-                ForeignAuthorId = "ce09ea31-3d4a-4487-a797-e315175457a0",
+                ForeignVolumeId = "ce09ea31-3d4a-4487-a797-e315175457a0",
                 Path = @"C:\Test\Music\Name1",
             };
 
-            _fakeAuthor.Metadata = Builder<AuthorMetadata>.CreateNew().With(x => x.Disambiguation = "Disambiguation").Build();
+            _fakeVolume.Metadata = Builder<VolumeMetadata>.CreateNew().With(x => x.Disambiguation = "Disambiguation").Build();
 
-            GivenValidAuthor(newAuthor.ForeignAuthorId);
+            GivenValidVolume(newVolume.ForeignVolumeId);
             GivenValidPath();
 
-            Mocker.GetMock<IAuthorService>()
-                .Setup(x => x.AuthorPathExists(newAuthor.Path))
+            Mocker.GetMock<IVolumeService>()
+                .Setup(x => x.VolumePathExists(newVolume.Path))
                 .Returns(true);
 
-            Mocker.GetMock<IAuthorService>()
-                .Setup(x => x.AuthorPathExists(newAuthor.Path + " (Disambiguation)"))
+            Mocker.GetMock<IVolumeService>()
+                .Setup(x => x.VolumePathExists(newVolume.Path + " (Disambiguation)"))
                 .Returns(true);
 
-            Mocker.GetMock<IAuthorService>()
-                .Setup(x => x.AuthorPathExists(newAuthor.Path + " (Disambiguation) (1)"))
+            Mocker.GetMock<IVolumeService>()
+                .Setup(x => x.VolumePathExists(newVolume.Path + " (Disambiguation) (1)"))
                 .Returns(true);
 
-            Mocker.GetMock<IAuthorService>()
-                .Setup(x => x.AuthorPathExists(newAuthor.Path + " (Disambiguation) (2)"))
+            Mocker.GetMock<IVolumeService>()
+                .Setup(x => x.VolumePathExists(newVolume.Path + " (Disambiguation) (2)"))
                 .Returns(true);
 
-            var author = Subject.AddAuthor(newAuthor);
-            author.Path.Should().Be(newAuthor.Path + " (Disambiguation) (3)");
+            var volume = Subject.AddVolume(newVolume);
+            volume.Path.Should().Be(newVolume.Path + " (Disambiguation) (3)");
         }
 
         [Test]
-        public void should_disambiguate_with_numbers_if_author_folder_exists_and_no_disambiguation()
+        public void should_disambiguate_with_numbers_if_volume_folder_exists_and_no_disambiguation()
         {
-            var newAuthor = new Author
+            var newVolume = new Volume
             {
-                ForeignAuthorId = "ce09ea31-3d4a-4487-a797-e315175457a0",
+                ForeignVolumeId = "ce09ea31-3d4a-4487-a797-e315175457a0",
                 Path = @"C:\Test\Music\Name1",
             };
 
-            _fakeAuthor.Metadata = Builder<AuthorMetadata>.CreateNew().With(x => x.Disambiguation = string.Empty).Build();
+            _fakeVolume.Metadata = Builder<VolumeMetadata>.CreateNew().With(x => x.Disambiguation = string.Empty).Build();
 
-            GivenValidAuthor(newAuthor.ForeignAuthorId);
+            GivenValidVolume(newVolume.ForeignVolumeId);
             GivenValidPath();
 
-            Mocker.GetMock<IAuthorService>()
-                .Setup(x => x.AuthorPathExists(newAuthor.Path))
+            Mocker.GetMock<IVolumeService>()
+                .Setup(x => x.VolumePathExists(newVolume.Path))
                 .Returns(true);
 
-            Mocker.GetMock<IAuthorService>()
-                .Setup(x => x.AuthorPathExists(newAuthor.Path + " (1)"))
+            Mocker.GetMock<IVolumeService>()
+                .Setup(x => x.VolumePathExists(newVolume.Path + " (1)"))
                 .Returns(true);
 
-            Mocker.GetMock<IAuthorService>()
-                .Setup(x => x.AuthorPathExists(newAuthor.Path + " (2)"))
+            Mocker.GetMock<IVolumeService>()
+                .Setup(x => x.VolumePathExists(newVolume.Path + " (2)"))
                 .Returns(true);
 
-            var author = Subject.AddAuthor(newAuthor);
-            author.Path.Should().Be(newAuthor.Path + " (3)");
+            var volume = Subject.AddVolume(newVolume);
+            volume.Path.Should().Be(newVolume.Path + " (3)");
         }
     }
 }

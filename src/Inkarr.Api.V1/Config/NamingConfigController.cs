@@ -29,8 +29,8 @@ namespace Inkarr.Api.V1.Config
             _filenameValidationService = filenameValidationService;
             _filenameBuilder = filenameBuilder;
 
-            SharedValidator.RuleFor(c => c.StandardBookFormat).ValidBookFormat();
-            SharedValidator.RuleFor(c => c.AuthorFolderFormat).ValidAuthorFolderFormat();
+            SharedValidator.RuleFor(c => c.StandardIssueFormat).ValidIssueFormat();
+            SharedValidator.RuleFor(c => c.VolumeFolderFormat).ValidVolumeFolderFormat();
         }
 
         protected override NamingConfigResource GetResourceById(int id)
@@ -44,7 +44,7 @@ namespace Inkarr.Api.V1.Config
             var nameSpec = _namingConfigService.GetConfig();
             var resource = nameSpec.ToResource();
 
-            if (resource.StandardBookFormat.IsNotNullOrWhiteSpace())
+            if (resource.StandardIssueFormat.IsNotNullOrWhiteSpace())
             {
                 var basicConfig = _filenameBuilder.GetBasicNamingConfig(nameSpec);
                 basicConfig.AddToResource(resource);
@@ -78,17 +78,17 @@ namespace Inkarr.Api.V1.Config
             var singleTrackSampleResult = _filenameSampleService.GetStandardTrackSample(nameSpec);
             var multiDiscTrackSampleResult = _filenameSampleService.GetMultiDiscTrackSample(nameSpec);
 
-            sampleResource.SingleBookExample = _filenameValidationService.ValidateTrackFilename(singleTrackSampleResult) != null
+            sampleResource.SingleIssueExample = _filenameValidationService.ValidateTrackFilename(singleTrackSampleResult) != null
                     ? null
                     : singleTrackSampleResult.FileName;
 
-            sampleResource.MultiPartBookExample = _filenameValidationService.ValidateTrackFilename(multiDiscTrackSampleResult) != null
+            sampleResource.MultiPartIssueExample = _filenameValidationService.ValidateTrackFilename(multiDiscTrackSampleResult) != null
                 ? null
                 : multiDiscTrackSampleResult.FileName;
 
-            sampleResource.AuthorFolderExample = nameSpec.AuthorFolderFormat.IsNullOrWhiteSpace()
+            sampleResource.VolumeFolderExample = nameSpec.VolumeFolderFormat.IsNullOrWhiteSpace()
                 ? null
-                : _filenameSampleService.GetAuthorFolderSample(nameSpec);
+                : _filenameSampleService.GetVolumeFolderSample(nameSpec);
 
             return sampleResource;
         }

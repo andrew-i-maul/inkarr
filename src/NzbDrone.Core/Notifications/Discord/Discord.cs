@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentValidation.Results;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Notifications.Discord.Payloads;
 using NzbDrone.Core.Validation;
@@ -29,7 +29,7 @@ namespace NzbDrone.Core.Notifications.Discord
                 new ()
                 {
                     Description = message.Message,
-                    Title = message.Author.Name,
+                    Title = message.Volume.Name,
                     Text = message.Message,
                     Color = (int)DiscordColors.Warning
                 }
@@ -39,14 +39,14 @@ namespace NzbDrone.Core.Notifications.Discord
             _proxy.SendPayload(payload, Settings);
         }
 
-        public override void OnReleaseImport(BookDownloadMessage message)
+        public override void OnReleaseImport(IssueDownloadMessage message)
         {
             var attachments = new List<Embed>
             {
                 new ()
                 {
                     Description = message.Message,
-                    Title = message.Author.Name,
+                    Title = message.Volume.Name,
                     Text = message.Message,
                     Color = (int)DiscordColors.Success
                 }
@@ -56,13 +56,13 @@ namespace NzbDrone.Core.Notifications.Discord
             _proxy.SendPayload(payload, Settings);
         }
 
-        public override void OnRename(Author author, List<RenamedBookFile> renamedFiles)
+        public override void OnRename(Volume volume, List<RenamedIssueFile> renamedFiles)
         {
             var attachments = new List<Embed>
             {
                 new ()
                 {
-                    Title = author.Name,
+                    Title = volume.Name,
                 }
             };
 
@@ -71,72 +71,72 @@ namespace NzbDrone.Core.Notifications.Discord
             _proxy.SendPayload(payload, Settings);
         }
 
-        public override void OnAuthorAdded(Author author)
+        public override void OnVolumeAdded(Volume volume)
         {
             var attachments = new List<Embed>
             {
                 new ()
                 {
-                    Title = author.Name,
+                    Title = volume.Name,
                     Fields = new List<DiscordField>()
                     {
                         new ()
                         {
                             Name = "Links",
-                            Value = string.Join(" / ", author.Metadata.Value.Links.Select(link => $"[{link.Name}]({link.Url})"))
+                            Value = string.Join(" / ", volume.Metadata.Value.Links.Select(link => $"[{link.Name}]({link.Url})"))
                         }
                     },
                 }
             };
-            var payload = CreatePayload("Author Added", attachments);
+            var payload = CreatePayload("Volume Added", attachments);
 
             _proxy.SendPayload(payload, Settings);
         }
 
-        public override void OnAuthorDelete(AuthorDeleteMessage deleteMessage)
+        public override void OnVolumeDelete(VolumeDeleteMessage deleteMessage)
         {
             var attachments = new List<Embed>
             {
                 new ()
                 {
-                    Title = deleteMessage.Author.Name,
+                    Title = deleteMessage.Volume.Name,
                     Description = deleteMessage.DeletedFilesMessage
                 }
             };
 
-            var payload = CreatePayload("Author Deleted", attachments);
+            var payload = CreatePayload("Volume Deleted", attachments);
 
             _proxy.SendPayload(payload, Settings);
         }
 
-        public override void OnBookDelete(BookDeleteMessage deleteMessage)
+        public override void OnIssueDelete(IssueDeleteMessage deleteMessage)
         {
             var attachments = new List<Embed>
             {
                 new ()
                 {
-                    Title = $"{deleteMessage.Book.Author.Value.Name} - ${deleteMessage.Book.Title}",
+                    Title = $"{deleteMessage.Issue.Volume.Value.Name} - ${deleteMessage.Issue.Title}",
                     Description = deleteMessage.DeletedFilesMessage
                 }
             };
 
-            var payload = CreatePayload("Book Deleted", attachments);
+            var payload = CreatePayload("Issue Deleted", attachments);
 
             _proxy.SendPayload(payload, Settings);
         }
 
-        public override void OnBookFileDelete(BookFileDeleteMessage deleteMessage)
+        public override void OnIssueFileDelete(IssueFileDeleteMessage deleteMessage)
         {
             var attachments = new List<Embed>
             {
                 new ()
                 {
-                    Title = $"{deleteMessage.Book.Author.Value.Name} - ${deleteMessage.Book.Title} - file deleted",
-                    Description = deleteMessage.BookFile.Path
+                    Title = $"{deleteMessage.Issue.Volume.Value.Name} - ${deleteMessage.Issue.Title} - file deleted",
+                    Description = deleteMessage.IssueFile.Path
                 }
             };
 
-            var payload = CreatePayload("Book File Deleted", attachments);
+            var payload = CreatePayload("Issue File Deleted", attachments);
 
             _proxy.SendPayload(payload, Settings);
         }
@@ -158,13 +158,13 @@ namespace NzbDrone.Core.Notifications.Discord
             _proxy.SendPayload(payload, Settings);
         }
 
-        public override void OnBookRetag(BookRetagMessage message)
+        public override void OnIssueRetag(IssueRetagMessage message)
         {
             var attachments = new List<Embed>
             {
                 new ()
                 {
-                    Title = BOOK_RETAGGED_TITLE,
+                    Title = ISSUE_RETAGGED_TITLE,
                     Text = message.Message
                 }
             };
@@ -191,14 +191,14 @@ namespace NzbDrone.Core.Notifications.Discord
             _proxy.SendPayload(payload, Settings);
         }
 
-        public override void OnImportFailure(BookDownloadMessage message)
+        public override void OnImportFailure(IssueDownloadMessage message)
         {
             var attachments = new List<Embed>
             {
                 new ()
                 {
                     Description = message.Message,
-                    Title = message.Book?.Title ?? message.Message,
+                    Title = message.Issue?.Title ?? message.Message,
                     Text = message.Message,
                     Color = (int)DiscordColors.Warning
                 }
@@ -214,9 +214,9 @@ namespace NzbDrone.Core.Notifications.Discord
             {
                 new ()
                 {
-                    Author = new DiscordAuthor
+                    Volume = new DiscordVolume
                     {
-                        Name = Settings.Author.IsNullOrWhiteSpace() ? Environment.MachineName : Settings.Author,
+                        Name = Settings.Volume.IsNullOrWhiteSpace() ? Environment.MachineName : Settings.Volume,
                         IconUrl = "https://raw.githubusercontent.com/Readarr/Readarr/develop/Logo/256.png"
                     },
                     Title = APPLICATION_UPDATE_TITLE,

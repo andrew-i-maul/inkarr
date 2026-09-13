@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 
-namespace NzbDrone.Core.Books
+namespace NzbDrone.Core.Issues
 {
     public interface ISeriesService
     {
         Series FindById(string foreignSeriesId);
         List<Series> FindById(List<string> foreignSeriesId);
-        List<Series> GetByAuthorMetadataId(int authorMetadataId);
-        List<Series> GetByAuthorId(int authorId);
+        List<Series> GetByVolumeMetadataId(int volumeMetadataId);
+        List<Series> GetByVolumeId(int volumeId);
         void Delete(int seriesId);
         void InsertMany(IList<Series> series);
         void UpdateMany(IList<Series> series);
@@ -32,14 +32,14 @@ namespace NzbDrone.Core.Books
             return _seriesRepository.FindById(foreignSeriesId);
         }
 
-        public List<Series> GetByAuthorMetadataId(int authorMetadataId)
+        public List<Series> GetByVolumeMetadataId(int volumeMetadataId)
         {
-            return _seriesRepository.GetByAuthorMetadataId(authorMetadataId);
+            return _seriesRepository.GetByVolumeMetadataId(volumeMetadataId);
         }
 
-        public List<Series> GetByAuthorId(int authorId)
+        public List<Series> GetByVolumeId(int volumeId)
         {
-            return _seriesRepository.GetByAuthorId(authorId);
+            return _seriesRepository.GetByVolumeId(volumeId);
         }
 
         public void Delete(int seriesId)

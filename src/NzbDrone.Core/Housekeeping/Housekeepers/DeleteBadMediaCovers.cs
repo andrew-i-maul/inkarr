@@ -4,28 +4,28 @@ using System.IO;
 using System.Linq;
 using NLog;
 using NzbDrone.Common.Disk;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Configuration;
 using NzbDrone.Core.Extras.Metadata.Files;
+using NzbDrone.Core.Issues;
 
 namespace NzbDrone.Core.Housekeeping.Housekeepers
 {
     public class DeleteBadMediaCovers : IHousekeepingTask
     {
         private readonly IMetadataFileService _metaFileService;
-        private readonly IAuthorService _authorService;
+        private readonly IVolumeService _volumeService;
         private readonly IDiskProvider _diskProvider;
         private readonly IConfigService _configService;
         private readonly Logger _logger;
 
         public DeleteBadMediaCovers(IMetadataFileService metaFileService,
-                                    IAuthorService authorService,
+                                    IVolumeService volumeService,
                                     IDiskProvider diskProvider,
                                     IConfigService configService,
                                     Logger logger)
         {
             _metaFileService = metaFileService;
-            _authorService = authorService;
+            _volumeService = volumeService;
             _diskProvider = diskProvider;
             _configService = configService;
             _logger = logger;
@@ -38,19 +38,19 @@ namespace NzbDrone.Core.Housekeeping.Housekeepers
                 return;
             }
 
-            var authors = _authorService.AllAuthorPaths();
+            var volumes = _volumeService.AllVolumePaths();
             var imageExtensions = new List<string> { ".jpg", ".png", ".gif" };
 
-            foreach (var author in authors)
+            foreach (var volume in volumes)
             {
-                var images = _metaFileService.GetFilesByAuthor(author.Key)
+                var images = _metaFileService.GetFilesByVolume(volume.Key)
                     .Where(c => c.LastUpdated > new DateTime(2014, 12, 27) && imageExtensions.Any(x => c.RelativePath.EndsWith(x, StringComparison.InvariantCultureIgnoreCase)));
 
                 foreach (var image in images)
                 {
                     try
                     {
-                        var path = Path.Combine(author.Value, image.RelativePath);
+                        var path = Path.Combine(volume.Value, image.RelativePath);
                         if (!IsValid(path))
                         {
                             _logger.Debug("Deleting invalid image file " + path);

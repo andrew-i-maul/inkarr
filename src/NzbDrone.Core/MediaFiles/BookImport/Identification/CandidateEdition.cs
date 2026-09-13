@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 
-namespace NzbDrone.Core.MediaFiles.BookImport.Identification
+namespace NzbDrone.Core.MediaFiles.IssueImport.Identification
 {
     public class CandidateEdition
     {
@@ -12,10 +12,10 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
         public CandidateEdition(Edition edition)
         {
             Edition = edition;
-            ExistingFiles = new List<BookFile>();
+            ExistingFiles = new List<IssueFile>();
         }
 
         public Edition Edition { get; set; }
-        public List<BookFile> ExistingFiles { get; set; }
+        public List<IssueFile> ExistingFiles { get; set; }
     }
 }

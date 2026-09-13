@@ -2,19 +2,19 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace NzbDrone.Core.Books.Calibre
+namespace NzbDrone.Core.Issues.Calibre
 {
     public class CalibreChangesPayload
     {
         public CalibreChanges Changes { get; set; }
-        [JsonProperty("loaded_book_ids")]
-        public List<int> LoadedBookIds { get; set; }
+        [JsonProperty("loaded_issue_ids")]
+        public List<int> LoadedIssueIds { get; set; }
     }
 
     public class CalibreChanges
     {
         public string Title { get; set; }
-        public List<string> Authors { get; set; }
+        public List<string> Volumes { get; set; }
         public string Cover { get; set; }
         [JsonProperty("pubdate")]
         public DateTime? PubDate { get; set; }

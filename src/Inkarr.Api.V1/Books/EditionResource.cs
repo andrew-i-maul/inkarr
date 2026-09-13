@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using Inkarr.Http.REST;
 using Newtonsoft.Json;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaCover;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace Inkarr.Api.V1.Books
+namespace Inkarr.Api.V1.Issues
 {
     public class EditionResource : RestResource
     {
-        public int BookId { get; set; }
+        public int IssueId { get; set; }
         public string ForeignEditionId { get; set; }
         public string TitleSlug { get; set; }
         public string Isbn13 { get; set; }
@@ -20,7 +20,7 @@ namespace Inkarr.Api.V1.Books
         public string Language { get; set; }
         public string Overview { get; set; }
         public string Format { get; set; }
-        public bool IsEbook { get; set; }
+        public bool IsEissue { get; set; }
         public string Disambiguation { get; set; }
         public string Publisher { get; set; }
         public int PageCount { get; set; }
@@ -50,7 +50,7 @@ namespace Inkarr.Api.V1.Books
             return new EditionResource
             {
                 Id = model.Id,
-                BookId = model.BookId,
+                IssueId = model.IssueId,
                 ForeignEditionId = model.ForeignEditionId,
                 TitleSlug = model.TitleSlug,
                 Isbn13 = model.Isbn13,
@@ -59,7 +59,7 @@ namespace Inkarr.Api.V1.Books
                 Language = model.Language,
                 Overview = model.Overview,
                 Format = model.Format,
-                IsEbook = model.IsEbook,
+                IsEissue = model.IsEissue,
                 Disambiguation = model.Disambiguation,
                 Publisher = model.Publisher,
                 PageCount = model.PageCount,
@@ -82,7 +82,7 @@ namespace Inkarr.Api.V1.Books
             return new Edition
             {
                 Id = resource.Id,
-                BookId = resource.BookId,
+                IssueId = resource.IssueId,
                 ForeignEditionId = resource.ForeignEditionId,
                 TitleSlug = resource.TitleSlug,
                 Isbn13 = resource.Isbn13,
@@ -91,7 +91,7 @@ namespace Inkarr.Api.V1.Books
                 Language = resource.Language,
                 Overview = resource.Overview,
                 Format = resource.Format,
-                IsEbook = resource.IsEbook,
+                IsEissue = resource.IsEissue,
                 Disambiguation = resource.Disambiguation,
                 Publisher = resource.Publisher,
                 PageCount = resource.PageCount,

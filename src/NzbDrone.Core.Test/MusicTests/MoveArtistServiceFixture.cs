@@ -5,8 +5,8 @@ using FizzWare.NBuilder;
 using Moq;
 using NUnit.Framework;
 using NzbDrone.Common.Disk;
-using NzbDrone.Core.Books;
-using NzbDrone.Core.Books.Commands;
+using NzbDrone.Core.Issues;
+using NzbDrone.Core.Issues.Commands;
 using NzbDrone.Core.Organizer;
 using NzbDrone.Core.Test.Framework;
 using NzbDrone.Test.Common;
@@ -14,42 +14,42 @@ using NzbDrone.Test.Common;
 namespace NzbDrone.Core.Test.MusicTests
 {
     [TestFixture]
-    public class MoveAuthorServiceFixture : CoreTest<MoveAuthorService>
+    public class MoveVolumeServiceFixture : CoreTest<MoveVolumeService>
     {
-        private Author _author;
-        private MoveAuthorCommand _command;
-        private BulkMoveAuthorCommand _bulkCommand;
+        private Volume _volume;
+        private MoveVolumeCommand _command;
+        private BulkMoveVolumeCommand _bulkCommand;
 
         [SetUp]
         public void Setup()
         {
-            _author = Builder<Author>
+            _volume = Builder<Volume>
                 .CreateNew()
                 .Build();
 
-            _command = new MoveAuthorCommand
+            _command = new MoveVolumeCommand
             {
-                AuthorId = 1,
-                SourcePath = @"C:\Test\Music\Author".AsOsAgnostic(),
-                DestinationPath = @"C:\Test\Music2\Author".AsOsAgnostic()
+                VolumeId = 1,
+                SourcePath = @"C:\Test\Music\Volume".AsOsAgnostic(),
+                DestinationPath = @"C:\Test\Music2\Volume".AsOsAgnostic()
             };
 
-            _bulkCommand = new BulkMoveAuthorCommand
+            _bulkCommand = new BulkMoveVolumeCommand
             {
-                Author = new List<BulkMoveAuthor>
+                Volume = new List<BulkMoveVolume>
                 {
-                    new BulkMoveAuthor
+                    new BulkMoveVolume
                     {
-                        AuthorId = 1,
-                        SourcePath = @"C:\Test\Music\Author".AsOsAgnostic()
+                        VolumeId = 1,
+                        SourcePath = @"C:\Test\Music\Volume".AsOsAgnostic()
                     }
                 },
                 DestinationRootFolder = @"C:\Test\Music2".AsOsAgnostic()
             };
 
-            Mocker.GetMock<IAuthorService>()
-                .Setup(s => s.GetAuthor(It.IsAny<int>()))
-                .Returns(_author);
+            Mocker.GetMock<IVolumeService>()
+                .Setup(s => s.GetVolume(It.IsAny<int>()))
+                .Returns(_volume);
 
             Mocker.GetMock<IDiskProvider>()
                 .Setup(s => s.FolderExists(It.IsAny<string>()))
@@ -74,7 +74,7 @@ namespace NzbDrone.Core.Test.MusicTests
         }
 
         [Test]
-        public void should_revert_author_path_on_error()
+        public void should_revert_volume_path_on_error()
         {
             GivenFailedMove();
 
@@ -82,8 +82,8 @@ namespace NzbDrone.Core.Test.MusicTests
 
             ExceptionVerification.ExpectedErrors(1);
 
-            Mocker.GetMock<IAuthorService>()
-                .Verify(v => v.UpdateAuthor(It.IsAny<Author>()), Times.Once());
+            Mocker.GetMock<IVolumeService>()
+                .Verify(v => v.UpdateVolume(It.IsAny<Volume>()), Times.Once());
         }
 
         [Test]
@@ -99,31 +99,31 @@ namespace NzbDrone.Core.Test.MusicTests
                     Times.Once());
 
             Mocker.GetMock<IBuildFileNames>()
-                .Verify(v => v.GetAuthorFolder(It.IsAny<Author>(), null), Times.Never());
+                .Verify(v => v.GetVolumeFolder(It.IsAny<Volume>(), null), Times.Never());
         }
 
         [Test]
         public void should_build_new_path_when_root_folder_is_provided()
         {
-            var authorFolder = "Author";
-            var expectedPath = Path.Combine(_bulkCommand.DestinationRootFolder, authorFolder);
+            var volumeFolder = "Volume";
+            var expectedPath = Path.Combine(_bulkCommand.DestinationRootFolder, volumeFolder);
 
             Mocker.GetMock<IBuildFileNames>()
-                .Setup(s => s.GetAuthorFolder(It.IsAny<Author>(), null))
-                .Returns(authorFolder);
+                .Setup(s => s.GetVolumeFolder(It.IsAny<Volume>(), null))
+                .Returns(volumeFolder);
 
             Subject.Execute(_bulkCommand);
 
             Mocker.GetMock<IDiskTransferService>()
                 .Verify(
-                    v => v.TransferFolder(_bulkCommand.Author.First().SourcePath,
+                    v => v.TransferFolder(_bulkCommand.Volume.First().SourcePath,
                                           expectedPath,
                                           TransferMode.Move),
                     Times.Once());
         }
 
         [Test]
-        public void should_skip_author_folder_if_it_does_not_exist()
+        public void should_skip_volume_folder_if_it_does_not_exist()
         {
             Mocker.GetMock<IDiskProvider>()
                 .Setup(s => s.FolderExists(It.IsAny<string>()))
@@ -138,7 +138,7 @@ namespace NzbDrone.Core.Test.MusicTests
                         TransferMode.Move), Times.Never());
 
             Mocker.GetMock<IBuildFileNames>()
-                .Verify(v => v.GetAuthorFolder(It.IsAny<Author>(), null), Times.Never());
+                .Verify(v => v.GetVolumeFolder(It.IsAny<Volume>(), null), Times.Never());
         }
     }
 }

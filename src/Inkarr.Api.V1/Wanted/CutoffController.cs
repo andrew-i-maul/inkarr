@@ -1,38 +1,38 @@
-using Inkarr.Api.V1.Books;
+using Inkarr.Api.V1.Issues;
 using Inkarr.Http;
 using Inkarr.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using NzbDrone.Core.AuthorStats;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Datastore;
 using NzbDrone.Core.DecisionEngine.Specifications;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaCover;
+using NzbDrone.Core.VolumeStats;
 using NzbDrone.SignalR;
 
 namespace Inkarr.Api.V1.Wanted
 {
     [V1ApiController("wanted/cutoff")]
-    public class CutoffController : BookControllerWithSignalR
+    public class CutoffController : IssueControllerWithSignalR
     {
-        private readonly IBookCutoffService _bookCutoffService;
+        private readonly IIssueCutoffService _issueCutoffService;
 
-        public CutoffController(IBookCutoffService bookCutoffService,
-                            IBookService bookService,
-                            ISeriesBookLinkService seriesBookLinkService,
-                            IAuthorStatisticsService authorStatisticsService,
+        public CutoffController(IIssueCutoffService issueCutoffService,
+                            IIssueService issueService,
+                            ISeriesIssueLinkService seriesIssueLinkService,
+                            IVolumeStatisticsService volumeStatisticsService,
                             IMapCoversToLocal coverMapper,
                             IUpgradableSpecification upgradableSpecification,
                             IBroadcastSignalRMessage signalRBroadcaster)
-        : base(bookService, seriesBookLinkService, authorStatisticsService, coverMapper, upgradableSpecification, signalRBroadcaster)
+        : base(issueService, seriesIssueLinkService, volumeStatisticsService, coverMapper, upgradableSpecification, signalRBroadcaster)
         {
-            _bookCutoffService = bookCutoffService;
+            _issueCutoffService = issueCutoffService;
         }
 
         [HttpGet]
-        public PagingResource<BookResource> GetCutoffUnmetBooks([FromQuery] PagingRequestResource paging, bool includeAuthor = false, bool monitored = true)
+        public PagingResource<IssueResource> GetCutoffUnmetIssues([FromQuery] PagingRequestResource paging, bool includeVolume = false, bool monitored = true)
         {
-            var pagingResource = new PagingResource<BookResource>(paging);
-            var pagingSpec = new PagingSpec<Book>
+            var pagingResource = new PagingResource<IssueResource>(paging);
+            var pagingSpec = new PagingSpec<Issue>
             {
                 Page = pagingResource.Page,
                 PageSize = pagingResource.PageSize,
@@ -42,14 +42,14 @@ namespace Inkarr.Api.V1.Wanted
 
             if (monitored)
             {
-                pagingSpec.FilterExpressions.Add(v => v.Monitored == true && v.Author.Value.Monitored == true);
+                pagingSpec.FilterExpressions.Add(v => v.Monitored == true && v.Volume.Value.Monitored == true);
             }
             else
             {
-                pagingSpec.FilterExpressions.Add(v => v.Monitored == false || v.Author.Value.Monitored == false);
+                pagingSpec.FilterExpressions.Add(v => v.Monitored == false || v.Volume.Value.Monitored == false);
             }
 
-            return pagingSpec.ApplyToPage(_bookCutoffService.BooksWhereCutoffUnmet, v => MapToResource(v, includeAuthor));
+            return pagingSpec.ApplyToPage(_issueCutoffService.IssuesWhereCutoffUnmet, v => MapToResource(v, includeVolume));
         }
     }
 }

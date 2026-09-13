@@ -22,7 +22,7 @@ namespace NzbDrone.Core.Download.TrackedDownloads
 
         public bool IsImported(TrackedDownload trackedDownload, List<EntityHistory> historyItems)
         {
-            _logger.Trace("Checking if all books for '{0}' have been imported", trackedDownload.DownloadItem.Title);
+            _logger.Trace("Checking if all issues for '{0}' have been imported", trackedDownload.DownloadItem.Title);
 
             if (historyItems.Empty())
             {
@@ -30,29 +30,29 @@ namespace NzbDrone.Core.Download.TrackedDownloads
                 return false;
             }
 
-            if (trackedDownload.RemoteBook == null || trackedDownload.RemoteBook.Books == null)
+            if (trackedDownload.RemoteIssue == null || trackedDownload.RemoteIssue.Issues == null)
             {
                 return true;
             }
 
-            var allBooksImportedInHistory = trackedDownload.RemoteBook.Books.All(book =>
+            var allIssuesImportedInHistory = trackedDownload.RemoteIssue.Issues.All(issue =>
             {
-                var lastHistoryItem = historyItems.FirstOrDefault(h => h.BookId == book.Id);
+                var lastHistoryItem = historyItems.FirstOrDefault(h => h.IssueId == issue.Id);
 
                 if (lastHistoryItem == null)
                 {
-                    _logger.Trace($"No history for book: {book}");
+                    _logger.Trace($"No history for issue: {issue}");
                     return false;
                 }
 
-                _logger.Trace($"Last event for book: {book} is: {lastHistoryItem.EventType}");
+                _logger.Trace($"Last event for issue: {issue} is: {lastHistoryItem.EventType}");
 
-                return lastHistoryItem.EventType == EntityHistoryEventType.BookFileImported;
+                return lastHistoryItem.EventType == EntityHistoryEventType.IssueFileImported;
             });
 
-            _logger.Trace("All books for '{0}' have been imported: {1}", trackedDownload.DownloadItem.Title, allBooksImportedInHistory);
+            _logger.Trace("All issues for '{0}' have been imported: {1}", trackedDownload.DownloadItem.Title, allIssuesImportedInHistory);
 
-            return allBooksImportedInHistory;
+            return allIssuesImportedInHistory;
         }
     }
 }

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Inkarr.Http.REST;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
-using NzbDrone.Core.Books.Calibre;
+using NzbDrone.Core.Issues;
+using NzbDrone.Core.Issues.Calibre;
 using NzbDrone.Core.RootFolders;
 
 namespace Inkarr.Api.V1.RootFolders

@@ -22,11 +22,11 @@ namespace NzbDrone.Core.Configuration
         bool AutoRedownloadFailedFromInteractiveSearch { get; set; }
 
         //Media Management
-        bool AutoUnmonitorPreviouslyDownloadedBooks { get; set; }
+        bool AutoUnmonitorPreviouslyDownloadedIssues { get; set; }
         string RecycleBin { get; set; }
         int RecycleBinCleanupDays { get; set; }
         ProperDownloadTypes DownloadPropersAndRepacks { get; set; }
-        bool CreateEmptyAuthorFolders { get; set; }
+        bool CreateEmptyVolumeFolders { get; set; }
         bool DeleteEmptyFolders { get; set; }
         FileDateType FileDate { get; set; }
         bool SkipFreeSpaceCheckWhenImporting { get; set; }
@@ -70,7 +70,7 @@ namespace NzbDrone.Core.Configuration
         string ComicVineApiKey { get; set; }
         WriteAudioTagsType WriteAudioTags { get; set; }
         bool ScrubAudioTags { get; set; }
-        WriteBookTagsType WriteBookTags { get; set; }
+        WriteIssueTagsType WriteIssueTags { get; set; }
         bool UpdateCovers { get; set; }
         bool EmbedMetadata { get; set; }
 

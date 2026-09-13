@@ -1,5 +1,5 @@
-using Inkarr.Api.V1.Author;
-using Inkarr.Api.V1.Books;
+using Inkarr.Api.V1.Issues;
+using Inkarr.Api.V1.Volume;
 using Inkarr.Http;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Common.Extensions;
@@ -25,9 +25,9 @@ namespace Inkarr.Api.V1.Parse
                 return null;
             }
 
-            var parsedBookInfo = Parser.ParseBookTitle(title);
+            var parsedIssueInfo = Parser.ParseIssueTitle(title);
 
-            if (parsedBookInfo == null)
+            if (parsedIssueInfo == null)
             {
                 return new ParseResource
                 {
@@ -35,16 +35,16 @@ namespace Inkarr.Api.V1.Parse
                 };
             }
 
-            var remoteBook = _parsingService.Map(parsedBookInfo);
+            var remoteIssue = _parsingService.Map(parsedIssueInfo);
 
-            if (remoteBook != null)
+            if (remoteIssue != null)
             {
                 return new ParseResource
                 {
                     Title = title,
-                    ParsedBookInfo = remoteBook.ParsedBookInfo,
-                    Author = remoteBook.Author.ToResource(),
-                    Books = remoteBook.Books.ToResource()
+                    ParsedIssueInfo = remoteIssue.ParsedIssueInfo,
+                    Volume = remoteIssue.Volume.ToResource(),
+                    Issues = remoteIssue.Issues.ToResource()
                 };
             }
             else
@@ -52,7 +52,7 @@ namespace Inkarr.Api.V1.Parse
                 return new ParseResource
                 {
                     Title = title,
-                    ParsedBookInfo = parsedBookInfo
+                    ParsedIssueInfo = parsedIssueInfo
                 };
             }
         }

@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace NzbDrone.Core.Books.Calibre
+namespace NzbDrone.Core.Issues.Calibre
 {
     public class CalibreConversionStatus
     {

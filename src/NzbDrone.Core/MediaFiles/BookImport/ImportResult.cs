@@ -3,11 +3,11 @@ using System.Linq;
 using NzbDrone.Common.EnsureThat;
 using NzbDrone.Core.Parser.Model;
 
-namespace NzbDrone.Core.MediaFiles.BookImport
+namespace NzbDrone.Core.MediaFiles.IssueImport
 {
     public class ImportResult
     {
-        public ImportDecision<LocalBook> ImportDecision { get; private set; }
+        public ImportDecision<LocalIssue> ImportDecision { get; private set; }
         public List<string> Errors { get; private set; }
 
         public ImportResultType Result
@@ -28,7 +28,7 @@ namespace NzbDrone.Core.MediaFiles.BookImport
             }
         }
 
-        public ImportResult(ImportDecision<LocalBook> importDecision, params string[] errors)
+        public ImportResult(ImportDecision<LocalIssue> importDecision, params string[] errors)
         {
             Ensure.That(importDecision, () => importDecision).IsNotNull();
 

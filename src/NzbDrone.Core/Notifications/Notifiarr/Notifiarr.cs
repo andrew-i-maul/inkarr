@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using FluentValidation.Results;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Configuration;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Notifications.Webhook;
 using NzbDrone.Core.Validation;
 
@@ -26,29 +26,29 @@ namespace NzbDrone.Core.Notifications.Notifiarr
             _proxy.SendNotification(BuildOnGrabPayload(message), Settings);
         }
 
-        public override void OnReleaseImport(BookDownloadMessage message)
+        public override void OnReleaseImport(IssueDownloadMessage message)
         {
             _proxy.SendNotification(BuildOnReleaseImportPayload(message), Settings);
         }
 
-        public override void OnAuthorAdded(Author author)
+        public override void OnVolumeAdded(Volume volume)
         {
-            _proxy.SendNotification(BuildOnAuthorAdded(author), Settings);
+            _proxy.SendNotification(BuildOnVolumeAdded(volume), Settings);
         }
 
-        public override void OnAuthorDelete(AuthorDeleteMessage deleteMessage)
+        public override void OnVolumeDelete(VolumeDeleteMessage deleteMessage)
         {
-            _proxy.SendNotification(BuildOnAuthorDelete(deleteMessage), Settings);
+            _proxy.SendNotification(BuildOnVolumeDelete(deleteMessage), Settings);
         }
 
-        public override void OnBookDelete(BookDeleteMessage deleteMessage)
+        public override void OnIssueDelete(IssueDeleteMessage deleteMessage)
         {
-            _proxy.SendNotification(BuildOnBookDelete(deleteMessage), Settings);
+            _proxy.SendNotification(BuildOnIssueDelete(deleteMessage), Settings);
         }
 
-        public override void OnBookFileDelete(BookFileDeleteMessage deleteMessage)
+        public override void OnIssueFileDelete(IssueFileDeleteMessage deleteMessage)
         {
-            _proxy.SendNotification(BuildOnBookFileDelete(deleteMessage), Settings);
+            _proxy.SendNotification(BuildOnIssueFileDelete(deleteMessage), Settings);
         }
 
         public override void OnHealthIssue(HealthCheck.HealthCheck healthCheck)

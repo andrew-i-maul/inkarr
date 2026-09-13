@@ -21,7 +21,7 @@ namespace Inkarr.Api.V1.ImportLists
             _importListExclusionService = importListExclusionService;
 
             SharedValidator.RuleFor(c => c.ForeignId).NotEmpty().SetValidator(guidValidator).SetValidator(importListExclusionExistsValidator);
-            SharedValidator.RuleFor(c => c.AuthorName).NotEmpty();
+            SharedValidator.RuleFor(c => c.VolumeName).NotEmpty();
         }
 
         protected override ImportListExclusionResource GetResourceById(int id)

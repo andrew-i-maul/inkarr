@@ -1,7 +1,7 @@
 using Equ;
 using NzbDrone.Core.Datastore;
 
-namespace NzbDrone.Core.Books
+namespace NzbDrone.Core.Issues
 {
     public class Links : MemberwiseEquatable<Links>, IEmbeddedDocument
     {

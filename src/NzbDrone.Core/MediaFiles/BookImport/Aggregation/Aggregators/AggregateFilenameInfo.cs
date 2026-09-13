@@ -7,7 +7,7 @@ using NLog;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Parser.Model;
 
-namespace NzbDrone.Core.MediaFiles.BookImport.Aggregation.Aggregators
+namespace NzbDrone.Core.MediaFiles.IssueImport.Aggregation.Aggregators
 {
     public class AggregateFilenameInfo : IAggregate<LocalEdition>
     {
@@ -23,24 +23,24 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Aggregation.Aggregators
         {
             var sep1 = $@"(?<sep>[{sep}]+)";
             var sepn = @"\k<sep>";
-            var author = $@"(?<author>[{chars}]+)";
+            var volume = $@"(?<volume>[{chars}]+)";
             var track = $@"(?<track>\d+)";
             var title = $@"(?<title>[{chars}]+)";
             var tag = $@"(?<tag>[{chars}]+)";
 
             return new[]
             {
-                new Regex($@"^{track}{sep1}{author}{sepn}{title}{sepn}{tag}$", RegexOptions.IgnoreCase),
-                new Regex($@"^{track}{sep1}{author}{sepn}{tag}{sepn}{title}$", RegexOptions.IgnoreCase),
-                new Regex($@"^{track}{sep1}{author}{sepn}{title}$", RegexOptions.IgnoreCase),
+                new Regex($@"^{track}{sep1}{volume}{sepn}{title}{sepn}{tag}$", RegexOptions.IgnoreCase),
+                new Regex($@"^{track}{sep1}{volume}{sepn}{tag}{sepn}{title}$", RegexOptions.IgnoreCase),
+                new Regex($@"^{track}{sep1}{volume}{sepn}{title}$", RegexOptions.IgnoreCase),
 
-                new Regex($@"^{author}{sep1}{tag}{sepn}{track}{sepn}{title}$", RegexOptions.IgnoreCase),
-                new Regex($@"^{author}{sep1}{track}{sepn}{title}{sepn}{tag}$", RegexOptions.IgnoreCase),
-                new Regex($@"^{author}{sep1}{track}{sepn}{title}$", RegexOptions.IgnoreCase),
+                new Regex($@"^{volume}{sep1}{tag}{sepn}{track}{sepn}{title}$", RegexOptions.IgnoreCase),
+                new Regex($@"^{volume}{sep1}{track}{sepn}{title}{sepn}{tag}$", RegexOptions.IgnoreCase),
+                new Regex($@"^{volume}{sep1}{track}{sepn}{title}$", RegexOptions.IgnoreCase),
 
-                new Regex($@"^{author}{sep1}{title}{sepn}{tag}$", RegexOptions.IgnoreCase),
-                new Regex($@"^{author}{sep1}{tag}{sepn}{title}$", RegexOptions.IgnoreCase),
-                new Regex($@"^{author}{sep1}{title}$", RegexOptions.IgnoreCase),
+                new Regex($@"^{volume}{sep1}{title}{sepn}{tag}$", RegexOptions.IgnoreCase),
+                new Regex($@"^{volume}{sep1}{tag}{sepn}{title}$", RegexOptions.IgnoreCase),
+                new Regex($@"^{volume}{sep1}{title}$", RegexOptions.IgnoreCase),
 
                 new Regex($@"^{track}{sep1}{title}$", RegexOptions.IgnoreCase),
                 new Regex($@"^{track}{sep1}{tag}{sepn}{title}$", RegexOptions.IgnoreCase),
@@ -57,9 +57,9 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Aggregation.Aggregators
 
         public LocalEdition Aggregate(LocalEdition release, bool others)
         {
-            var tracks = release.LocalBooks;
-            if (tracks.Any(x => x.FileTrackInfo.BookTitle.IsNullOrWhiteSpace())
-                || tracks.Any(x => x.FileTrackInfo.AuthorTitle.IsNullOrWhiteSpace()))
+            var tracks = release.LocalIssues;
+            if (tracks.Any(x => x.FileTrackInfo.IssueTitle.IsNullOrWhiteSpace())
+                || tracks.Any(x => x.FileTrackInfo.VolumeTitle.IsNullOrWhiteSpace()))
             {
                 _logger.Debug("Missing data in tags, trying filename augmentation");
                 foreach (var charSep in CharsAndSeps)
@@ -78,9 +78,9 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Aggregation.Aggregators
             return release;
         }
 
-        private Dictionary<LocalBook, Match> AllMatches(List<LocalBook> tracks, Regex pattern)
+        private Dictionary<LocalIssue, Match> AllMatches(List<LocalIssue> tracks, Regex pattern)
         {
-            var matches = new Dictionary<LocalBook, Match>();
+            var matches = new Dictionary<LocalIssue, Match>();
             foreach (var track in tracks)
             {
                 var filename = Path.GetFileNameWithoutExtension(track.Path).RemoveAccent();
@@ -104,7 +104,7 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Aggregation.Aggregators
             return matches.Select(x => x.Groups[field].Value).Distinct().Count() == 1;
         }
 
-        private void ApplyMatches(Dictionary<LocalBook, Match> matches, Regex pattern)
+        private void ApplyMatches(Dictionary<LocalIssue, Match> matches, Regex pattern)
         {
             _logger.Debug("Got filename match with regex {0}", pattern);
 
@@ -118,55 +118,55 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Aggregation.Aggregators
                 return;
             }
 
-            // Given both an "author" and "title" field, assume that one is
-            // *actually* the author, which must be uniform, and use the other
-            // for the title. This, of course, won't work for VA books.
+            // Given both an "volume" and "title" field, assume that one is
+            // *actually* the volume, which must be uniform, and use the other
+            // for the title. This, of course, won't work for VA issues.
             string titleField;
-            string author;
-            if (keys.Contains("author"))
+            string volume;
+            if (keys.Contains("volume"))
             {
-                if (EqualFields(matches.Values, "author"))
+                if (EqualFields(matches.Values, "volume"))
                 {
-                    author = someMatch.Groups["author"].Value.Trim();
+                    volume = someMatch.Groups["volume"].Value.Trim();
                     titleField = "title";
                 }
                 else if (EqualFields(matches.Values, "title"))
                 {
-                    author = someMatch.Groups["title"].Value.Trim();
-                    titleField = "author";
+                    volume = someMatch.Groups["title"].Value.Trim();
+                    titleField = "volume";
                 }
                 else
                 {
-                    _logger.Trace("Abort - both author and title vary between matches");
+                    _logger.Trace("Abort - both volume and title vary between matches");
 
                     // both vary, abort
                     return;
                 }
 
-                _logger.Debug("Got author from filename: {0}", author);
+                _logger.Debug("Got volume from filename: {0}", volume);
 
                 foreach (var track in matches.Keys)
                 {
-                    if (track.FileTrackInfo.AuthorTitle.IsNullOrWhiteSpace())
+                    if (track.FileTrackInfo.VolumeTitle.IsNullOrWhiteSpace())
                     {
-                        track.FileTrackInfo.Authors = new List<string> { author };
+                        track.FileTrackInfo.Volumes = new List<string> { volume };
                     }
                 }
             }
             else
             {
-                // no author - remaining field is the title
+                // no volume - remaining field is the title
                 titleField = "title";
             }
 
             // Apply the title and track
             foreach (var track in matches.Keys)
             {
-                if (track.FileTrackInfo.BookTitle.IsNullOrWhiteSpace())
+                if (track.FileTrackInfo.IssueTitle.IsNullOrWhiteSpace())
                 {
                     var title = matches[track].Groups[titleField].Value.Trim();
                     _logger.Debug("Got title from filename: {0}", title);
-                    track.FileTrackInfo.BookTitle = title;
+                    track.FileTrackInfo.IssueTitle = title;
                 }
 
                 var trackNums = track.FileTrackInfo.TrackNumbers;

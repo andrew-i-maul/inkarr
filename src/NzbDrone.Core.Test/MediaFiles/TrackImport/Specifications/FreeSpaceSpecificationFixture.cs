@@ -4,20 +4,20 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using NzbDrone.Common.Disk;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Configuration;
-using NzbDrone.Core.MediaFiles.BookImport.Specifications;
+using NzbDrone.Core.Issues;
+using NzbDrone.Core.MediaFiles.IssueImport.Specifications;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Test.Framework;
 using NzbDrone.Test.Common;
 
-namespace NzbDrone.Core.Test.MediaFiles.BookImport.Specifications
+namespace NzbDrone.Core.Test.MediaFiles.IssueImport.Specifications
 {
     [TestFixture]
     public class FreeSpaceSpecificationFixture : CoreTest<FreeSpaceSpecification>
     {
-        private Author _author;
-        private LocalBook _localTrack;
+        private Volume _volume;
+        private LocalIssue _localTrack;
         private string _rootFolder;
 
         [SetUp]
@@ -25,15 +25,15 @@ namespace NzbDrone.Core.Test.MediaFiles.BookImport.Specifications
         {
             _rootFolder = @"C:\Test\Music".AsOsAgnostic();
 
-            _author = Builder<Author>.CreateNew()
+            _volume = Builder<Volume>.CreateNew()
                                      .With(s => s.Path = Path.Combine(_rootFolder, "Alice in Chains"))
                                      .Build();
 
-            _localTrack = new LocalBook
+            _localTrack = new LocalIssue
             {
                 Path = @"C:\Test\Unsorted\Alice in Chains\Alice in Chains - track1.mp3".AsOsAgnostic(),
-                Book = new Book(),
-                Author = _author
+                Issue = new Issue(),
+                Volume = _volume
             };
         }
 
@@ -83,7 +83,7 @@ namespace NzbDrone.Core.Test.MediaFiles.BookImport.Specifications
         }
 
         [Test]
-        public void should_use_author_paths_parent_for_free_space_check()
+        public void should_use_volume_paths_parent_for_free_space_check()
         {
             GivenFileSize(100.Megabytes());
             GivenFreeSpace(1.Gigabytes());
@@ -117,7 +117,7 @@ namespace NzbDrone.Core.Test.MediaFiles.BookImport.Specifications
         }
 
         [Test]
-        public void should_skip_check_for_files_under_author_folder()
+        public void should_skip_check_for_files_under_volume_folder()
         {
             _localTrack.ExistingFile = true;
 

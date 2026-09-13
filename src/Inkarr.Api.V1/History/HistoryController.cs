@@ -1,18 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Inkarr.Api.V1.Author;
-using Inkarr.Api.V1.Books;
+using Inkarr.Api.V1.Issues;
+using Inkarr.Api.V1.Volume;
 using Inkarr.Http;
 using Inkarr.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.CustomFormats;
 using NzbDrone.Core.Datastore;
 using NzbDrone.Core.DecisionEngine.Specifications;
 using NzbDrone.Core.Download;
 using NzbDrone.Core.History;
+using NzbDrone.Core.Issues;
 
 namespace Inkarr.Api.V1.History
 {
@@ -23,38 +23,38 @@ namespace Inkarr.Api.V1.History
         private readonly ICustomFormatCalculationService _formatCalculator;
         private readonly IUpgradableSpecification _upgradableSpecification;
         private readonly IFailedDownloadService _failedDownloadService;
-        private readonly IAuthorService _authorService;
+        private readonly IVolumeService _volumeService;
 
         public HistoryController(IHistoryService historyService,
                              ICustomFormatCalculationService formatCalculator,
                              IUpgradableSpecification upgradableSpecification,
                              IFailedDownloadService failedDownloadService,
-                             IAuthorService authorService)
+                             IVolumeService volumeService)
         {
             _historyService = historyService;
             _formatCalculator = formatCalculator;
             _upgradableSpecification = upgradableSpecification;
             _failedDownloadService = failedDownloadService;
-            _authorService = authorService;
+            _volumeService = volumeService;
         }
 
-        protected HistoryResource MapToResource(EntityHistory model, bool includeAuthor, bool includeBook)
+        protected HistoryResource MapToResource(EntityHistory model, bool includeVolume, bool includeIssue)
         {
             var resource = model.ToResource(_formatCalculator);
 
-            if (includeAuthor)
+            if (includeVolume)
             {
-                resource.Author = model.Author.ToResource();
+                resource.Volume = model.Volume.ToResource();
             }
 
-            if (includeBook)
+            if (includeIssue)
             {
-                resource.Book = model.Book.ToResource();
+                resource.Issue = model.Issue.ToResource();
             }
 
-            if (model.Author != null)
+            if (model.Volume != null)
             {
-                resource.QualityCutoffNotMet = _upgradableSpecification.QualityCutoffNotMet(model.Author.QualityProfile.Value, model.Quality);
+                resource.QualityCutoffNotMet = _upgradableSpecification.QualityCutoffNotMet(model.Volume.QualityProfile.Value, model.Quality);
             }
 
             return resource;
@@ -62,7 +62,7 @@ namespace Inkarr.Api.V1.History
 
         [HttpGet]
         [Produces("application/json")]
-        public PagingResource<HistoryResource> GetHistory([FromQuery] PagingRequestResource paging, bool includeAuthor, bool includeBook, [FromQuery(Name = "eventType")] int[] eventTypes, int? bookId, string downloadId)
+        public PagingResource<HistoryResource> GetHistory([FromQuery] PagingRequestResource paging, bool includeVolume, bool includeIssue, [FromQuery(Name = "eventType")] int[] eventTypes, int? issueId, string downloadId)
         {
             var pagingResource = new PagingResource<HistoryResource>(paging);
             var pagingSpec = pagingResource.MapToPagingSpec<HistoryResource, EntityHistory>("date", SortDirection.Descending);
@@ -72,9 +72,9 @@ namespace Inkarr.Api.V1.History
                 pagingSpec.FilterExpressions.Add(v => eventTypes.Contains((int)v.EventType));
             }
 
-            if (bookId.HasValue)
+            if (issueId.HasValue)
             {
-                pagingSpec.FilterExpressions.Add(h => h.BookId == bookId);
+                pagingSpec.FilterExpressions.Add(h => h.IssueId == issueId);
             }
 
             if (downloadId.IsNotNullOrWhiteSpace())
@@ -82,35 +82,35 @@ namespace Inkarr.Api.V1.History
                 pagingSpec.FilterExpressions.Add(h => h.DownloadId == downloadId);
             }
 
-            return pagingSpec.ApplyToPage(_historyService.Paged, h => MapToResource(h, includeAuthor, includeBook));
+            return pagingSpec.ApplyToPage(_historyService.Paged, h => MapToResource(h, includeVolume, includeIssue));
         }
 
         [HttpGet("since")]
-        public List<HistoryResource> GetHistorySince(DateTime date, EntityHistoryEventType? eventType = null, bool includeAuthor = false, bool includeBook = false)
+        public List<HistoryResource> GetHistorySince(DateTime date, EntityHistoryEventType? eventType = null, bool includeVolume = false, bool includeIssue = false)
         {
-            return _historyService.Since(date, eventType).Select(h => MapToResource(h, includeAuthor, includeBook)).ToList();
+            return _historyService.Since(date, eventType).Select(h => MapToResource(h, includeVolume, includeIssue)).ToList();
         }
 
-        [HttpGet("author")]
-        public List<HistoryResource> GetAuthorHistory(int authorId, int? bookId = null, EntityHistoryEventType? eventType = null, bool includeAuthor = false, bool includeBook = false)
+        [HttpGet("volume")]
+        public List<HistoryResource> GetVolumeHistory(int volumeId, int? issueId = null, EntityHistoryEventType? eventType = null, bool includeVolume = false, bool includeIssue = false)
         {
-            var author = _authorService.GetAuthor(authorId);
+            var volume = _volumeService.GetVolume(volumeId);
 
-            if (bookId.HasValue)
+            if (issueId.HasValue)
             {
-                return _historyService.GetByBook(bookId.Value, eventType).Select(h =>
+                return _historyService.GetByIssue(issueId.Value, eventType).Select(h =>
                 {
-                    h.Author = author;
+                    h.Volume = volume;
 
-                    return MapToResource(h, includeAuthor, includeBook);
+                    return MapToResource(h, includeVolume, includeIssue);
                 }).ToList();
             }
 
-            return _historyService.GetByAuthor(authorId, eventType).Select(h =>
+            return _historyService.GetByVolume(volumeId, eventType).Select(h =>
             {
-                h.Author = author;
+                h.Volume = volume;
 
-                return MapToResource(h, includeAuthor, includeBook);
+                return MapToResource(h, includeVolume, includeIssue);
             }).ToList();
         }
 

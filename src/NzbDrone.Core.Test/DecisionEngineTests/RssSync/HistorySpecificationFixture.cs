@@ -4,13 +4,13 @@ using FizzWare.NBuilder;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Configuration;
 using NzbDrone.Core.CustomFormats;
 using NzbDrone.Core.DecisionEngine.Specifications;
 using NzbDrone.Core.DecisionEngine.Specifications.RssSync;
 using NzbDrone.Core.History;
 using NzbDrone.Core.IndexerSearch.Definitions;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Profiles.Qualities;
 using NzbDrone.Core.Qualities;
@@ -27,11 +27,11 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
 
         private HistorySpecification _upgradeHistory;
 
-        private RemoteBook _parseResultMulti;
-        private RemoteBook _parseResultSingle;
+        private RemoteIssue _parseResultMulti;
+        private RemoteIssue _parseResultSingle;
         private QualityModel _upgradableQuality;
         private QualityModel _notupgradableQuality;
-        private Author _fakeAuthor;
+        private Volume _fakeVolume;
 
         [SetUp]
         public void Setup()
@@ -41,15 +41,15 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
 
             CustomFormatsTestHelpers.GivenCustomFormats();
 
-            var singleBookList = new List<Book> { new Book { Id = FIRST_ALBUM_ID } };
-            var doubleBookList = new List<Book>
+            var singleIssueList = new List<Issue> { new Issue { Id = FIRST_ALBUM_ID } };
+            var doubleIssueList = new List<Issue>
             {
-                                                            new Book { Id = FIRST_ALBUM_ID },
-                                                            new Book { Id = SECOND_ALBUM_ID },
-                                                            new Book { Id = 3 }
+                                                            new Issue { Id = FIRST_ALBUM_ID },
+                                                            new Issue { Id = SECOND_ALBUM_ID },
+                                                            new Issue { Id = 3 }
             };
 
-            _fakeAuthor = Builder<Author>.CreateNew()
+            _fakeVolume = Builder<Volume>.CreateNew()
                 .With(c => c.QualityProfile = new QualityProfile
                 {
                     UpgradeAllowed = true,
@@ -60,19 +60,19 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
                 })
                 .Build();
 
-            _parseResultMulti = new RemoteBook
+            _parseResultMulti = new RemoteIssue
             {
-                Author = _fakeAuthor,
-                ParsedBookInfo = new ParsedBookInfo { Quality = new QualityModel(Quality.MP3, new Revision(version: 2)) },
-                Books = doubleBookList,
+                Volume = _fakeVolume,
+                ParsedIssueInfo = new ParsedIssueInfo { Quality = new QualityModel(Quality.MP3, new Revision(version: 2)) },
+                Issues = doubleIssueList,
                 CustomFormats = new List<CustomFormat>()
             };
 
-            _parseResultSingle = new RemoteBook
+            _parseResultSingle = new RemoteIssue
             {
-                Author = _fakeAuthor,
-                ParsedBookInfo = new ParsedBookInfo { Quality = new QualityModel(Quality.MP3, new Revision(version: 2)) },
-                Books = singleBookList,
+                Volume = _fakeVolume,
+                ParsedIssueInfo = new ParsedIssueInfo { Quality = new QualityModel(Quality.MP3, new Revision(version: 2)) },
+                Issues = singleIssueList,
                 CustomFormats = new List<CustomFormat>()
             };
 
@@ -84,13 +84,13 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
                   .Returns(true);
 
             Mocker.GetMock<ICustomFormatCalculationService>()
-                  .Setup(x => x.ParseCustomFormat(It.IsAny<EntityHistory>(), It.IsAny<Author>()))
+                  .Setup(x => x.ParseCustomFormat(It.IsAny<EntityHistory>(), It.IsAny<Volume>()))
                   .Returns(new List<CustomFormat>());
         }
 
-        private void GivenMostRecentForBook(int bookId, string downloadId, QualityModel quality, DateTime date, EntityHistoryEventType eventType)
+        private void GivenMostRecentForIssue(int issueId, string downloadId, QualityModel quality, DateTime date, EntityHistoryEventType eventType)
         {
-            Mocker.GetMock<IHistoryService>().Setup(s => s.MostRecentForBook(bookId))
+            Mocker.GetMock<IHistoryService>().Setup(s => s.MostRecentForIssue(issueId))
                   .Returns(new EntityHistory { DownloadId = downloadId, Quality = quality, Date = date, EventType = eventType });
         }
 
@@ -104,20 +104,20 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
         [Test]
         public void should_return_true_if_it_is_a_search()
         {
-            _upgradeHistory.IsSatisfiedBy(_parseResultMulti, new BookSearchCriteria()).Accepted.Should().BeTrue();
+            _upgradeHistory.IsSatisfiedBy(_parseResultMulti, new IssueSearchCriteria()).Accepted.Should().BeTrue();
         }
 
         [Test]
         public void should_return_true_if_latest_history_item_is_null()
         {
-            Mocker.GetMock<IHistoryService>().Setup(s => s.MostRecentForBook(It.IsAny<int>())).Returns((EntityHistory)null);
+            Mocker.GetMock<IHistoryService>().Setup(s => s.MostRecentForIssue(It.IsAny<int>())).Returns((EntityHistory)null);
             _upgradeHistory.IsSatisfiedBy(_parseResultMulti, null).Accepted.Should().BeTrue();
         }
 
         [Test]
         public void should_return_true_if_latest_history_item_is_not_grabbed()
         {
-            GivenMostRecentForBook(FIRST_ALBUM_ID, string.Empty, _notupgradableQuality, DateTime.UtcNow, EntityHistoryEventType.DownloadFailed);
+            GivenMostRecentForIssue(FIRST_ALBUM_ID, string.Empty, _notupgradableQuality, DateTime.UtcNow, EntityHistoryEventType.DownloadFailed);
             _upgradeHistory.IsSatisfiedBy(_parseResultMulti, null).Accepted.Should().BeTrue();
         }
 
@@ -130,57 +130,57 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
         [Test]
         public void should_return_true_if_latest_history_item_is_older_than_twelve_hours()
         {
-            GivenMostRecentForBook(FIRST_ALBUM_ID, string.Empty, _notupgradableQuality, DateTime.UtcNow.AddHours(-12).AddMilliseconds(-1), EntityHistoryEventType.Grabbed);
+            GivenMostRecentForIssue(FIRST_ALBUM_ID, string.Empty, _notupgradableQuality, DateTime.UtcNow.AddHours(-12).AddMilliseconds(-1), EntityHistoryEventType.Grabbed);
             _upgradeHistory.IsSatisfiedBy(_parseResultMulti, null).Accepted.Should().BeTrue();
         }
 
         [Test]
-        public void should_be_upgradable_if_only_book_is_upgradable()
+        public void should_be_upgradable_if_only_issue_is_upgradable()
         {
-            GivenMostRecentForBook(FIRST_ALBUM_ID, string.Empty, _upgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
+            GivenMostRecentForIssue(FIRST_ALBUM_ID, string.Empty, _upgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
             _upgradeHistory.IsSatisfiedBy(_parseResultSingle, null).Accepted.Should().BeTrue();
         }
 
         [Test]
-        public void should_be_upgradable_if_both_books_are_upgradable()
+        public void should_be_upgradable_if_both_issues_are_upgradable()
         {
-            GivenMostRecentForBook(FIRST_ALBUM_ID, string.Empty, _upgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
-            GivenMostRecentForBook(SECOND_ALBUM_ID, string.Empty, _upgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
+            GivenMostRecentForIssue(FIRST_ALBUM_ID, string.Empty, _upgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
+            GivenMostRecentForIssue(SECOND_ALBUM_ID, string.Empty, _upgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
             _upgradeHistory.IsSatisfiedBy(_parseResultMulti, null).Accepted.Should().BeTrue();
         }
 
         [Test]
-        public void should_not_be_upgradable_if_both_books_are_not_upgradable()
+        public void should_not_be_upgradable_if_both_issues_are_not_upgradable()
         {
-            GivenMostRecentForBook(FIRST_ALBUM_ID, string.Empty, _notupgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
-            GivenMostRecentForBook(SECOND_ALBUM_ID, string.Empty, _notupgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
+            GivenMostRecentForIssue(FIRST_ALBUM_ID, string.Empty, _notupgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
+            GivenMostRecentForIssue(SECOND_ALBUM_ID, string.Empty, _notupgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
             _upgradeHistory.IsSatisfiedBy(_parseResultMulti, null).Accepted.Should().BeFalse();
         }
 
         [Test]
-        public void should_be_not_upgradable_if_only_first_books_is_upgradable()
+        public void should_be_not_upgradable_if_only_first_issues_is_upgradable()
         {
-            GivenMostRecentForBook(FIRST_ALBUM_ID, string.Empty, _upgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
-            GivenMostRecentForBook(FIRST_ALBUM_ID, string.Empty, _notupgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
+            GivenMostRecentForIssue(FIRST_ALBUM_ID, string.Empty, _upgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
+            GivenMostRecentForIssue(FIRST_ALBUM_ID, string.Empty, _notupgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
             _upgradeHistory.IsSatisfiedBy(_parseResultMulti, null).Accepted.Should().BeFalse();
         }
 
         [Test]
-        public void should_be_not_upgradable_if_only_second_books_is_upgradable()
+        public void should_be_not_upgradable_if_only_second_issues_is_upgradable()
         {
-            GivenMostRecentForBook(FIRST_ALBUM_ID, string.Empty, _notupgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
-            GivenMostRecentForBook(SECOND_ALBUM_ID, string.Empty, _upgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
+            GivenMostRecentForIssue(FIRST_ALBUM_ID, string.Empty, _notupgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
+            GivenMostRecentForIssue(SECOND_ALBUM_ID, string.Empty, _upgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
             _upgradeHistory.IsSatisfiedBy(_parseResultMulti, null).Accepted.Should().BeFalse();
         }
 
         [Test]
-        public void should_not_be_upgradable_if_book_is_of_same_quality_as_existing()
+        public void should_not_be_upgradable_if_issue_is_of_same_quality_as_existing()
         {
-            _fakeAuthor.QualityProfile = new QualityProfile { Cutoff = Quality.MP3.Id, Items = Qualities.QualityFixture.GetDefaultQualities() };
-            _parseResultSingle.ParsedBookInfo.Quality = new QualityModel(Quality.MP3, new Revision(version: 1));
+            _fakeVolume.QualityProfile = new QualityProfile { Cutoff = Quality.MP3.Id, Items = Qualities.QualityFixture.GetDefaultQualities() };
+            _parseResultSingle.ParsedIssueInfo.Quality = new QualityModel(Quality.MP3, new Revision(version: 1));
             _upgradableQuality = new QualityModel(Quality.MP3, new Revision(version: 1));
 
-            GivenMostRecentForBook(FIRST_ALBUM_ID, string.Empty, _upgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
+            GivenMostRecentForIssue(FIRST_ALBUM_ID, string.Empty, _upgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
 
             _upgradeHistory.IsSatisfiedBy(_parseResultSingle, null).Accepted.Should().BeFalse();
         }
@@ -188,11 +188,11 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
         [Test]
         public void should_not_be_upgradable_if_cutoff_already_met()
         {
-            _fakeAuthor.QualityProfile = new QualityProfile { Cutoff = Quality.MP3.Id, Items = Qualities.QualityFixture.GetDefaultQualities() };
-            _parseResultSingle.ParsedBookInfo.Quality = new QualityModel(Quality.MP3, new Revision(version: 1));
+            _fakeVolume.QualityProfile = new QualityProfile { Cutoff = Quality.MP3.Id, Items = Qualities.QualityFixture.GetDefaultQualities() };
+            _parseResultSingle.ParsedIssueInfo.Quality = new QualityModel(Quality.MP3, new Revision(version: 1));
             _upgradableQuality = new QualityModel(Quality.MP3, new Revision(version: 1));
 
-            GivenMostRecentForBook(FIRST_ALBUM_ID, string.Empty, _upgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
+            GivenMostRecentForIssue(FIRST_ALBUM_ID, string.Empty, _upgradableQuality, DateTime.UtcNow, EntityHistoryEventType.Grabbed);
 
             _upgradeHistory.IsSatisfiedBy(_parseResultSingle, null).Accepted.Should().BeFalse();
         }
@@ -200,7 +200,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
         [Test]
         public void should_return_false_if_latest_history_item_is_only_one_hour_old()
         {
-            GivenMostRecentForBook(FIRST_ALBUM_ID, string.Empty, _notupgradableQuality, DateTime.UtcNow.AddHours(-1), EntityHistoryEventType.Grabbed);
+            GivenMostRecentForIssue(FIRST_ALBUM_ID, string.Empty, _notupgradableQuality, DateTime.UtcNow.AddHours(-1), EntityHistoryEventType.Grabbed);
             _upgradeHistory.IsSatisfiedBy(_parseResultMulti, null).Accepted.Should().BeFalse();
         }
 
@@ -208,7 +208,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
         public void should_return_false_if_latest_history_has_a_download_id_and_cdh_is_disabled()
         {
             GivenCdhDisabled();
-            GivenMostRecentForBook(FIRST_ALBUM_ID, "test", _upgradableQuality, DateTime.UtcNow.AddDays(-100), EntityHistoryEventType.Grabbed);
+            GivenMostRecentForIssue(FIRST_ALBUM_ID, "test", _upgradableQuality, DateTime.UtcNow.AddDays(-100), EntityHistoryEventType.Grabbed);
             _upgradeHistory.IsSatisfiedBy(_parseResultMulti, null).Accepted.Should().BeTrue();
         }
 
@@ -216,20 +216,20 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
         public void should_return_false_if_cutoff_already_met_and_cdh_is_disabled()
         {
             GivenCdhDisabled();
-            _fakeAuthor.QualityProfile = new QualityProfile { Cutoff = Quality.MP3.Id, Items = Qualities.QualityFixture.GetDefaultQualities() };
-            _parseResultSingle.ParsedBookInfo.Quality = new QualityModel(Quality.MP3, new Revision(version: 1));
+            _fakeVolume.QualityProfile = new QualityProfile { Cutoff = Quality.MP3.Id, Items = Qualities.QualityFixture.GetDefaultQualities() };
+            _parseResultSingle.ParsedIssueInfo.Quality = new QualityModel(Quality.MP3, new Revision(version: 1));
             _upgradableQuality = new QualityModel(Quality.MP3, new Revision(version: 1));
 
-            GivenMostRecentForBook(FIRST_ALBUM_ID, "test", _upgradableQuality, DateTime.UtcNow.AddDays(-100), EntityHistoryEventType.Grabbed);
+            GivenMostRecentForIssue(FIRST_ALBUM_ID, "test", _upgradableQuality, DateTime.UtcNow.AddDays(-100), EntityHistoryEventType.Grabbed);
 
             _upgradeHistory.IsSatisfiedBy(_parseResultSingle, null).Accepted.Should().BeFalse();
         }
 
         [Test]
-        public void should_return_false_if_only_book_is_not_upgradable_and_cdh_is_disabled()
+        public void should_return_false_if_only_issue_is_not_upgradable_and_cdh_is_disabled()
         {
             GivenCdhDisabled();
-            GivenMostRecentForBook(FIRST_ALBUM_ID, "test", _notupgradableQuality, DateTime.UtcNow.AddDays(-100), EntityHistoryEventType.Grabbed);
+            GivenMostRecentForIssue(FIRST_ALBUM_ID, "test", _notupgradableQuality, DateTime.UtcNow.AddDays(-100), EntityHistoryEventType.Grabbed);
             _upgradeHistory.IsSatisfiedBy(_parseResultSingle, null).Accepted.Should().BeFalse();
         }
     }

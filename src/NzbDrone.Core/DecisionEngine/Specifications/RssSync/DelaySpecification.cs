@@ -33,7 +33,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
         public SpecificationPriority Priority => SpecificationPriority.Database;
         public RejectionType Type => RejectionType.Temporary;
 
-        public virtual Decision IsSatisfiedBy(RemoteBook subject, SearchCriteriaBase searchCriteria)
+        public virtual Decision IsSatisfiedBy(RemoteIssue subject, SearchCriteriaBase searchCriteria)
         {
             if (searchCriteria != null && searchCriteria.UserInvokedSearch)
             {
@@ -41,8 +41,8 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
                 return Decision.Accept();
             }
 
-            var qualityProfile = subject.Author.QualityProfile.Value;
-            var delayProfile = _delayProfileService.BestForTags(subject.Author.Tags);
+            var qualityProfile = subject.Volume.QualityProfile.Value;
+            var delayProfile = _delayProfileService.BestForTags(subject.Volume.Tags);
             var delay = delayProfile.GetProtocolDelay(subject.Release.DownloadProtocol);
             var isPreferredProtocol = subject.Release.DownloadProtocol == delayProfile.PreferredProtocol;
 
@@ -56,14 +56,14 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
 
             if (isPreferredProtocol)
             {
-                foreach (var book in subject.Books)
+                foreach (var issue in subject.Issues)
                 {
-                    var bookFiles = _mediaFileService.GetFilesByBook(book.Id);
+                    var issueFiles = _mediaFileService.GetFilesByIssue(issue.Id);
 
-                    foreach (var file in bookFiles)
+                    foreach (var file in issueFiles)
                     {
                         var currentQuality = file.Quality;
-                        var newQuality = subject.ParsedBookInfo.Quality;
+                        var newQuality = subject.ParsedIssueInfo.Quality;
                         var qualityCompare = qualityComparer.Compare(newQuality?.Quality, currentQuality.Quality);
 
                         if (qualityCompare == 0 && newQuality?.Revision.CompareTo(currentQuality.Revision) > 0)
@@ -79,7 +79,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
             if (delayProfile.BypassIfHighestQuality)
             {
                 var bestQualityInProfile = qualityProfile.LastAllowedQuality();
-                var isBestInProfile = qualityComparer.Compare(subject.ParsedBookInfo.Quality.Quality, bestQualityInProfile) >= 0;
+                var isBestInProfile = qualityComparer.Compare(subject.ParsedIssueInfo.Quality.Quality, bestQualityInProfile) >= 0;
 
                 if (isBestInProfile && isPreferredProtocol)
                 {
@@ -101,9 +101,9 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
                 }
             }
 
-            var bookIds = subject.Books.Select(e => e.Id);
+            var issueIds = subject.Issues.Select(e => e.Id);
 
-            var oldest = _pendingReleaseService.OldestPendingRelease(subject.Author.Id, bookIds.ToArray());
+            var oldest = _pendingReleaseService.OldestPendingRelease(subject.Volume.Id, issueIds.ToArray());
 
             if (oldest != null && oldest.Release.AgeMinutes > delay)
             {

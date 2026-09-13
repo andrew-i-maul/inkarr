@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using NzbDrone.Core.Books;
-using NzbDrone.Core.Books.Calibre;
 using NzbDrone.Core.Datastore;
+using NzbDrone.Core.Issues;
+using NzbDrone.Core.Issues.Calibre;
 
 namespace NzbDrone.Core.RootFolders
 {

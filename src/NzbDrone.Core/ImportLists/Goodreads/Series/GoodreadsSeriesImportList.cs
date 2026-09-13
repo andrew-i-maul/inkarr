@@ -42,11 +42,11 @@ namespace NzbDrone.Core.ImportLists.Goodreads
                 {
                     result.Add(new ImportListItemInfo
                     {
-                        BookGoodreadsId = work.Id.ToString(),
-                        Book = work.OriginalTitle,
-                        EditionGoodreadsId = work.BestBook.Id.ToString(),
-                        Author = work.BestBook.AuthorName,
-                        AuthorGoodreadsId = work.BestBook.AuthorId.ToString()
+                        IssueGoodreadsId = work.Id.ToString(),
+                        Issue = work.OriginalTitle,
+                        EditionGoodreadsId = work.BestIssue.Id.ToString(),
+                        Volume = work.BestIssue.VolumeName,
+                        VolumeGoodreadsId = work.BestIssue.VolumeId.ToString()
                     });
                 }
 

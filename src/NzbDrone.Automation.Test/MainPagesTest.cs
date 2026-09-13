@@ -18,7 +18,7 @@ namespace NzbDrone.Automation.Test
         }
 
         [Test]
-        public void author_page()
+        public void volume_page()
         {
             _page.LibraryNavIcon.Click();
             _page.WaitForNoSpinner();
@@ -26,7 +26,7 @@ namespace NzbDrone.Automation.Test
             var imageName = MethodBase.GetCurrentMethod().Name;
             TakeScreenshot(imageName);
 
-            _page.Find(By.CssSelector("div[class*='AuthorIndex']")).Should().NotBeNull();
+            _page.Find(By.CssSelector("div[class*='VolumeIndex']")).Should().NotBeNull();
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace NzbDrone.Automation.Test
         }
 
         [Test]
-        public void add_author_page()
+        public void add_volume_page()
         {
             _page.LibraryNavIcon.Click();
             _page.WaitForNoSpinner();

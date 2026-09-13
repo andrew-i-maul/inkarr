@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.ThingiProvider;
 
@@ -10,31 +10,31 @@ namespace NzbDrone.Core.Notifications
         string Link { get; }
 
         void OnGrab(GrabMessage grabMessage);
-        void OnReleaseImport(BookDownloadMessage message);
-        void OnRename(Author author, List<RenamedBookFile> renamedFiles);
-        void OnAuthorAdded(Author author);
-        void OnAuthorDelete(AuthorDeleteMessage deleteMessage);
-        void OnBookDelete(BookDeleteMessage deleteMessage);
-        void OnBookFileDelete(BookFileDeleteMessage deleteMessage);
+        void OnReleaseImport(IssueDownloadMessage message);
+        void OnRename(Volume volume, List<RenamedIssueFile> renamedFiles);
+        void OnVolumeAdded(Volume volume);
+        void OnVolumeDelete(VolumeDeleteMessage deleteMessage);
+        void OnIssueDelete(IssueDeleteMessage deleteMessage);
+        void OnIssueFileDelete(IssueFileDeleteMessage deleteMessage);
         void OnHealthIssue(HealthCheck.HealthCheck healthCheck);
         void OnApplicationUpdate(ApplicationUpdateMessage updateMessage);
         void OnDownloadFailure(DownloadFailedMessage message);
-        void OnImportFailure(BookDownloadMessage message);
-        void OnBookRetag(BookRetagMessage message);
+        void OnImportFailure(IssueDownloadMessage message);
+        void OnIssueRetag(IssueRetagMessage message);
         void ProcessQueue();
         bool SupportsOnGrab { get; }
         bool SupportsOnReleaseImport { get; }
         bool SupportsOnUpgrade { get; }
         bool SupportsOnRename { get; }
-        bool SupportsOnAuthorAdded { get; }
-        bool SupportsOnAuthorDelete { get; }
-        bool SupportsOnBookDelete { get; }
-        bool SupportsOnBookFileDelete { get; }
-        bool SupportsOnBookFileDeleteForUpgrade { get; }
+        bool SupportsOnVolumeAdded { get; }
+        bool SupportsOnVolumeDelete { get; }
+        bool SupportsOnIssueDelete { get; }
+        bool SupportsOnIssueFileDelete { get; }
+        bool SupportsOnIssueFileDeleteForUpgrade { get; }
         bool SupportsOnHealthIssue { get; }
         bool SupportsOnApplicationUpdate { get; }
         bool SupportsOnDownloadFailure { get; }
         bool SupportsOnImportFailure { get; }
-        bool SupportsOnBookRetag { get; }
+        bool SupportsOnIssueRetag { get; }
     }
 }

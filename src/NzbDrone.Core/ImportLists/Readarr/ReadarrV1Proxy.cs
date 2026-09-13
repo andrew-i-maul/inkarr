@@ -11,8 +11,8 @@ namespace NzbDrone.Core.ImportLists.Readarr
 {
     public interface IReadarrV1Proxy
     {
-        List<ReadarrAuthor> GetAuthors(ReadarrSettings settings);
-        List<ReadarrBook> GetBooks(ReadarrSettings settings);
+        List<ReadarrVolume> GetVolumes(ReadarrSettings settings);
+        List<ReadarrIssue> GetIssues(ReadarrSettings settings);
         List<ReadarrProfile> GetProfiles(ReadarrSettings settings);
         List<ReadarrRootFolder> GetRootFolders(ReadarrSettings settings);
         List<ReadarrTag> GetTags(ReadarrSettings settings);
@@ -30,14 +30,14 @@ namespace NzbDrone.Core.ImportLists.Readarr
             _logger = logger;
         }
 
-        public List<ReadarrAuthor> GetAuthors(ReadarrSettings settings)
+        public List<ReadarrVolume> GetVolumes(ReadarrSettings settings)
         {
-            return Execute<ReadarrAuthor>("/api/v1/author", settings);
+            return Execute<ReadarrVolume>("/api/v1/volume", settings);
         }
 
-        public List<ReadarrBook> GetBooks(ReadarrSettings settings)
+        public List<ReadarrIssue> GetIssues(ReadarrSettings settings)
         {
-            return Execute<ReadarrBook>("/api/v1/book", settings);
+            return Execute<ReadarrIssue>("/api/v1/issue", settings);
         }
 
         public List<ReadarrProfile> GetProfiles(ReadarrSettings settings)
@@ -59,7 +59,7 @@ namespace NzbDrone.Core.ImportLists.Readarr
         {
             try
             {
-                GetAuthors(settings);
+                GetVolumes(settings);
             }
             catch (HttpException ex)
             {

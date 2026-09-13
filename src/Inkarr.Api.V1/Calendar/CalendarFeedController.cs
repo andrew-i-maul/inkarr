@@ -8,7 +8,7 @@ using Ical.Net.Serialization;
 using Inkarr.Http;
 using Microsoft.AspNetCore.Mvc;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Tags;
 
 namespace Inkarr.Api.V1.Calendar
@@ -16,14 +16,14 @@ namespace Inkarr.Api.V1.Calendar
     [V1FeedController("calendar")]
     public class CalendarFeedController : Controller
     {
-        private readonly IBookService _bookService;
-        private readonly IAuthorService _authorService;
+        private readonly IIssueService _issueService;
+        private readonly IVolumeService _volumeService;
         private readonly ITagService _tagService;
 
-        public CalendarFeedController(IBookService bookService, IAuthorService authorService, ITagService tagService)
+        public CalendarFeedController(IIssueService issueService, IVolumeService volumeService, ITagService tagService)
         {
-            _bookService = bookService;
-            _authorService = authorService;
+            _issueService = issueService;
+            _volumeService = volumeService;
             _tagService = tagService;
         }
 
@@ -39,37 +39,37 @@ namespace Inkarr.Api.V1.Calendar
                 tags.AddRange(tagList.Split(',').Select(_tagService.GetTag).Select(t => t.Id));
             }
 
-            var books = _bookService.BooksBetweenDates(start, end, unmonitored);
+            var issues = _issueService.IssuesBetweenDates(start, end, unmonitored);
             var calendar = new Ical.Net.Calendar
             {
                 ProductId = "-//inkarr.com//Inkarr//EN"
             };
 
-            var calendarName = "Inkarr Book Schedule";
+            var calendarName = "Inkarr Issue Schedule";
             calendar.AddProperty(new CalendarProperty("NAME", calendarName));
             calendar.AddProperty(new CalendarProperty("X-WR-CALNAME", calendarName));
 
-            foreach (var book in books.OrderBy(v => v.ReleaseDate.Value))
+            foreach (var issue in issues.OrderBy(v => v.ReleaseDate.Value))
             {
-                var author = _authorService.GetAuthor(book.AuthorId); // Temp fix TODO: Figure out why Book.Author is not populated during BooksBetweenDates Query
+                var volume = _volumeService.GetVolume(issue.VolumeId); // Temp fix TODO: Figure out why Issue.Volume is not populated during IssuesBetweenDates Query
 
-                if (tags.Any() && tags.None(author.Tags.Contains))
+                if (tags.Any() && tags.None(volume.Tags.Contains))
                 {
                     continue;
                 }
 
                 var occurrence = calendar.Create<CalendarEvent>();
-                occurrence.Uid = "Inkarr_book_" + book.Id;
+                occurrence.Uid = "Inkarr_issue_" + issue.Id;
 
-                //occurrence.Status = book.HasFile ? EventStatus.Confirmed : EventStatus.Tentative;
-                occurrence.Description = book.Editions.Value.Single(x => x.Monitored).Overview;
-                occurrence.Categories = book.Genres;
+                //occurrence.Status = issue.HasFile ? EventStatus.Confirmed : EventStatus.Tentative;
+                occurrence.Description = issue.Editions.Value.Single(x => x.Monitored).Overview;
+                occurrence.Categories = issue.Genres;
 
-                occurrence.Start = new CalDateTime(book.ReleaseDate.Value.ToLocalTime()) { HasTime = false };
+                occurrence.Start = new CalDateTime(issue.ReleaseDate.Value.ToLocalTime()) { HasTime = false };
                 occurrence.End = occurrence.Start;
                 occurrence.IsAllDay = true;
 
-                occurrence.Summary = $"{author.Name} - {book.Title}";
+                occurrence.Summary = $"{volume.Name} - {issue.Title}";
             }
 
             var serializer = (IStringSerializer)new SerializerFactory().Build(calendar.GetType(), new SerializationContext());

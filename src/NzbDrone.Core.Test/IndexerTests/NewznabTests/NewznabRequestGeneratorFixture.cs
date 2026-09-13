@@ -10,7 +10,7 @@ namespace NzbDrone.Core.Test.IndexerTests.NewznabTests
 {
     public class NewznabRequestGeneratorFixture : CoreTest<NewznabRequestGenerator>
     {
-        private BookSearchCriteria _singleBookSearchCriteria;
+        private IssueSearchCriteria _singleIssueSearchCriteria;
         private NewznabCapabilities _capabilities;
 
         [SetUp]
@@ -23,10 +23,10 @@ namespace NzbDrone.Core.Test.IndexerTests.NewznabTests
                 ApiKey = "abcd",
             };
 
-            _singleBookSearchCriteria = new BookSearchCriteria
+            _singleIssueSearchCriteria = new IssueSearchCriteria
             {
-                Author = new Books.Author { Name = "Alien Ant Farm" },
-                BookTitle = "TruANT"
+                Volume = new Issues.Volume { Name = "Alien Ant Farm" },
+                IssueTitle = "TruANT"
             };
 
             _capabilities = new NewznabCapabilities();
@@ -50,16 +50,16 @@ namespace NzbDrone.Core.Test.IndexerTests.NewznabTests
 
         [Test]
         [Ignore("Disabled since no usenet indexers seem to support it")]
-        public void should_search_by_author_and_book_if_supported()
+        public void should_search_by_volume_and_issue_if_supported()
         {
-            _capabilities.SupportedBookSearchParameters = new[] { "q", "author", "title" };
+            _capabilities.SupportedIssueSearchParameters = new[] { "q", "volume", "title" };
 
-            var results = Subject.GetSearchRequests(_singleBookSearchCriteria);
+            var results = Subject.GetSearchRequests(_singleIssueSearchCriteria);
             results.GetTier(0).Should().HaveCount(1);
 
             var page = results.GetAllTiers().First().First();
 
-            page.Url.Query.Should().Contain("author=Alien%20Ant%20Farm");
+            page.Url.Query.Should().Contain("volume=Alien%20Ant%20Farm");
             page.Url.Query.Should().Contain("title=TruANT");
         }
 
@@ -67,12 +67,12 @@ namespace NzbDrone.Core.Test.IndexerTests.NewznabTests
         [Ignore("TODO: add raw search support")]
         public void should_encode_raw_title()
         {
-            _capabilities.SupportedBookSearchParameters = new[] { "q", "author", "title" };
+            _capabilities.SupportedIssueSearchParameters = new[] { "q", "volume", "title" };
 
-            // _capabilities.BookTextSearchEngine = "raw";
-            _singleBookSearchCriteria.BookTitle = "Daisy Jones & The Six";
+            // _capabilities.IssueTextSearchEngine = "raw";
+            _singleIssueSearchCriteria.IssueTitle = "Daisy Jones & The Six";
 
-            var results = Subject.GetSearchRequests(_singleBookSearchCriteria);
+            var results = Subject.GetSearchRequests(_singleIssueSearchCriteria);
             results.Tiers.Should().Be(1);
 
             var pageTier = results.GetTier(0).First().First();
@@ -85,12 +85,12 @@ namespace NzbDrone.Core.Test.IndexerTests.NewznabTests
         [Test]
         public void should_use_clean_title_and_encode()
         {
-            _capabilities.SupportedBookSearchParameters = new[] { "q", "author", "title" };
+            _capabilities.SupportedIssueSearchParameters = new[] { "q", "volume", "title" };
 
-            // _capabilities.BookTextSearchEngine = "sphinx";
-            _singleBookSearchCriteria.BookTitle = "Daisy Jones & The Six";
+            // _capabilities.IssueTextSearchEngine = "sphinx";
+            _singleIssueSearchCriteria.IssueTitle = "Daisy Jones & The Six";
 
-            var results = Subject.GetSearchRequests(_singleBookSearchCriteria);
+            var results = Subject.GetSearchRequests(_singleIssueSearchCriteria);
             results.Tiers.Should().Be(2);
 
             var pageTier = results.GetTier(0).First().First();

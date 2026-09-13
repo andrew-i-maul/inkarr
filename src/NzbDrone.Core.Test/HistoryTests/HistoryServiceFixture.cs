@@ -3,10 +3,10 @@ using System.IO;
 using FizzWare.NBuilder;
 using Moq;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Download;
 using NzbDrone.Core.History;
 using NzbDrone.Core.Indexers;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.MediaFiles.Events;
 using NzbDrone.Core.Parser.Model;
@@ -41,17 +41,17 @@ namespace NzbDrone.Core.Test.HistoryTests
         [Test]
         public void should_use_file_name_for_source_title_if_scene_name_is_null()
         {
-            var author = Builder<Author>.CreateNew().Build();
-            var trackFile = Builder<BookFile>.CreateNew()
+            var volume = Builder<Volume>.CreateNew().Build();
+            var trackFile = Builder<IssueFile>.CreateNew()
                 .With(f => f.SceneName = null)
-                .With(f => f.Author = author)
+                .With(f => f.Volume = volume)
                 .Build();
 
-            var localTrack = new LocalBook
+            var localTrack = new LocalIssue
             {
-                Author = author,
-                Book = new Book(),
-                Path = @"C:\Test\Unsorted\Author.01.Hymn.mp3"
+                Volume = volume,
+                Issue = new Issue(),
+                Path = @"C:\Test\Unsorted\Volume.01.Hymn.mp3"
             };
 
             var downloadClientItem = new DownloadClientItem
@@ -65,7 +65,7 @@ namespace NzbDrone.Core.Test.HistoryTests
                 DownloadId = "abcd"
             };
 
-            Subject.Handle(new TrackImportedEvent(localTrack, trackFile, new List<BookFile>(), true, downloadClientItem));
+            Subject.Handle(new TrackImportedEvent(localTrack, trackFile, new List<IssueFile>(), true, downloadClientItem));
 
             Mocker.GetMock<IHistoryRepository>()
                 .Verify(v => v.Insert(It.Is<EntityHistory>(h => h.SourceTitle == Path.GetFileNameWithoutExtension(localTrack.Path))));

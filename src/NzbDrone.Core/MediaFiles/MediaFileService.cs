@@ -4,8 +4,8 @@ using System.IO.Abstractions;
 using System.Linq;
 using NLog;
 using NzbDrone.Common;
-using NzbDrone.Core.Books.Events;
 using NzbDrone.Core.Datastore.Events;
+using NzbDrone.Core.Issues.Events;
 using NzbDrone.Core.MediaFiles.Events;
 using NzbDrone.Core.Messaging.Events;
 using NzbDrone.Core.RootFolders;
@@ -14,29 +14,29 @@ namespace NzbDrone.Core.MediaFiles
 {
     public interface IMediaFileService
     {
-        BookFile Add(BookFile bookFile);
-        void AddMany(List<BookFile> bookFiles);
-        void Update(BookFile bookFile);
-        void Update(List<BookFile> bookFiles);
-        void Delete(BookFile bookFile, DeleteMediaFileReason reason);
-        void DeleteMany(List<BookFile> bookFiles, DeleteMediaFileReason reason);
-        List<BookFile> GetFilesByAuthor(int authorId);
-        List<BookFile> GetFilesByAuthorMetadataId(int authorMetadataId);
-        List<BookFile> GetFilesByBook(int bookId);
-        List<BookFile> GetFilesByEdition(int editionId);
-        List<BookFile> GetUnmappedFiles();
+        IssueFile Add(IssueFile issueFile);
+        void AddMany(List<IssueFile> issueFiles);
+        void Update(IssueFile issueFile);
+        void Update(List<IssueFile> issueFiles);
+        void Delete(IssueFile issueFile, DeleteMediaFileReason reason);
+        void DeleteMany(List<IssueFile> issueFiles, DeleteMediaFileReason reason);
+        List<IssueFile> GetFilesByVolume(int volumeId);
+        List<IssueFile> GetFilesByVolumeMetadataId(int volumeMetadataId);
+        List<IssueFile> GetFilesByIssue(int issueId);
+        List<IssueFile> GetFilesByEdition(int editionId);
+        List<IssueFile> GetUnmappedFiles();
         List<IFileInfo> FilterUnchangedFiles(List<IFileInfo> files, FilterFilesType filter);
-        BookFile Get(int id);
-        List<BookFile> Get(IEnumerable<int> ids);
-        List<BookFile> GetFilesWithBasePath(string path);
-        List<BookFile> GetFileWithPath(List<string> path);
-        BookFile GetFileWithPath(string path);
-        void UpdateMediaInfo(List<BookFile> bookFiles);
+        IssueFile Get(int id);
+        List<IssueFile> Get(IEnumerable<int> ids);
+        List<IssueFile> GetFilesWithBasePath(string path);
+        List<IssueFile> GetFileWithPath(List<string> path);
+        IssueFile GetFileWithPath(string path);
+        void UpdateMediaInfo(List<IssueFile> issueFiles);
     }
 
     public class MediaFileService : IMediaFileService,
-        IHandle<AuthorMovedEvent>,
-        IHandleAsync<BookDeletedEvent>,
+        IHandle<VolumeMovedEvent>,
+        IHandleAsync<IssueDeletedEvent>,
         IHandleAsync<ModelEvent<RootFolder>>
     {
         private readonly IEventAggregator _eventAggregator;
@@ -50,51 +50,51 @@ namespace NzbDrone.Core.MediaFiles
             _logger = logger;
         }
 
-        public BookFile Add(BookFile bookFile)
+        public IssueFile Add(IssueFile issueFile)
         {
-            var addedFile = _mediaFileRepository.Insert(bookFile);
-            _eventAggregator.PublishEvent(new BookFileAddedEvent(addedFile));
+            var addedFile = _mediaFileRepository.Insert(issueFile);
+            _eventAggregator.PublishEvent(new IssueFileAddedEvent(addedFile));
             return addedFile;
         }
 
-        public void AddMany(List<BookFile> bookFiles)
+        public void AddMany(List<IssueFile> issueFiles)
         {
-            _mediaFileRepository.InsertMany(bookFiles);
-            foreach (var addedFile in bookFiles)
+            _mediaFileRepository.InsertMany(issueFiles);
+            foreach (var addedFile in issueFiles)
             {
-                _eventAggregator.PublishEvent(new BookFileAddedEvent(addedFile));
+                _eventAggregator.PublishEvent(new IssueFileAddedEvent(addedFile));
             }
         }
 
-        public void Update(BookFile bookFile)
+        public void Update(IssueFile issueFile)
         {
-            _mediaFileRepository.Update(bookFile);
+            _mediaFileRepository.Update(issueFile);
         }
 
-        public void Update(List<BookFile> bookFiles)
+        public void Update(List<IssueFile> issueFiles)
         {
-            _mediaFileRepository.UpdateMany(bookFiles);
+            _mediaFileRepository.UpdateMany(issueFiles);
         }
 
-        public void Delete(BookFile bookFile, DeleteMediaFileReason reason)
+        public void Delete(IssueFile issueFile, DeleteMediaFileReason reason)
         {
-            _mediaFileRepository.Delete(bookFile);
+            _mediaFileRepository.Delete(issueFile);
 
             // If the trackfile wasn't mapped to a track, don't publish an event
-            if (bookFile.EditionId > 0)
+            if (issueFile.EditionId > 0)
             {
-                _eventAggregator.PublishEvent(new BookFileDeletedEvent(bookFile, reason));
+                _eventAggregator.PublishEvent(new IssueFileDeletedEvent(issueFile, reason));
             }
         }
 
-        public void DeleteMany(List<BookFile> bookFiles, DeleteMediaFileReason reason)
+        public void DeleteMany(List<IssueFile> issueFiles, DeleteMediaFileReason reason)
         {
-            _mediaFileRepository.DeleteMany(bookFiles);
+            _mediaFileRepository.DeleteMany(issueFiles);
 
             // publish events where trackfile was mapped to a track
-            foreach (var bookFile in bookFiles.Where(x => x.EditionId > 0))
+            foreach (var issueFile in issueFiles.Where(x => x.EditionId > 0))
             {
-                _eventAggregator.PublishEvent(new BookFileDeletedEvent(bookFile, reason));
+                _eventAggregator.PublishEvent(new IssueFileDeletedEvent(issueFile, reason));
             }
         }
 
@@ -152,62 +152,62 @@ namespace NzbDrone.Core.MediaFiles
             return files.Except(unwanted).ToList();
         }
 
-        public BookFile Get(int id)
+        public IssueFile Get(int id)
         {
             return _mediaFileRepository.Get(id);
         }
 
-        public List<BookFile> Get(IEnumerable<int> ids)
+        public List<IssueFile> Get(IEnumerable<int> ids)
         {
             return _mediaFileRepository.Get(ids).ToList();
         }
 
-        public List<BookFile> GetFilesWithBasePath(string path)
+        public List<IssueFile> GetFilesWithBasePath(string path)
         {
             return _mediaFileRepository.GetFilesWithBasePath(path);
         }
 
-        public List<BookFile> GetFileWithPath(List<string> path)
+        public List<IssueFile> GetFileWithPath(List<string> path)
         {
             return _mediaFileRepository.GetFileWithPath(path);
         }
 
-        public BookFile GetFileWithPath(string path)
+        public IssueFile GetFileWithPath(string path)
         {
             return _mediaFileRepository.GetFileWithPath(path);
         }
 
-        public List<BookFile> GetFilesByAuthor(int authorId)
+        public List<IssueFile> GetFilesByVolume(int volumeId)
         {
-            return _mediaFileRepository.GetFilesByAuthor(authorId);
+            return _mediaFileRepository.GetFilesByVolume(volumeId);
         }
 
-        public List<BookFile> GetFilesByAuthorMetadataId(int authorMetadataId)
+        public List<IssueFile> GetFilesByVolumeMetadataId(int volumeMetadataId)
         {
-            return _mediaFileRepository.GetFilesByAuthorMetadataId(authorMetadataId);
+            return _mediaFileRepository.GetFilesByVolumeMetadataId(volumeMetadataId);
         }
 
-        public List<BookFile> GetFilesByBook(int bookId)
+        public List<IssueFile> GetFilesByIssue(int issueId)
         {
-            return _mediaFileRepository.GetFilesByBook(bookId);
+            return _mediaFileRepository.GetFilesByIssue(issueId);
         }
 
-        public List<BookFile> GetFilesByEdition(int editionId)
+        public List<IssueFile> GetFilesByEdition(int editionId)
         {
             return _mediaFileRepository.GetFilesByEdition(editionId);
         }
 
-        public List<BookFile> GetUnmappedFiles()
+        public List<IssueFile> GetUnmappedFiles()
         {
             return _mediaFileRepository.GetUnmappedFiles();
         }
 
-        public void UpdateMediaInfo(List<BookFile> bookFiles)
+        public void UpdateMediaInfo(List<IssueFile> issueFiles)
         {
-            _mediaFileRepository.SetFields(bookFiles, t => t.MediaInfo);
+            _mediaFileRepository.SetFields(issueFiles, t => t.MediaInfo);
         }
 
-        public void Handle(AuthorMovedEvent message)
+        public void Handle(VolumeMovedEvent message)
         {
             var files = _mediaFileRepository.GetFilesWithBasePath(message.SourcePath);
 
@@ -220,15 +220,15 @@ namespace NzbDrone.Core.MediaFiles
             Update(files);
         }
 
-        public void HandleAsync(BookDeletedEvent message)
+        public void HandleAsync(IssueDeletedEvent message)
         {
             if (message.DeleteFiles)
             {
-                _mediaFileRepository.DeleteFilesByBook(message.Book.Id);
+                _mediaFileRepository.DeleteFilesByIssue(message.Issue.Id);
             }
             else
             {
-                _mediaFileRepository.UnlinkFilesByBook(message.Book.Id);
+                _mediaFileRepository.UnlinkFilesByIssue(message.Issue.Id);
             }
         }
 

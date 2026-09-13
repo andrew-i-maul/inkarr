@@ -1,18 +1,18 @@
 using System.Collections.Generic;
-using Inkarr.Api.V1.Books;
+using Inkarr.Api.V1.Issues;
 using Inkarr.Http;
 using RestSharp;
 
 namespace NzbDrone.Integration.Test.Client
 {
-    public class WantedClient : ClientBase<BookResource>
+    public class WantedClient : ClientBase<IssueResource>
     {
         public WantedClient(IRestClient restClient, string apiKey, string resource)
             : base(restClient, apiKey, resource)
         {
         }
 
-        public PagingResource<BookResource> GetPagedIncludeAuthor(int pageNumber, int pageSize, string sortKey, string sortDir, string filterKey = null, string filterValue = null, bool includeAuthor = true)
+        public PagingResource<IssueResource> GetPagedIncludeVolume(int pageNumber, int pageSize, string sortKey, string sortDir, string filterKey = null, string filterValue = null, bool includeVolume = true)
         {
             var request = BuildRequest();
             request.AddParameter("page", pageNumber);
@@ -26,15 +26,15 @@ namespace NzbDrone.Integration.Test.Client
                 request.AddParameter("filterValue", filterValue);
             }
 
-            request.AddParameter("includeAuthor", includeAuthor);
+            request.AddParameter("includeVolume", includeVolume);
 
-            return Get<PagingResource<BookResource>>(request);
+            return Get<PagingResource<IssueResource>>(request);
         }
 
-        public List<BookResource> GetBooksInAuthor(int authorId)
+        public List<IssueResource> GetIssuesInVolume(int volumeId)
         {
-            var request = BuildRequest("?authorId=" + authorId.ToString());
-            return Get<List<BookResource>>(request);
+            var request = BuildRequest("?volumeId=" + volumeId.ToString());
+            return Get<List<IssueResource>>(request);
         }
     }
 }

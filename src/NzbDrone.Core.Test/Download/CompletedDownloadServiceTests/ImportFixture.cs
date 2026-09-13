@@ -4,13 +4,13 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using NzbDrone.Common.Disk;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.DecisionEngine;
 using NzbDrone.Core.Download;
 using NzbDrone.Core.Download.TrackedDownloads;
 using NzbDrone.Core.History;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
-using NzbDrone.Core.MediaFiles.BookImport;
+using NzbDrone.Core.MediaFiles.IssueImport;
 using NzbDrone.Core.Messaging.Events;
 using NzbDrone.Core.Parser;
 using NzbDrone.Core.Parser.Model;
@@ -23,7 +23,7 @@ namespace NzbDrone.Core.Test.Download.CompletedDownloadServiceTests
     public class ImportFixture : CoreTest<CompletedDownloadService>
     {
         private TrackedDownload _trackedDownload;
-        private Author _author;
+        private Volume _volume;
 
         [SetUp]
         public void Setup()
@@ -34,15 +34,15 @@ namespace NzbDrone.Core.Test.Download.CompletedDownloadServiceTests
                                                     .With(h => h.Title = "Drone.S01E01.HDTV")
                                                     .Build();
 
-            var remoteBook = BuildRemoteBook();
+            var remoteIssue = BuildRemoteIssue();
 
             _trackedDownload = Builder<TrackedDownload>.CreateNew()
                     .With(c => c.State = TrackedDownloadState.Downloading)
                     .With(c => c.DownloadItem = completed)
-                    .With(c => c.RemoteBook = remoteBook)
+                    .With(c => c.RemoteIssue = remoteIssue)
                     .Build();
 
-            _author = Builder<Author>.CreateNew()
+            _volume = Builder<Volume>.CreateNew()
                 .Build();
 
             Mocker.GetMock<IDownloadClient>()
@@ -58,8 +58,8 @@ namespace NzbDrone.Core.Test.Download.CompletedDownloadServiceTests
                   .Returns(new EntityHistory());
 
             Mocker.GetMock<IParsingService>()
-                  .Setup(s => s.GetAuthor("Drone.S01E01.HDTV"))
-                  .Returns(remoteBook.Author);
+                  .Setup(s => s.GetVolume("Drone.S01E01.HDTV"))
+                  .Returns(remoteIssue.Volume);
 
             Mocker.GetMock<IHistoryService>()
                 .Setup(s => s.FindByDownloadId(It.IsAny<string>()))
@@ -70,20 +70,20 @@ namespace NzbDrone.Core.Test.Download.CompletedDownloadServiceTests
                 .Returns<DownloadClientItem, DownloadClientItem>((i, p) => i);
         }
 
-        private Book CreateBook(int id)
+        private Issue CreateIssue(int id)
         {
-            return new Book
+            return new Issue
             {
                 Id = id
             };
         }
 
-        private RemoteBook BuildRemoteBook()
+        private RemoteIssue BuildRemoteIssue()
         {
-            return new RemoteBook
+            return new RemoteIssue
             {
-                Author = new Author(),
-                Books = new List<Book> { CreateBook(1) }
+                Volume = new Volume(),
+                Issues = new List<Issue> { CreateIssue(1) }
             };
         }
 
@@ -96,35 +96,35 @@ namespace NzbDrone.Core.Test.Download.CompletedDownloadServiceTests
                .Returns(new EntityHistory() { SourceTitle = "Droned S01E01" });
 
             Mocker.GetMock<IParsingService>()
-               .Setup(s => s.GetAuthor(It.IsAny<string>()))
-               .Returns((Author)null);
+               .Setup(s => s.GetVolume(It.IsAny<string>()))
+               .Returns((Volume)null);
 
             Mocker.GetMock<IParsingService>()
-                .Setup(s => s.GetAuthor("Droned S01E01"))
-                .Returns(BuildRemoteBook().Author);
+                .Setup(s => s.GetVolume("Droned S01E01"))
+                .Returns(BuildRemoteIssue().Volume);
         }
 
-        private void GivenAuthorMatch()
+        private void GivenVolumeMatch()
         {
             Mocker.GetMock<IParsingService>()
-                  .Setup(s => s.GetAuthor(It.IsAny<string>()))
-                  .Returns(_trackedDownload.RemoteBook.Author);
+                  .Setup(s => s.GetVolume(It.IsAny<string>()))
+                  .Returns(_trackedDownload.RemoteIssue.Volume);
         }
 
         [Test]
         public void should_not_mark_as_imported_if_all_files_were_rejected()
         {
-            Mocker.GetMock<IDownloadedBooksImportService>()
-                  .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Author>(), It.IsAny<DownloadClientItem>()))
+            Mocker.GetMock<IDownloadedIssuesImportService>()
+                  .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Volume>(), It.IsAny<DownloadClientItem>()))
                   .Returns(new List<ImportResult>
                            {
                                new ImportResult(
-                                   new ImportDecision<LocalBook>(
-                                       new LocalBook { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic() }, new Rejection("Rejected!")), "Test Failure"),
+                                   new ImportDecision<LocalIssue>(
+                                       new LocalIssue { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic() }, new Rejection("Rejected!")), "Test Failure"),
 
                                new ImportResult(
-                                   new ImportDecision<LocalBook>(
-                                       new LocalBook { Path = @"C:\TestPath\Droned.S01E02.mkv".AsOsAgnostic() }, new Rejection("Rejected!")), "Test Failure")
+                                   new ImportDecision<LocalIssue>(
+                                       new LocalIssue { Path = @"C:\TestPath\Droned.S01E02.mkv".AsOsAgnostic() }, new Rejection("Rejected!")), "Test Failure")
                            });
 
             Subject.Import(_trackedDownload);
@@ -138,20 +138,20 @@ namespace NzbDrone.Core.Test.Download.CompletedDownloadServiceTests
         [Test]
         public void should_not_mark_as_imported_if_no_tracks_were_parsed()
         {
-            Mocker.GetMock<IDownloadedBooksImportService>()
-                  .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Author>(), It.IsAny<DownloadClientItem>()))
+            Mocker.GetMock<IDownloadedIssuesImportService>()
+                  .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Volume>(), It.IsAny<DownloadClientItem>()))
                   .Returns(new List<ImportResult>
                            {
                                new ImportResult(
-                                   new ImportDecision<LocalBook>(
-                                       new LocalBook { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic() }, new Rejection("Rejected!")), "Test Failure"),
+                                   new ImportDecision<LocalIssue>(
+                                       new LocalIssue { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic() }, new Rejection("Rejected!")), "Test Failure"),
 
                                new ImportResult(
-                                   new ImportDecision<LocalBook>(
-                                       new LocalBook { Path = @"C:\TestPath\Droned.S01E02.mkv".AsOsAgnostic() }, new Rejection("Rejected!")), "Test Failure")
+                                   new ImportDecision<LocalIssue>(
+                                       new LocalIssue { Path = @"C:\TestPath\Droned.S01E02.mkv".AsOsAgnostic() }, new Rejection("Rejected!")), "Test Failure")
                            });
 
-            _trackedDownload.RemoteBook.Books.Clear();
+            _trackedDownload.RemoteIssue.Issues.Clear();
 
             Subject.Import(_trackedDownload);
 
@@ -161,8 +161,8 @@ namespace NzbDrone.Core.Test.Download.CompletedDownloadServiceTests
         [Test]
         public void should_not_mark_as_failed_if_nothing_found_to_import()
         {
-            Mocker.GetMock<IDownloadedBooksImportService>()
-                .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Author>(), It.IsAny<DownloadClientItem>()))
+            Mocker.GetMock<IDownloadedIssuesImportService>()
+                .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Volume>(), It.IsAny<DownloadClientItem>()))
                 .Returns(new List<ImportResult>());
 
             Subject.Import(_trackedDownload);
@@ -173,12 +173,12 @@ namespace NzbDrone.Core.Test.Download.CompletedDownloadServiceTests
         [Test]
         public void should_not_mark_as_imported_if_all_files_were_skipped()
         {
-            Mocker.GetMock<IDownloadedBooksImportService>()
-                  .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Author>(), It.IsAny<DownloadClientItem>()))
+            Mocker.GetMock<IDownloadedIssuesImportService>()
+                  .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Volume>(), It.IsAny<DownloadClientItem>()))
                   .Returns(new List<ImportResult>
                            {
-                               new ImportResult(new ImportDecision<LocalBook>(new LocalBook { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic() }), "Test Failure"),
-                               new ImportResult(new ImportDecision<LocalBook>(new LocalBook { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic() }), "Test Failure")
+                               new ImportResult(new ImportDecision<LocalIssue>(new LocalIssue { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic() }), "Test Failure"),
+                               new ImportResult(new ImportDecision<LocalIssue>(new LocalIssue { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic() }), "Test Failure")
                            });
 
             Subject.Import(_trackedDownload);
@@ -189,19 +189,19 @@ namespace NzbDrone.Core.Test.Download.CompletedDownloadServiceTests
         [Test]
         public void should_mark_as_imported_if_all_tracks_were_imported_but_extra_files_were_not()
         {
-            GivenAuthorMatch();
+            GivenVolumeMatch();
 
-            _trackedDownload.RemoteBook.Books = new List<Book>
+            _trackedDownload.RemoteIssue.Issues = new List<Issue>
             {
-                CreateBook(1)
+                CreateIssue(1)
             };
 
-            Mocker.GetMock<IDownloadedBooksImportService>()
-                  .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Author>(), It.IsAny<DownloadClientItem>()))
+            Mocker.GetMock<IDownloadedIssuesImportService>()
+                  .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Volume>(), It.IsAny<DownloadClientItem>()))
                   .Returns(new List<ImportResult>
                            {
-                               new ImportResult(new ImportDecision<LocalBook>(new LocalBook { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic(), Author = _author })),
-                               new ImportResult(new ImportDecision<LocalBook>(new LocalBook { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic(), Author = _author }), "Test Failure")
+                               new ImportResult(new ImportDecision<LocalIssue>(new LocalIssue { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic(), Volume = _volume })),
+                               new ImportResult(new ImportDecision<LocalIssue>(new LocalIssue { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic(), Volume = _volume }), "Test Failure")
                            });
 
             Mocker.GetMock<IHistoryService>()
@@ -216,22 +216,22 @@ namespace NzbDrone.Core.Test.Download.CompletedDownloadServiceTests
         [Test]
         public void should_not_mark_as_imported_if_some_tracks_were_not_imported()
         {
-            _trackedDownload.RemoteBook.Books = new List<Book>
+            _trackedDownload.RemoteIssue.Issues = new List<Issue>
             {
-                CreateBook(1),
-                CreateBook(1),
-                CreateBook(1)
+                CreateIssue(1),
+                CreateIssue(1),
+                CreateIssue(1)
             };
 
-            Mocker.GetMock<IDownloadedBooksImportService>()
-                  .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Author>(), It.IsAny<DownloadClientItem>()))
+            Mocker.GetMock<IDownloadedIssuesImportService>()
+                  .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Volume>(), It.IsAny<DownloadClientItem>()))
                   .Returns(new List<ImportResult>
                            {
-                               new ImportResult(new ImportDecision<LocalBook>(new LocalBook { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic() })),
-                               new ImportResult(new ImportDecision<LocalBook>(new LocalBook { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic() })),
-                               new ImportResult(new ImportDecision<LocalBook>(new LocalBook { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic() }), "Test Failure"),
-                               new ImportResult(new ImportDecision<LocalBook>(new LocalBook { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic() }), "Test Failure"),
-                               new ImportResult(new ImportDecision<LocalBook>(new LocalBook { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic() }), "Test Failure")
+                               new ImportResult(new ImportDecision<LocalIssue>(new LocalIssue { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic() })),
+                               new ImportResult(new ImportDecision<LocalIssue>(new LocalIssue { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic() })),
+                               new ImportResult(new ImportDecision<LocalIssue>(new LocalIssue { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic() }), "Test Failure"),
+                               new ImportResult(new ImportDecision<LocalIssue>(new LocalIssue { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic() }), "Test Failure"),
+                               new ImportResult(new ImportDecision<LocalIssue>(new LocalIssue { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic() }), "Test Failure")
                            });
 
             var history = Builder<EntityHistory>.CreateListOfSize(2)
@@ -253,17 +253,17 @@ namespace NzbDrone.Core.Test.Download.CompletedDownloadServiceTests
         [Test]
         public void should_not_mark_as_imported_if_some_of_episodes_were_not_imported_including_history()
         {
-            var books = Builder<Book>.CreateListOfSize(3).BuildList();
+            var issues = Builder<Issue>.CreateListOfSize(3).BuildList();
 
-            _trackedDownload.RemoteBook.Books = books;
+            _trackedDownload.RemoteIssue.Issues = issues;
 
-            Mocker.GetMock<IDownloadedBooksImportService>()
-                .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Author>(), It.IsAny<DownloadClientItem>()))
+            Mocker.GetMock<IDownloadedIssuesImportService>()
+                .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Volume>(), It.IsAny<DownloadClientItem>()))
                 .Returns(new List<ImportResult>
                 {
-                    new ImportResult(new ImportDecision<LocalBook>(new LocalBook { Path = @"C:\TestPath\Droned.S01E01.mkv" })),
-                    new ImportResult(new ImportDecision<LocalBook>(new LocalBook { Path = @"C:\TestPath\Droned.S01E01.mkv" }), "Test Failure"),
-                    new ImportResult(new ImportDecision<LocalBook>(new LocalBook { Path = @"C:\TestPath\Droned.S01E01.mkv" }), "Test Failure")
+                    new ImportResult(new ImportDecision<LocalIssue>(new LocalIssue { Path = @"C:\TestPath\Droned.S01E01.mkv" })),
+                    new ImportResult(new ImportDecision<LocalIssue>(new LocalIssue { Path = @"C:\TestPath\Droned.S01E01.mkv" }), "Test Failure"),
+                    new ImportResult(new ImportDecision<LocalIssue>(new LocalIssue { Path = @"C:\TestPath\Droned.S01E01.mkv" }), "Test Failure")
                 });
 
             var history = Builder<EntityHistory>.CreateListOfSize(2)
@@ -285,22 +285,22 @@ namespace NzbDrone.Core.Test.Download.CompletedDownloadServiceTests
         [Test]
         public void should_mark_as_imported_if_all_tracks_were_imported()
         {
-            _trackedDownload.RemoteBook.Books = new List<Book>
+            _trackedDownload.RemoteIssue.Issues = new List<Issue>
             {
-                CreateBook(1)
+                CreateIssue(1)
             };
 
-            Mocker.GetMock<IDownloadedBooksImportService>()
-                  .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Author>(), It.IsAny<DownloadClientItem>()))
+            Mocker.GetMock<IDownloadedIssuesImportService>()
+                  .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Volume>(), It.IsAny<DownloadClientItem>()))
                   .Returns(new List<ImportResult>
                            {
                                new ImportResult(
-                                   new ImportDecision<LocalBook>(
-                                       new LocalBook { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic(), Author = _author })),
+                                   new ImportDecision<LocalIssue>(
+                                       new LocalIssue { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic(), Volume = _volume })),
 
                                new ImportResult(
-                                   new ImportDecision<LocalBook>(
-                                       new LocalBook { Path = @"C:\TestPath\Droned.S01E02.mkv".AsOsAgnostic(), Author = _author }))
+                                   new ImportDecision<LocalIssue>(
+                                       new LocalIssue { Path = @"C:\TestPath\Droned.S01E02.mkv".AsOsAgnostic(), Volume = _volume }))
                            });
 
             Subject.Import(_trackedDownload);
@@ -311,27 +311,27 @@ namespace NzbDrone.Core.Test.Download.CompletedDownloadServiceTests
         [Test]
         public void should_mark_as_imported_if_all_episodes_were_imported_including_history()
         {
-            var books = Builder<Book>.CreateListOfSize(2).BuildList();
+            var issues = Builder<Issue>.CreateListOfSize(2).BuildList();
 
-            _trackedDownload.RemoteBook.Books = books;
+            _trackedDownload.RemoteIssue.Issues = issues;
 
-            Mocker.GetMock<IDownloadedBooksImportService>()
-                .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Author>(), It.IsAny<DownloadClientItem>()))
+            Mocker.GetMock<IDownloadedIssuesImportService>()
+                .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Volume>(), It.IsAny<DownloadClientItem>()))
                 .Returns(new List<ImportResult>
                 {
                     new ImportResult(
-                        new ImportDecision<LocalBook>(
-                            new LocalBook { Path = @"C:\TestPath\Droned.S01E01.mkv", Book = books[0], Author = _author })),
+                        new ImportDecision<LocalIssue>(
+                            new LocalIssue { Path = @"C:\TestPath\Droned.S01E01.mkv", Issue = issues[0], Volume = _volume })),
 
                     new ImportResult(
-                        new ImportDecision<LocalBook>(
-                            new LocalBook { Path = @"C:\TestPath\Droned.S01E02.mkv", Book = books[1], Author = _author }), "Test Failure")
+                        new ImportDecision<LocalIssue>(
+                            new LocalIssue { Path = @"C:\TestPath\Droned.S01E02.mkv", Issue = issues[1], Volume = _volume }), "Test Failure")
                 });
 
             var history = Builder<EntityHistory>.CreateListOfSize(2)
                 .All()
-                .With(x => x.EventType = EntityHistoryEventType.BookFileImported)
-                .With(x => x.AuthorId = 1)
+                .With(x => x.EventType = EntityHistoryEventType.IssueFileImported)
+                .With(x => x.VolumeId = 1)
                 .BuildList();
 
             Mocker.GetMock<IHistoryService>()
@@ -352,11 +352,11 @@ namespace NzbDrone.Core.Test.Download.CompletedDownloadServiceTests
         {
             GivenABadlyNamedDownload();
 
-            Mocker.GetMock<IDownloadedBooksImportService>()
-                  .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Author>(), It.IsAny<DownloadClientItem>()))
+            Mocker.GetMock<IDownloadedIssuesImportService>()
+                  .Setup(v => v.ProcessPath(It.IsAny<string>(), It.IsAny<ImportMode>(), It.IsAny<Volume>(), It.IsAny<DownloadClientItem>()))
                   .Returns(new List<ImportResult>
                            {
-                               new ImportResult(new ImportDecision<LocalBook>(new LocalBook { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic(), Author = _author }))
+                               new ImportResult(new ImportDecision<LocalIssue>(new LocalIssue { Path = @"C:\TestPath\Droned.S01E01.mkv".AsOsAgnostic(), Volume = _volume }))
                            });
 
             Subject.Import(_trackedDownload);
@@ -374,8 +374,8 @@ namespace NzbDrone.Core.Test.Download.CompletedDownloadServiceTests
 
         private void AssertImported()
         {
-            Mocker.GetMock<IDownloadedBooksImportService>()
-                .Verify(v => v.ProcessPath(_trackedDownload.DownloadItem.OutputPath.FullPath, ImportMode.Auto, _trackedDownload.RemoteBook.Author, _trackedDownload.DownloadItem), Times.Once());
+            Mocker.GetMock<IDownloadedIssuesImportService>()
+                .Verify(v => v.ProcessPath(_trackedDownload.DownloadItem.OutputPath.FullPath, ImportMode.Auto, _trackedDownload.RemoteIssue.Volume, _trackedDownload.DownloadItem), Times.Once());
 
             Mocker.GetMock<IEventAggregator>()
                   .Verify(v => v.PublishEvent(It.IsAny<DownloadCompletedEvent>()), Times.Once());

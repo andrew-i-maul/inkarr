@@ -4,9 +4,9 @@ namespace Inkarr.Api.V1.Config
 {
     public class NamingExampleResource
     {
-        public string SingleBookExample { get; set; }
-        public string MultiPartBookExample { get; set; }
-        public string AuthorFolderExample { get; set; }
+        public string SingleIssueExample { get; set; }
+        public string MultiPartIssueExample { get; set; }
+        public string VolumeFolderExample { get; set; }
     }
 
     public static class NamingConfigResourceMapper
@@ -17,18 +17,18 @@ namespace Inkarr.Api.V1.Config
             {
                 Id = model.Id,
 
-                RenameBooks = model.RenameBooks,
+                RenameIssues = model.RenameIssues,
                 ReplaceIllegalCharacters = model.ReplaceIllegalCharacters,
                 ColonReplacementFormat = (int)model.ColonReplacementFormat,
-                StandardBookFormat = model.StandardBookFormat,
-                AuthorFolderFormat = model.AuthorFolderFormat
+                StandardIssueFormat = model.StandardIssueFormat,
+                VolumeFolderFormat = model.VolumeFolderFormat
             };
         }
 
         public static void AddToResource(this BasicNamingConfig basicNamingConfig, NamingConfigResource resource)
         {
-            resource.IncludeAuthorName = basicNamingConfig.IncludeAuthorName;
-            resource.IncludeBookTitle = basicNamingConfig.IncludeBookTitle;
+            resource.IncludeVolumeName = basicNamingConfig.IncludeVolumeName;
+            resource.IncludeIssueTitle = basicNamingConfig.IncludeIssueTitle;
             resource.IncludeQuality = basicNamingConfig.IncludeQuality;
             resource.ReplaceSpaces = basicNamingConfig.ReplaceSpaces;
             resource.Separator = basicNamingConfig.Separator;
@@ -41,11 +41,11 @@ namespace Inkarr.Api.V1.Config
             {
                 Id = resource.Id,
 
-                RenameBooks = resource.RenameBooks,
+                RenameIssues = resource.RenameIssues,
                 ReplaceIllegalCharacters = resource.ReplaceIllegalCharacters,
                 ColonReplacementFormat = (ColonReplacementFormat)resource.ColonReplacementFormat,
-                StandardBookFormat = resource.StandardBookFormat,
-                AuthorFolderFormat = resource.AuthorFolderFormat,
+                StandardIssueFormat = resource.StandardIssueFormat,
+                VolumeFolderFormat = resource.VolumeFolderFormat,
             };
         }
     }

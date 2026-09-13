@@ -5,8 +5,8 @@ using System.Linq;
 using NLog;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Blocklisting;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.History;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Parser.Model;
 
@@ -14,12 +14,12 @@ namespace NzbDrone.Core.CustomFormats
 {
     public interface ICustomFormatCalculationService
     {
-        List<CustomFormat> ParseCustomFormat(RemoteBook remoteBook, long size);
-        List<CustomFormat> ParseCustomFormat(BookFile bookFile, Author artist);
-        List<CustomFormat> ParseCustomFormat(BookFile bookFile);
-        List<CustomFormat> ParseCustomFormat(Blocklist blocklist, Author artist);
-        List<CustomFormat> ParseCustomFormat(EntityHistory history, Author artist);
-        List<CustomFormat> ParseCustomFormat(LocalBook localBook);
+        List<CustomFormat> ParseCustomFormat(RemoteIssue remoteIssue, long size);
+        List<CustomFormat> ParseCustomFormat(IssueFile issueFile, Volume artist);
+        List<CustomFormat> ParseCustomFormat(IssueFile issueFile);
+        List<CustomFormat> ParseCustomFormat(Blocklist blocklist, Volume artist);
+        List<CustomFormat> ParseCustomFormat(EntityHistory history, Volume artist);
+        List<CustomFormat> ParseCustomFormat(LocalIssue localIssue);
     }
 
     public class CustomFormatCalculationService : ICustomFormatCalculationService
@@ -33,36 +33,36 @@ namespace NzbDrone.Core.CustomFormats
             _logger = logger;
         }
 
-        public List<CustomFormat> ParseCustomFormat(RemoteBook remoteBook, long size)
+        public List<CustomFormat> ParseCustomFormat(RemoteIssue remoteIssue, long size)
         {
             var input = new CustomFormatInput
             {
-                BookInfo = remoteBook.ParsedBookInfo,
-                Author = remoteBook.Author,
+                IssueInfo = remoteIssue.ParsedIssueInfo,
+                Volume = remoteIssue.Volume,
                 Size = size,
-                IndexerFlags = remoteBook.Release?.IndexerFlags ?? 0
+                IndexerFlags = remoteIssue.Release?.IndexerFlags ?? 0
             };
 
             return ParseCustomFormat(input);
         }
 
-        public List<CustomFormat> ParseCustomFormat(BookFile bookFile, Author author)
+        public List<CustomFormat> ParseCustomFormat(IssueFile issueFile, Volume volume)
         {
-            return ParseCustomFormat(bookFile, author, _formatService.All());
+            return ParseCustomFormat(issueFile, volume, _formatService.All());
         }
 
-        public List<CustomFormat> ParseCustomFormat(BookFile bookFile)
+        public List<CustomFormat> ParseCustomFormat(IssueFile issueFile)
         {
-            return ParseCustomFormat(bookFile, bookFile.Author.Value, _formatService.All());
+            return ParseCustomFormat(issueFile, issueFile.Volume.Value, _formatService.All());
         }
 
-        public List<CustomFormat> ParseCustomFormat(Blocklist blocklist, Author author)
+        public List<CustomFormat> ParseCustomFormat(Blocklist blocklist, Volume volume)
         {
-            var parsed = Parser.Parser.ParseBookTitle(blocklist.SourceTitle);
+            var parsed = Parser.Parser.ParseIssueTitle(blocklist.SourceTitle);
 
-            var bookInfo = new ParsedBookInfo
+            var issueInfo = new ParsedIssueInfo
             {
-                AuthorName = author.Name,
+                VolumeName = volume.Name,
                 ReleaseTitle = parsed?.ReleaseTitle ?? blocklist.SourceTitle,
                 Quality = blocklist.Quality,
                 ReleaseGroup = parsed?.ReleaseGroup
@@ -70,8 +70,8 @@ namespace NzbDrone.Core.CustomFormats
 
             var input = new CustomFormatInput
             {
-                BookInfo = bookInfo,
-                Author = author,
+                IssueInfo = issueInfo,
+                Volume = volume,
                 Size = blocklist.Size ?? 0,
                 IndexerFlags = blocklist.IndexerFlags
             };
@@ -79,16 +79,16 @@ namespace NzbDrone.Core.CustomFormats
             return ParseCustomFormat(input);
         }
 
-        public List<CustomFormat> ParseCustomFormat(EntityHistory history, Author author)
+        public List<CustomFormat> ParseCustomFormat(EntityHistory history, Volume volume)
         {
-            var parsed = Parser.Parser.ParseBookTitle(history.SourceTitle);
+            var parsed = Parser.Parser.ParseIssueTitle(history.SourceTitle);
 
             long.TryParse(history.Data.GetValueOrDefault("size"), out var size);
             Enum.TryParse(history.Data.GetValueOrDefault("indexerFlags"), true, out IndexerFlags indexerFlags);
 
-            var bookInfo = new ParsedBookInfo
+            var issueInfo = new ParsedIssueInfo
             {
-                AuthorName = author.Name,
+                VolumeName = volume.Name,
                 ReleaseTitle = parsed?.ReleaseTitle ?? history.SourceTitle,
                 Quality = history.Quality,
                 ReleaseGroup = parsed?.ReleaseGroup,
@@ -96,8 +96,8 @@ namespace NzbDrone.Core.CustomFormats
 
             var input = new CustomFormatInput
             {
-                BookInfo = bookInfo,
-                Author = author,
+                IssueInfo = issueInfo,
+                Volume = volume,
                 Size = size,
                 IndexerFlags = indexerFlags
             };
@@ -105,22 +105,22 @@ namespace NzbDrone.Core.CustomFormats
             return ParseCustomFormat(input);
         }
 
-        public List<CustomFormat> ParseCustomFormat(LocalBook localBook)
+        public List<CustomFormat> ParseCustomFormat(LocalIssue localIssue)
         {
-            var bookInfo = new ParsedBookInfo
+            var issueInfo = new ParsedIssueInfo
             {
-                AuthorName = localBook.Author.Name,
-                ReleaseTitle = localBook.SceneName,
-                Quality = localBook.Quality,
-                ReleaseGroup = localBook.ReleaseGroup
+                VolumeName = localIssue.Volume.Name,
+                ReleaseTitle = localIssue.SceneName,
+                Quality = localIssue.Quality,
+                ReleaseGroup = localIssue.ReleaseGroup
             };
 
             var input = new CustomFormatInput
             {
-                BookInfo = bookInfo,
-                Author = localBook.Author,
-                Size = localBook.Size,
-                IndexerFlags = localBook.IndexerFlags,
+                IssueInfo = issueInfo,
+                Volume = localIssue.Volume,
+                Size = localIssue.Size,
+                IndexerFlags = localIssue.IndexerFlags,
             };
 
             return ParseCustomFormat(input);
@@ -154,41 +154,41 @@ namespace NzbDrone.Core.CustomFormats
             return matches.OrderBy(x => x.Name).ToList();
         }
 
-        private List<CustomFormat> ParseCustomFormat(BookFile bookFile, Author author, List<CustomFormat> allCustomFormats)
+        private List<CustomFormat> ParseCustomFormat(IssueFile issueFile, Volume volume, List<CustomFormat> allCustomFormats)
         {
             var releaseTitle = string.Empty;
 
-            if (bookFile.SceneName.IsNotNullOrWhiteSpace())
+            if (issueFile.SceneName.IsNotNullOrWhiteSpace())
             {
-                _logger.Trace("Using scene name for release title: {0}", bookFile.SceneName);
-                releaseTitle = bookFile.SceneName;
+                _logger.Trace("Using scene name for release title: {0}", issueFile.SceneName);
+                releaseTitle = issueFile.SceneName;
             }
-            else if (bookFile.OriginalFilePath.IsNotNullOrWhiteSpace())
+            else if (issueFile.OriginalFilePath.IsNotNullOrWhiteSpace())
             {
-                _logger.Trace("Using original file path for release title: {0}", bookFile.OriginalFilePath);
-                releaseTitle = bookFile.OriginalFilePath;
+                _logger.Trace("Using original file path for release title: {0}", issueFile.OriginalFilePath);
+                releaseTitle = issueFile.OriginalFilePath;
             }
-            else if (bookFile.Path.IsNotNullOrWhiteSpace())
+            else if (issueFile.Path.IsNotNullOrWhiteSpace())
             {
-                _logger.Trace("Using path for release title: {0}", Path.GetFileName(bookFile.Path));
-                releaseTitle = Path.GetFileName(bookFile.Path);
+                _logger.Trace("Using path for release title: {0}", Path.GetFileName(issueFile.Path));
+                releaseTitle = Path.GetFileName(issueFile.Path);
             }
 
-            var bookInfo = new ParsedBookInfo
+            var issueInfo = new ParsedIssueInfo
             {
-                AuthorName = author.Name,
+                VolumeName = volume.Name,
                 ReleaseTitle = releaseTitle,
-                Quality = bookFile.Quality,
-                ReleaseGroup = bookFile.ReleaseGroup
+                Quality = issueFile.Quality,
+                ReleaseGroup = issueFile.ReleaseGroup
             };
 
             var input = new CustomFormatInput
             {
-                BookInfo = bookInfo,
-                Author = author,
-                Size = bookFile.Size,
-                IndexerFlags = bookFile.IndexerFlags,
-                Filename = Path.GetFileName(bookFile.Path)
+                IssueInfo = issueInfo,
+                Volume = volume,
+                Size = issueFile.Size,
+                IndexerFlags = issueFile.IndexerFlags,
+                Filename = Path.GetFileName(issueFile.Path)
             };
 
             return ParseCustomFormat(input, allCustomFormats);

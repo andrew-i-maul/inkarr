@@ -14,44 +14,44 @@ namespace NzbDrone.Core.Housekeeping.Housekeepers
 
         public void Clean()
         {
-            DeleteDuplicateAuthorMetadata();
-            DeleteDuplicateBookMetadata();
-            DeleteDuplicateBookFileMetadata();
+            DeleteDuplicateVolumeMetadata();
+            DeleteDuplicateIssueMetadata();
+            DeleteDuplicateIssueFileMetadata();
         }
 
-        private void DeleteDuplicateAuthorMetadata()
+        private void DeleteDuplicateVolumeMetadata()
         {
             using var mapper = _database.OpenConnection();
             mapper.Execute(@"DELETE FROM ""MetadataFiles""
                              WHERE ""Id"" IN (
                                  SELECT MIN(""Id"") FROM ""MetadataFiles""
                                  WHERE ""Type"" = 1
-                                 GROUP BY ""AuthorId"", ""Consumer""
-                                 HAVING COUNT(""AuthorId"") > 1
+                                 GROUP BY ""VolumeId"", ""Consumer""
+                                 HAVING COUNT(""VolumeId"") > 1
                              )");
         }
 
-        private void DeleteDuplicateBookMetadata()
+        private void DeleteDuplicateIssueMetadata()
         {
             using var mapper = _database.OpenConnection();
             mapper.Execute(@"DELETE FROM ""MetadataFiles""
                              WHERE ""Id"" IN (
                                  SELECT MIN(""Id"") FROM ""MetadataFiles""
                                  WHERE ""Type"" IN (2, 4)
-                                 GROUP BY ""BookId"", ""Consumer""
-                                 HAVING COUNT(""BookId"") > 1
+                                 GROUP BY ""IssueId"", ""Consumer""
+                                 HAVING COUNT(""IssueId"") > 1
                              )");
         }
 
-        private void DeleteDuplicateBookFileMetadata()
+        private void DeleteDuplicateIssueFileMetadata()
         {
             using var mapper = _database.OpenConnection();
             mapper.Execute(@"DELETE FROM ""MetadataFiles""
                              WHERE ""Id"" IN (
                                  SELECT MIN(""Id"") FROM ""MetadataFiles""
                                  WHERE ""Type"" IN (2, 4)
-                                 GROUP BY ""BookFileId"", ""Consumer""
-                                 HAVING COUNT(""BookFileId"") > 1
+                                 GROUP BY ""IssueFileId"", ""Consumer""
+                                 HAVING COUNT(""IssueFileId"") > 1
                              )");
         }
     }

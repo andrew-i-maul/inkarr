@@ -3,9 +3,9 @@ using System.IO;
 using System.Linq;
 using NLog;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Extras.Files;
-using NzbDrone.Core.MediaFiles.BookImport.Aggregation;
+using NzbDrone.Core.Issues;
+using NzbDrone.Core.MediaFiles.IssueImport.Aggregation;
 using NzbDrone.Core.Parser.Model;
 
 namespace NzbDrone.Core.Extras.Others
@@ -28,12 +28,12 @@ namespace NzbDrone.Core.Extras.Others
 
         public override int Order => 2;
 
-        public override IEnumerable<ExtraFile> ProcessFiles(Author author, List<string> filesOnDisk, List<string> importedFiles)
+        public override IEnumerable<ExtraFile> ProcessFiles(Volume volume, List<string> filesOnDisk, List<string> importedFiles)
         {
-            _logger.Debug("Looking for existing extra files in {0}", author.Path);
+            _logger.Debug("Looking for existing extra files in {0}", volume.Path);
 
             var extraFiles = new List<OtherExtraFile>();
-            var filterResult = FilterAndClean(author, filesOnDisk, importedFiles);
+            var filterResult = FilterAndClean(volume, filesOnDisk, importedFiles);
 
             foreach (var possibleExtraFile in filterResult.FilesOnDisk)
             {
@@ -45,10 +45,10 @@ namespace NzbDrone.Core.Extras.Others
                     continue;
                 }
 
-                var localTrack = new LocalBook
+                var localTrack = new LocalIssue
                 {
                     FileTrackInfo = Parser.Parser.ParseMusicPath(possibleExtraFile),
-                    Author = author,
+                    Volume = volume,
                     Path = possibleExtraFile
                 };
 
@@ -62,17 +62,17 @@ namespace NzbDrone.Core.Extras.Others
                     continue;
                 }
 
-                if (localTrack.Book == null)
+                if (localTrack.Issue == null)
                 {
-                    _logger.Debug("Cannot find related book for: {0}", possibleExtraFile);
+                    _logger.Debug("Cannot find related issue for: {0}", possibleExtraFile);
                     continue;
                 }
 
                 var extraFile = new OtherExtraFile
                 {
-                    AuthorId = author.Id,
-                    BookId = localTrack.Book.Id,
-                    RelativePath = author.Path.GetRelativePath(possibleExtraFile),
+                    VolumeId = volume.Id,
+                    IssueId = localTrack.Issue.Id,
+                    RelativePath = volume.Path.GetRelativePath(possibleExtraFile),
                     Extension = extension
                 };
 

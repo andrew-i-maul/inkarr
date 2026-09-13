@@ -5,11 +5,11 @@ using NLog;
 using NzbDrone.Common.Cache;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Serializer;
-using NzbDrone.Core.Books;
-using NzbDrone.Core.Books.Events;
 using NzbDrone.Core.CustomFormats;
 using NzbDrone.Core.Download.History;
 using NzbDrone.Core.History;
+using NzbDrone.Core.Issues;
+using NzbDrone.Core.Issues.Events;
 using NzbDrone.Core.Messaging.Events;
 using NzbDrone.Core.Parser;
 using NzbDrone.Core.Parser.Model;
@@ -27,8 +27,8 @@ namespace NzbDrone.Core.Download.TrackedDownloads
     }
 
     public class TrackedDownloadService : ITrackedDownloadService,
-                                          IHandle<BookInfoRefreshedEvent>,
-                                          IHandle<AuthorDeletedEvent>
+                                          IHandle<IssueInfoRefreshedEvent>,
+                                          IHandle<VolumeDeletedEvent>
     {
         private readonly IParsingService _parsingService;
         private readonly IHistoryService _historyService;
@@ -61,20 +61,20 @@ namespace NzbDrone.Core.Download.TrackedDownloads
             return _cache.Find(downloadId);
         }
 
-        public void UpdateBookCache(int bookId)
+        public void UpdateIssueCache(int issueId)
         {
-            var updateCacheItems = _cache.Values.Where(x => x.RemoteBook != null && x.RemoteBook.Books.Any(a => a.Id == bookId)).ToList();
+            var updateCacheItems = _cache.Values.Where(x => x.RemoteIssue != null && x.RemoteIssue.Issues.Any(a => a.Id == issueId)).ToList();
 
             if (updateCacheItems.Any())
             {
                 foreach (var item in updateCacheItems)
                 {
-                    var parsedBookInfo = Parser.Parser.ParseBookTitle(item.DownloadItem.Title);
-                    item.RemoteBook = null;
+                    var parsedIssueInfo = Parser.Parser.ParseIssueTitle(item.DownloadItem.Title);
+                    item.RemoteIssue = null;
 
-                    if (parsedBookInfo != null)
+                    if (parsedIssueInfo != null)
                     {
-                        item.RemoteBook = _parsingService.Map(parsedBookInfo);
+                        item.RemoteIssue = _parsingService.Map(parsedIssueInfo);
                     }
                 }
 
@@ -128,14 +128,14 @@ namespace NzbDrone.Core.Download.TrackedDownloads
 
             try
             {
-                var parsedBookInfo = Parser.Parser.ParseBookTitle(trackedDownload.DownloadItem.Title);
+                var parsedIssueInfo = Parser.Parser.ParseIssueTitle(trackedDownload.DownloadItem.Title);
                 var historyItems = _historyService.FindByDownloadId(downloadItem.DownloadId)
                     .OrderByDescending(h => h.Date)
                     .ToList();
 
-                if (parsedBookInfo != null)
+                if (parsedIssueInfo != null)
                 {
-                    trackedDownload.RemoteBook = _parsingService.Map(parsedBookInfo);
+                    trackedDownload.RemoteIssue = _parsingService.Map(parsedIssueInfo);
                 }
 
                 var downloadHistory = _downloadHistoryService.GetLatestDownloadHistoryItem(downloadItem.DownloadId);
@@ -159,63 +159,63 @@ namespace NzbDrone.Core.Download.TrackedDownloads
 
                     trackedDownload.Indexer = grabbedEvent?.Data?.GetValueOrDefault("indexer");
 
-                    if (parsedBookInfo == null ||
-                        trackedDownload.RemoteBook?.Author == null ||
-                        trackedDownload.RemoteBook.Books.Empty())
+                    if (parsedIssueInfo == null ||
+                        trackedDownload.RemoteIssue?.Volume == null ||
+                        trackedDownload.RemoteIssue.Issues.Empty())
                     {
                         // Try parsing the original source title and if that fails, try parsing it as a special
-                        var historyAuthor = firstHistoryItem.Author;
-                        var historyBooks = new List<Book> { firstHistoryItem.Book };
+                        var historyVolume = firstHistoryItem.Volume;
+                        var historyIssues = new List<Issue> { firstHistoryItem.Issue };
 
-                        parsedBookInfo = Parser.Parser.ParseBookTitle(firstHistoryItem.SourceTitle);
+                        parsedIssueInfo = Parser.Parser.ParseIssueTitle(firstHistoryItem.SourceTitle);
 
-                        if (parsedBookInfo != null)
+                        if (parsedIssueInfo != null)
                         {
-                            trackedDownload.RemoteBook = _parsingService.Map(parsedBookInfo,
-                                firstHistoryItem.AuthorId,
-                                historyItems.Where(v => v.EventType == EntityHistoryEventType.Grabbed).Select(h => h.BookId)
+                            trackedDownload.RemoteIssue = _parsingService.Map(parsedIssueInfo,
+                                firstHistoryItem.VolumeId,
+                                historyItems.Where(v => v.EventType == EntityHistoryEventType.Grabbed).Select(h => h.IssueId)
                                     .Distinct());
                         }
                         else
                         {
-                            parsedBookInfo =
-                                Parser.Parser.ParseBookTitleWithSearchCriteria(firstHistoryItem.SourceTitle,
-                                    historyAuthor,
-                                    historyBooks);
+                            parsedIssueInfo =
+                                Parser.Parser.ParseIssueTitleWithSearchCriteria(firstHistoryItem.SourceTitle,
+                                    historyVolume,
+                                    historyIssues);
 
-                            if (parsedBookInfo != null)
+                            if (parsedIssueInfo != null)
                             {
-                                trackedDownload.RemoteBook = _parsingService.Map(parsedBookInfo,
-                                    firstHistoryItem.AuthorId,
-                                    historyItems.Where(v => v.EventType == EntityHistoryEventType.Grabbed).Select(h => h.BookId)
+                                trackedDownload.RemoteIssue = _parsingService.Map(parsedIssueInfo,
+                                    firstHistoryItem.VolumeId,
+                                    historyItems.Where(v => v.EventType == EntityHistoryEventType.Grabbed).Select(h => h.IssueId)
                                         .Distinct());
                             }
                         }
                     }
 
-                    if (trackedDownload.RemoteBook != null &&
+                    if (trackedDownload.RemoteIssue != null &&
                         Enum.TryParse(grabbedEvent?.Data?.GetValueOrDefault("indexerFlags"), true, out IndexerFlags flags))
                     {
-                        trackedDownload.RemoteBook.Release ??= new ReleaseInfo();
-                        trackedDownload.RemoteBook.Release.IndexerFlags = flags;
+                        trackedDownload.RemoteIssue.Release ??= new ReleaseInfo();
+                        trackedDownload.RemoteIssue.Release.IndexerFlags = flags;
                     }
                 }
 
                 // Calculate custom formats
-                if (trackedDownload.RemoteBook != null)
+                if (trackedDownload.RemoteIssue != null)
                 {
-                    trackedDownload.RemoteBook.CustomFormats = _formatCalculator.ParseCustomFormat(trackedDownload.RemoteBook, downloadItem.TotalSize);
+                    trackedDownload.RemoteIssue.CustomFormats = _formatCalculator.ParseCustomFormat(trackedDownload.RemoteIssue, downloadItem.TotalSize);
                 }
 
                 // Track it so it can be displayed in the queue even though we can't determine which artist it is for
-                if (trackedDownload.RemoteBook == null)
+                if (trackedDownload.RemoteIssue == null)
                 {
-                    _logger.Trace("No Book found for download '{0}'", trackedDownload.DownloadItem.Title);
+                    _logger.Trace("No Issue found for download '{0}'", trackedDownload.DownloadItem.Title);
                 }
             }
             catch (Exception e)
             {
-                _logger.Debug(e, "Failed to find book for " + downloadItem.Title);
+                _logger.Debug(e, "Failed to find issue for " + downloadItem.Title);
                 return null;
             }
 
@@ -247,22 +247,22 @@ namespace NzbDrone.Core.Download.TrackedDownloads
                 existingItem.CanBeRemoved != downloadItem.CanBeRemoved ||
                 existingItem.CanMoveFiles != downloadItem.CanMoveFiles)
             {
-                _logger.Debug("Tracking '{0}:{1}': ClientState={2}{3} InkarrStage={4} Book='{5}' OutputPath={6}.",
+                _logger.Debug("Tracking '{0}:{1}': ClientState={2}{3} InkarrStage={4} Issue='{5}' OutputPath={6}.",
                     downloadItem.DownloadClientInfo.Name,
                     downloadItem.Title,
                     downloadItem.Status,
                     downloadItem.CanBeRemoved ? "" : downloadItem.CanMoveFiles ? " (busy)" : " (readonly)",
                     trackedDownload.State,
-                    trackedDownload.RemoteBook?.ParsedBookInfo,
+                    trackedDownload.RemoteIssue?.ParsedIssueInfo,
                     downloadItem.OutputPath);
             }
         }
 
         private void UpdateCachedItem(TrackedDownload trackedDownload)
         {
-            var parsedEpisodeInfo = Parser.Parser.ParseBookTitle(trackedDownload.DownloadItem.Title);
+            var parsedEpisodeInfo = Parser.Parser.ParseIssueTitle(trackedDownload.DownloadItem.Title);
 
-            trackedDownload.RemoteBook = parsedEpisodeInfo == null ? null : _parsingService.Map(parsedEpisodeInfo, 0, new[] { 0 });
+            trackedDownload.RemoteIssue = parsedEpisodeInfo == null ? null : _parsingService.Map(parsedEpisodeInfo, 0, new[] { 0 });
         }
 
         private static TrackedDownloadState GetStateFromHistory(DownloadHistoryEventType eventType)
@@ -282,15 +282,15 @@ namespace NzbDrone.Core.Download.TrackedDownloads
             }
         }
 
-        public void Handle(BookInfoRefreshedEvent message)
+        public void Handle(IssueInfoRefreshedEvent message)
         {
             var needsToUpdate = false;
 
             foreach (var episode in message.Removed)
             {
                 var cachedItems = _cache.Values.Where(t =>
-                                            t.RemoteBook?.Books != null &&
-                                            t.RemoteBook.Books.Any(e => e.Id == episode.Id))
+                                            t.RemoteIssue?.Issues != null &&
+                                            t.RemoteIssue.Issues.Any(e => e.Id == episode.Id))
                                         .ToList();
 
                 if (cachedItems.Any())
@@ -307,11 +307,11 @@ namespace NzbDrone.Core.Download.TrackedDownloads
             }
         }
 
-        public void Handle(AuthorDeletedEvent message)
+        public void Handle(VolumeDeletedEvent message)
         {
             var cachedItems = _cache.Values.Where(t =>
-                                        t.RemoteBook?.Author != null &&
-                                        t.RemoteBook.Author.Id == message.Author.Id)
+                                        t.RemoteIssue?.Volume != null &&
+                                        t.RemoteIssue.Volume.Id == message.Volume.Id)
                                     .ToList();
 
             if (cachedItems.Any())

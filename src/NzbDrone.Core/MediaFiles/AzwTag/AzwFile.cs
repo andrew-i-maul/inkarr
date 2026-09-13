@@ -22,7 +22,7 @@ namespace NzbDrone.Core.MediaFiles.Azw
             Ident = Encoding.ASCII.GetString(RawData, 0x3c, 8);
             SectionCount = Math.Min(Util.GetUInt16(RawData, 76), (ushort)1);
 
-            if (Ident != "BOOKMOBI" || SectionCount == 0)
+            if (Ident != "ISSUEMOBI" || SectionCount == 0)
             {
                 throw new AzwTagException("Invalid mobi header");
             }

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.CustomFormats;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Qualities;
@@ -11,30 +11,30 @@ namespace NzbDrone.Core.Organizer
     {
         SampleResult GetStandardTrackSample(NamingConfig nameSpec);
         SampleResult GetMultiDiscTrackSample(NamingConfig nameSpec);
-        string GetAuthorFolderSample(NamingConfig nameSpec);
+        string GetVolumeFolderSample(NamingConfig nameSpec);
     }
 
     public class FileNameSampleService : IFilenameSampleService
     {
         private readonly IBuildFileNames _buildFileNames;
 
-        private static Author _standardAuthor;
-        private static Book _standardBook;
+        private static Volume _standardVolume;
+        private static Issue _standardIssue;
         private static Edition _standardEdition;
-        private static BookFile _singleTrackFile;
-        private static BookFile _multiTrackFile;
+        private static IssueFile _singleTrackFile;
+        private static IssueFile _multiTrackFile;
         private static List<CustomFormat> _customFormats;
 
         public FileNameSampleService(IBuildFileNames buildFileNames)
         {
             _buildFileNames = buildFileNames;
 
-            _standardAuthor = new Author
+            _standardVolume = new Volume
             {
-                Metadata = new AuthorMetadata
+                Metadata = new VolumeMetadata
                 {
-                    Name = "The Author Name",
-                    Disambiguation = "US Author",
+                    Name = "The Volume Name",
+                    Disambiguation = "US Volume",
                     NameLastFirst = "Last name, First name"
                 }
             };
@@ -44,25 +44,25 @@ namespace NzbDrone.Core.Organizer
                 Title = "Series Title"
             };
 
-            var seriesLink = new SeriesBookLink
+            var seriesLink = new SeriesIssueLink
             {
                 Position = "1",
                 Series = series
             };
 
-            _standardBook = new Book
+            _standardIssue = new Issue
             {
-                Title = "The Book Title",
+                Title = "The Issue Title",
                 ReleaseDate = System.DateTime.Today,
-                Author = _standardAuthor,
-                AuthorMetadata = _standardAuthor.Metadata.Value,
-                SeriesLinks = new List<SeriesBookLink> { seriesLink }
+                Volume = _standardVolume,
+                VolumeMetadata = _standardVolume.Metadata.Value,
+                SeriesLinks = new List<SeriesIssueLink> { seriesLink }
             };
 
             _standardEdition = new Edition
             {
                 Title = "The Edition Title",
-                Book = _standardBook
+                Issue = _standardIssue
             };
 
             _customFormats = new List<CustomFormat>
@@ -88,11 +88,11 @@ namespace NzbDrone.Core.Organizer
                 AudioSampleRate = 44100
             };
 
-            _singleTrackFile = new BookFile
+            _singleTrackFile = new IssueFile
             {
                 Quality = new QualityModel(Quality.MP3, new Revision(2)),
-                Path = "/music/Author.Name.Book.Name.TrackNum.Track.Title.MP3256.mp3",
-                SceneName = "Author.Name.Book.Name.TrackNum.Track.Title.MP3256",
+                Path = "/music/Volume.Name.Issue.Name.TrackNum.Track.Title.MP3256.mp3",
+                SceneName = "Volume.Name.Issue.Name.TrackNum.Track.Title.MP3256",
                 ReleaseGroup = "RlsGrp",
                 MediaInfo = mediaInfo,
                 Edition = _standardEdition,
@@ -100,11 +100,11 @@ namespace NzbDrone.Core.Organizer
                 PartCount = 1
             };
 
-            _multiTrackFile = new BookFile
+            _multiTrackFile = new IssueFile
             {
                 Quality = new QualityModel(Quality.MP3, new Revision(2)),
-                Path = "/music/Author.Name.Book.Name.TrackNum.Track.Title.MP3256.mp3",
-                SceneName = "Author.Name.Book.Name.TrackNum.Track.Title.MP3256",
+                Path = "/music/Volume.Name.Issue.Name.TrackNum.Track.Title.MP3256.mp3",
+                SceneName = "Volume.Name.Issue.Name.TrackNum.Track.Title.MP3256",
                 ReleaseGroup = "RlsGrp",
                 MediaInfo = mediaInfo,
                 Edition = _standardEdition,
@@ -117,10 +117,10 @@ namespace NzbDrone.Core.Organizer
         {
             var result = new SampleResult
             {
-                FileName = BuildTrackSample(_standardAuthor, _singleTrackFile, nameSpec),
-                Author = _standardAuthor,
-                Book = _standardBook,
-                BookFile = _singleTrackFile
+                FileName = BuildTrackSample(_standardVolume, _singleTrackFile, nameSpec),
+                Volume = _standardVolume,
+                Issue = _standardIssue,
+                IssueFile = _singleTrackFile
             };
 
             return result;
@@ -130,25 +130,25 @@ namespace NzbDrone.Core.Organizer
         {
             var result = new SampleResult
             {
-                FileName = BuildTrackSample(_standardAuthor, _multiTrackFile, nameSpec),
-                Author = _standardAuthor,
-                Book = _standardBook,
-                BookFile = _singleTrackFile
+                FileName = BuildTrackSample(_standardVolume, _multiTrackFile, nameSpec),
+                Volume = _standardVolume,
+                Issue = _standardIssue,
+                IssueFile = _singleTrackFile
             };
 
             return result;
         }
 
-        public string GetAuthorFolderSample(NamingConfig nameSpec)
+        public string GetVolumeFolderSample(NamingConfig nameSpec)
         {
-            return _buildFileNames.GetAuthorFolder(_standardAuthor, nameSpec);
+            return _buildFileNames.GetVolumeFolder(_standardVolume, nameSpec);
         }
 
-        private string BuildTrackSample(Author author, BookFile bookFile, NamingConfig nameSpec)
+        private string BuildTrackSample(Volume volume, IssueFile issueFile, NamingConfig nameSpec)
         {
             try
             {
-                return _buildFileNames.BuildBookFileName(author, bookFile.Edition.Value, bookFile, nameSpec, _customFormats);
+                return _buildFileNames.BuildIssueFileName(volume, issueFile.Edition.Value, issueFile, nameSpec, _customFormats);
             }
             catch (NamingFormatException)
             {

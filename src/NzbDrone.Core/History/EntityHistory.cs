@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Datastore;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Qualities;
 
 namespace NzbDrone.Core.History
@@ -19,13 +19,13 @@ namespace NzbDrone.Core.History
             Data = new Dictionary<string, string>();
         }
 
-        public int BookId { get; set; }
-        public int AuthorId { get; set; }
+        public int IssueId { get; set; }
+        public int VolumeId { get; set; }
         public string SourceTitle { get; set; }
         public QualityModel Quality { get; set; }
         public DateTime Date { get; set; }
-        public Book Book { get; set; }
-        public Author Author { get; set; }
+        public Issue Issue { get; set; }
+        public Volume Volume { get; set; }
         public EntityHistoryEventType EventType { get; set; }
         public Dictionary<string, string> Data { get; set; }
 
@@ -36,13 +36,13 @@ namespace NzbDrone.Core.History
     {
         Unknown = 0,
         Grabbed = 1,
-        BookFileImported = 3,
+        IssueFileImported = 3,
         DownloadFailed = 4,
-        BookFileDeleted = 5,
-        BookFileRenamed = 6,
-        BookImportIncomplete = 7,
+        IssueFileDeleted = 5,
+        IssueFileRenamed = 6,
+        IssueImportIncomplete = 7,
         DownloadImported = 8,
-        BookFileRetagged = 9,
+        IssueFileRetagged = 9,
         DownloadIgnored = 10
     }
 }

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using FluentValidation.Results;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Configuration;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Validation;
 
@@ -25,39 +25,39 @@ namespace NzbDrone.Core.Notifications.Webhook
             _proxy.SendWebhook(BuildOnGrabPayload(message), Settings);
         }
 
-        public override void OnReleaseImport(BookDownloadMessage message)
+        public override void OnReleaseImport(IssueDownloadMessage message)
         {
             _proxy.SendWebhook(BuildOnReleaseImportPayload(message), Settings);
         }
 
-        public override void OnRename(Author author, List<RenamedBookFile> renamedFiles)
+        public override void OnRename(Volume volume, List<RenamedIssueFile> renamedFiles)
         {
-            _proxy.SendWebhook(BuildOnRenamePayload(author, renamedFiles), Settings);
+            _proxy.SendWebhook(BuildOnRenamePayload(volume, renamedFiles), Settings);
         }
 
-        public override void OnAuthorAdded(Author author)
+        public override void OnVolumeAdded(Volume volume)
         {
-            _proxy.SendWebhook(BuildOnAuthorAdded(author), Settings);
+            _proxy.SendWebhook(BuildOnVolumeAdded(volume), Settings);
         }
 
-        public override void OnAuthorDelete(AuthorDeleteMessage deleteMessage)
+        public override void OnVolumeDelete(VolumeDeleteMessage deleteMessage)
         {
-            _proxy.SendWebhook(BuildOnAuthorDelete(deleteMessage), Settings);
+            _proxy.SendWebhook(BuildOnVolumeDelete(deleteMessage), Settings);
         }
 
-        public override void OnBookDelete(BookDeleteMessage deleteMessage)
+        public override void OnIssueDelete(IssueDeleteMessage deleteMessage)
         {
-            _proxy.SendWebhook(BuildOnBookDelete(deleteMessage), Settings);
+            _proxy.SendWebhook(BuildOnIssueDelete(deleteMessage), Settings);
         }
 
-        public override void OnBookFileDelete(BookFileDeleteMessage deleteMessage)
+        public override void OnIssueFileDelete(IssueFileDeleteMessage deleteMessage)
         {
-            _proxy.SendWebhook(BuildOnBookFileDelete(deleteMessage), Settings);
+            _proxy.SendWebhook(BuildOnIssueFileDelete(deleteMessage), Settings);
         }
 
-        public override void OnBookRetag(BookRetagMessage message)
+        public override void OnIssueRetag(IssueRetagMessage message)
         {
-            _proxy.SendWebhook(BuildOnBookRetagPayload(message), Settings);
+            _proxy.SendWebhook(BuildOnIssueRetagPayload(message), Settings);
         }
 
         public override void OnHealthIssue(HealthCheck.HealthCheck healthCheck)

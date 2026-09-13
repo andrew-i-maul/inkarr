@@ -3,9 +3,9 @@ using System.Linq;
 using NLog;
 using NzbDrone.Common.Disk;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Configuration;
 using NzbDrone.Core.Extras.Files;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 
 namespace NzbDrone.Core.Extras.Others
@@ -29,33 +29,33 @@ namespace NzbDrone.Core.Extras.Others
 
         public override int Order => 2;
 
-        public override IEnumerable<ExtraFile> CreateAfterAuthorScan(Author author, List<BookFile> bookFiles)
+        public override IEnumerable<ExtraFile> CreateAfterVolumeScan(Volume volume, List<IssueFile> issueFiles)
         {
             return Enumerable.Empty<ExtraFile>();
         }
 
-        public override IEnumerable<ExtraFile> CreateAfterBookImport(Author author, BookFile bookFile)
+        public override IEnumerable<ExtraFile> CreateAfterIssueImport(Volume volume, IssueFile issueFile)
         {
             return Enumerable.Empty<ExtraFile>();
         }
 
-        public override IEnumerable<ExtraFile> CreateAfterBookImport(Author author, Book book, string authorFolder, string bookFolder)
+        public override IEnumerable<ExtraFile> CreateAfterIssueImport(Volume volume, Issue issue, string volumeFolder, string issueFolder)
         {
             return Enumerable.Empty<ExtraFile>();
         }
 
-        public override IEnumerable<ExtraFile> MoveFilesAfterRename(Author author, List<BookFile> bookFiles)
+        public override IEnumerable<ExtraFile> MoveFilesAfterRename(Volume volume, List<IssueFile> issueFiles)
         {
-            var extraFiles = _otherExtraFileService.GetFilesByAuthor(author.Id);
+            var extraFiles = _otherExtraFileService.GetFilesByVolume(volume.Id);
             var movedFiles = new List<OtherExtraFile>();
 
-            foreach (var bookFile in bookFiles)
+            foreach (var issueFile in issueFiles)
             {
-                var extraFilesForTrackFile = extraFiles.Where(m => m.BookFileId == bookFile.Id).ToList();
+                var extraFilesForTrackFile = extraFiles.Where(m => m.IssueFileId == issueFile.Id).ToList();
 
                 foreach (var extraFile in extraFilesForTrackFile)
                 {
-                    movedFiles.AddIfNotNull(MoveFile(author, bookFile, extraFile));
+                    movedFiles.AddIfNotNull(MoveFile(volume, issueFile, extraFile));
                 }
             }
 
@@ -64,9 +64,9 @@ namespace NzbDrone.Core.Extras.Others
             return movedFiles;
         }
 
-        public override ExtraFile Import(Author author, BookFile bookFile, string path, string extension, bool readOnly)
+        public override ExtraFile Import(Volume volume, IssueFile issueFile, string path, string extension, bool readOnly)
         {
-            var extraFile = ImportFile(author, bookFile, path, readOnly, extension, null);
+            var extraFile = ImportFile(volume, issueFile, path, readOnly, extension, null);
 
             _mediaFileAttributeService.SetFilePermissions(path);
             _otherExtraFileService.Upsert(extraFile);

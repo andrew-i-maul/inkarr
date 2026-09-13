@@ -3,8 +3,8 @@ using System.Linq;
 using FizzWare.NBuilder;
 using FluentAssertions;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.CustomFormats;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Organizer;
 using NzbDrone.Core.Qualities;
@@ -15,16 +15,16 @@ namespace NzbDrone.Core.Test.OrganizerTests.FileNameBuilderTests
     [TestFixture]
     public class CleanTitleFixture : CoreTest<FileNameBuilder>
     {
-        private Author _author;
-        private Book _book;
+        private Volume _volume;
+        private Issue _issue;
         private Edition _edition;
-        private BookFile _trackFile;
+        private IssueFile _trackFile;
         private NamingConfig _namingConfig;
 
         [SetUp]
         public void Setup()
         {
-            _author = Builder<Author>
+            _volume = Builder<Volume>
                     .CreateNew()
                     .With(s => s.Name = "Avenged Sevenfold")
                     .Build();
@@ -34,30 +34,30 @@ namespace NzbDrone.Core.Test.OrganizerTests.FileNameBuilderTests
                 .With(x => x.Title = "Series Title")
                 .Build();
 
-            var seriesLink = Builder<SeriesBookLink>
+            var seriesLink = Builder<SeriesIssueLink>
                 .CreateListOfSize(1)
                 .All()
                 .With(s => s.Position = "1-2")
                 .With(s => s.Series = series)
                 .BuildListOfNew();
 
-            _book = Builder<Book>
+            _issue = Builder<Issue>
                     .CreateNew()
                     .With(s => s.Title = "Hail to the King")
-                    .With(s => s.AuthorMetadata = _author.Metadata.Value)
+                    .With(s => s.VolumeMetadata = _volume.Metadata.Value)
                     .With(s => s.SeriesLinks = seriesLink)
                     .Build();
 
             _edition = Builder<Edition>
                 .CreateNew()
-                .With(s => s.Title = _book.Title)
-                .With(s => s.Book = _book)
+                .With(s => s.Title = _issue.Title)
+                .With(s => s.Issue = _issue)
                 .Build();
 
-            _trackFile = new BookFile { Quality = new QualityModel(Quality.MP3), ReleaseGroup = "InkarrTest" };
+            _trackFile = new IssueFile { Quality = new QualityModel(Quality.MP3), ReleaseGroup = "InkarrTest" };
 
             _namingConfig = NamingConfig.Default;
-            _namingConfig.RenameBooks = true;
+            _namingConfig.RenameIssues = true;
 
             Mocker.GetMock<INamingConfigService>()
                   .Setup(c => c.GetConfig()).Returns(_namingConfig);
@@ -91,10 +91,10 @@ namespace NzbDrone.Core.Test.OrganizerTests.FileNameBuilderTests
         [TestCase("I'm the Boss", "Im the Boss")]
         public void should_get_expected_title_back(string name, string expected)
         {
-            _author.Name = name;
-            _namingConfig.StandardBookFormat = "{Author CleanName}";
+            _volume.Name = name;
+            _namingConfig.StandardIssueFormat = "{Volume CleanName}";
 
-            Subject.BuildBookFileName(_author, _edition, _trackFile)
+            Subject.BuildIssueFileName(_volume, _edition, _trackFile)
                    .Should().Be(expected);
         }
     }

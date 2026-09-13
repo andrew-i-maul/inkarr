@@ -5,20 +5,20 @@ using FizzWare.NBuilder;
 using FluentAssertions;
 using FluentAssertions.Equivalency;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Datastore;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Test.Framework;
 
-namespace NzbDrone.Core.Test.MusicTests.BookRepositoryTests
+namespace NzbDrone.Core.Test.MusicTests.IssueRepositoryTests
 {
     [TestFixture]
-    public class BookRepositoryFixture : DbTest<BookService, Book>
+    public class IssueRepositoryFixture : DbTest<IssueService, Issue>
     {
-        private Author _author;
-        private Book _book;
-        private Book _bookSpecial;
-        private List<Book> _books;
-        private BookRepository _bookRepo;
+        private Volume _volume;
+        private Issue _issue;
+        private Issue _issueSpecial;
+        private List<Issue> _issues;
+        private IssueRepository _issueRepo;
 
         [SetUp]
         public void Setup()
@@ -30,101 +30,101 @@ namespace NzbDrone.Core.Test.MusicTests.BookRepositoryTests
                 return options;
             });
 
-            _author = new Author
+            _volume = new Volume
             {
                 Name = "Alien Ant Farm",
                 Monitored = true,
-                ForeignAuthorId = "this is a fake id",
+                ForeignVolumeId = "this is a fake id",
                 Id = 1,
-                AuthorMetadataId = 1
+                VolumeMetadataId = 1
             };
 
-            _bookRepo = Mocker.Resolve<BookRepository>();
+            _issueRepo = Mocker.Resolve<IssueRepository>();
 
-            _book = new Book
+            _issue = new Issue
             {
                 Title = "ANThology",
-                ForeignBookId = "1",
+                ForeignIssueId = "1",
                 TitleSlug = "1-ANThology",
                 CleanTitle = "anthology",
-                Author = _author,
-                AuthorMetadataId = _author.AuthorMetadataId,
+                Volume = _volume,
+                VolumeMetadataId = _volume.VolumeMetadataId,
             };
 
-            _bookRepo.Insert(_book);
-            _bookRepo.Update(_book);
+            _issueRepo.Insert(_issue);
+            _issueRepo.Update(_issue);
 
-            _bookSpecial = new Book
+            _issueSpecial = new Issue
             {
                 Title = "+",
-                ForeignBookId = "2",
+                ForeignIssueId = "2",
                 TitleSlug = "2-_",
                 CleanTitle = "",
-                Author = _author,
-                AuthorMetadataId = _author.AuthorMetadataId
+                Volume = _volume,
+                VolumeMetadataId = _volume.VolumeMetadataId
             };
 
-            _bookRepo.Insert(_bookSpecial);
+            _issueRepo.Insert(_issueSpecial);
         }
 
         [TestCase("ANThology")]
         [TestCase("anthology")]
         [TestCase("anthology!")]
-        public void should_find_book_in_db_by_title(string title)
+        public void should_find_issue_in_db_by_title(string title)
         {
-            var book = _bookRepo.FindByTitle(_author.AuthorMetadataId, title);
+            var issue = _issueRepo.FindByTitle(_volume.VolumeMetadataId, title);
 
-            book.Should().NotBeNull();
-            book.Title.Should().Be(_book.Title);
+            issue.Should().NotBeNull();
+            issue.Title.Should().Be(_issue.Title);
         }
 
         [Test]
-        public void should_find_book_in_db_by_title_all_special_characters()
+        public void should_find_issue_in_db_by_title_all_special_characters()
         {
-            var book = _bookRepo.FindByTitle(_author.AuthorMetadataId, "+");
+            var issue = _issueRepo.FindByTitle(_volume.VolumeMetadataId, "+");
 
-            book.Should().NotBeNull();
-            book.Title.Should().Be(_bookSpecial.Title);
+            issue.Should().NotBeNull();
+            issue.Title.Should().Be(_issueSpecial.Title);
         }
 
         [TestCase("ANTholog")]
         [TestCase("nthology")]
         [TestCase("antholoyg")]
         [TestCase("÷")]
-        public void should_not_find_book_in_db_by_incorrect_title(string title)
+        public void should_not_find_issue_in_db_by_incorrect_title(string title)
         {
-            var book = _bookRepo.FindByTitle(_author.AuthorMetadataId, title);
+            var issue = _issueRepo.FindByTitle(_volume.VolumeMetadataId, title);
 
-            book.Should().BeNull();
+            issue.Should().BeNull();
         }
 
         [Test]
-        public void should_not_find_book_when_two_books_have_same_name()
+        public void should_not_find_issue_when_two_issues_have_same_name()
         {
-            var books = Builder<Book>.CreateListOfSize(2)
+            var issues = Builder<Issue>.CreateListOfSize(2)
                 .All()
                 .With(x => x.Id = 0)
-                .With(x => x.Author = _author)
-                .With(x => x.AuthorMetadataId = _author.AuthorMetadataId)
+                .With(x => x.Volume = _volume)
+                .With(x => x.VolumeMetadataId = _volume.VolumeMetadataId)
                 .With(x => x.Title = "Weezer")
                 .With(x => x.CleanTitle = "weezer")
                 .Build();
 
-            _bookRepo.InsertMany(books);
+            _issueRepo.InsertMany(issues);
 
-            var book = _bookRepo.FindByTitle(_author.AuthorMetadataId, "Weezer");
+            var issue = _issueRepo.FindByTitle(_volume.VolumeMetadataId, "Weezer");
 
-            _bookRepo.All().Should().HaveCount(4);
-            book.Should().BeNull();
+            _issueRepo.All().Should().HaveCount(4);
+            issue.Should().BeNull();
         }
 
-        private void GivenMultipleBooks()
+        private void GivenMultipleIssues()
         {
-            _books = Builder<Book>.CreateListOfSize(4)
+            _issues = Builder<Issue>.CreateListOfSize(4)
                 .All()
                 .With(x => x.Id = 0)
-                .With(x => x.Author = _author)
-                .With(x => x.AuthorMetadataId = _author.AuthorMetadataId)
+                .With(x => x.Volume = _volume)
+                .With(x => x.VolumeMetadataId = _volume.VolumeMetadataId)
                 .TheFirst(1)
 
                 // next
@@ -143,30 +143,30 @@ namespace NzbDrone.Core.Test.MusicTests.BookRepositoryTests
                 .With(x => x.ReleaseDate = DateTime.UtcNow.AddDays(-2))
                 .BuildList();
 
-            _bookRepo.InsertMany(_books);
+            _issueRepo.InsertMany(_issues);
         }
 
         [Test]
-        public void get_next_books_should_return_next_book()
+        public void get_next_issues_should_return_next_issue()
         {
-            GivenMultipleBooks();
+            GivenMultipleIssues();
 
-            var result = _bookRepo.GetNextBooks(new[] { _author.AuthorMetadataId });
-            result.Should().BeEquivalentTo(_books.Take(1), BookComparerOptions);
+            var result = _issueRepo.GetNextIssues(new[] { _volume.VolumeMetadataId });
+            result.Should().BeEquivalentTo(_issues.Take(1), IssueComparerOptions);
         }
 
         [Test]
-        public void get_last_books_should_return_next_book()
+        public void get_last_issues_should_return_next_issue()
         {
-            GivenMultipleBooks();
+            GivenMultipleIssues();
 
-            var result = _bookRepo.GetLastBooks(new[] { _author.AuthorMetadataId });
-            result.Should().BeEquivalentTo(_books.Skip(2).Take(1), BookComparerOptions);
+            var result = _issueRepo.GetLastIssues(new[] { _volume.VolumeMetadataId });
+            result.Should().BeEquivalentTo(_issues.Skip(2).Take(1), IssueComparerOptions);
         }
 
-        private EquivalencyAssertionOptions<Book> BookComparerOptions(EquivalencyAssertionOptions<Book> opts) => opts.ComparingByMembers<Book>()
+        private EquivalencyAssertionOptions<Issue> IssueComparerOptions(EquivalencyAssertionOptions<Issue> opts) => opts.ComparingByMembers<Issue>()
                 .Excluding(ctx => ctx.SelectedMemberInfo.MemberType.IsGenericType && ctx.SelectedMemberInfo.MemberType.GetGenericTypeDefinition() == typeof(LazyLoaded<>))
-                .Excluding(x => x.AuthorId)
+                .Excluding(x => x.VolumeId)
                 .Excluding(x => x.ForeignEditionId);
     }
 }

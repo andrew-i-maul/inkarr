@@ -4,37 +4,37 @@ using System.Linq;
 using NLog;
 using NzbDrone.Common.Extensions;
 
-namespace NzbDrone.Core.Books
+namespace NzbDrone.Core.Issues
 {
     public interface IRefreshSeriesService
     {
-        bool RefreshSeriesInfo(int authorMetadataId, List<Series> remoteBooks, Author remoteData, bool forceBookRefresh, bool forceUpdateFileTags, DateTime? lastUpdate);
+        bool RefreshSeriesInfo(int volumeMetadataId, List<Series> remoteIssues, Volume remoteData, bool forceIssueRefresh, bool forceUpdateFileTags, DateTime? lastUpdate);
     }
 
-    public class RefreshSeriesService : RefreshEntityServiceBase<Series, SeriesBookLink>, IRefreshSeriesService
+    public class RefreshSeriesService : RefreshEntityServiceBase<Series, SeriesIssueLink>, IRefreshSeriesService
     {
-        private readonly IBookService _bookService;
+        private readonly IIssueService _issueService;
         private readonly ISeriesService _seriesService;
-        private readonly ISeriesBookLinkService _linkService;
-        private readonly IRefreshSeriesBookLinkService _refreshLinkService;
+        private readonly ISeriesIssueLinkService _linkService;
+        private readonly IRefreshSeriesIssueLinkService _refreshLinkService;
         private readonly Logger _logger;
 
-        public RefreshSeriesService(IBookService bookService,
+        public RefreshSeriesService(IIssueService issueService,
                                     ISeriesService seriesService,
-                                    ISeriesBookLinkService linkService,
-                                    IRefreshSeriesBookLinkService refreshLinkService,
-                                    IAuthorMetadataService authorMetadataService,
+                                    ISeriesIssueLinkService linkService,
+                                    IRefreshSeriesIssueLinkService refreshLinkService,
+                                    IVolumeMetadataService volumeMetadataService,
                                     Logger logger)
-        : base(logger, authorMetadataService)
+        : base(logger, volumeMetadataService)
         {
-            _bookService = bookService;
+            _issueService = issueService;
             _seriesService = seriesService;
             _linkService = linkService;
             _refreshLinkService = refreshLinkService;
             _logger = logger;
         }
 
-        protected override RemoteData GetRemoteData(Series local, List<Series> remote, Author data)
+        protected override RemoteData GetRemoteData(Series local, List<Series> remote, Volume data)
         {
             return new RemoteData
             {
@@ -66,13 +66,13 @@ namespace NzbDrone.Core.Books
 
         protected override void SaveEntity(Series local)
         {
-            // Use UpdateMany to avoid firing the book edited event
+            // Use UpdateMany to avoid firing the issue edited event
             _seriesService.UpdateMany(new List<Series> { local });
         }
 
         protected override void DeleteEntity(Series local, bool deleteFiles)
         {
-            _logger.Trace($"Removing links for series {local} author {local.ForeignAuthorId}");
+            _logger.Trace($"Removing links for series {local} volume {local.ForeignVolumeId}");
             var children = GetLocalChildren(local, null);
             _linkService.DeleteMany(children);
 
@@ -83,71 +83,71 @@ namespace NzbDrone.Core.Books
             }
         }
 
-        protected override List<SeriesBookLink> GetRemoteChildren(Series local, Series remote)
+        protected override List<SeriesIssueLink> GetRemoteChildren(Series local, Series remote)
         {
             return remote.LinkItems;
         }
 
-        protected override List<SeriesBookLink> GetLocalChildren(Series entity, List<SeriesBookLink> remoteChildren)
+        protected override List<SeriesIssueLink> GetLocalChildren(Series entity, List<SeriesIssueLink> remoteChildren)
         {
-            return _linkService.GetLinksBySeriesAndAuthor(entity.Id, entity.ForeignAuthorId);
+            return _linkService.GetLinksBySeriesAndVolume(entity.Id, entity.ForeignVolumeId);
         }
 
-        protected override Tuple<SeriesBookLink, List<SeriesBookLink>> GetMatchingExistingChildren(List<SeriesBookLink> existingChildren, SeriesBookLink remote)
+        protected override Tuple<SeriesIssueLink, List<SeriesIssueLink>> GetMatchingExistingChildren(List<SeriesIssueLink> existingChildren, SeriesIssueLink remote)
         {
-            var existingChild = existingChildren.SingleOrDefault(x => x.BookId == remote.Book.Value.Id);
-            var mergeChildren = new List<SeriesBookLink>();
+            var existingChild = existingChildren.SingleOrDefault(x => x.IssueId == remote.Issue.Value.Id);
+            var mergeChildren = new List<SeriesIssueLink>();
             return Tuple.Create(existingChild, mergeChildren);
         }
 
-        protected override void PrepareNewChild(SeriesBookLink child, Series entity)
+        protected override void PrepareNewChild(SeriesIssueLink child, Series entity)
         {
             child.Series = entity;
             child.SeriesId = entity.Id;
-            child.BookId = child.Book.Value.Id;
+            child.IssueId = child.Issue.Value.Id;
         }
 
-        protected override void PrepareExistingChild(SeriesBookLink local, SeriesBookLink remote, Series entity)
+        protected override void PrepareExistingChild(SeriesIssueLink local, SeriesIssueLink remote, Series entity)
         {
             local.Series = entity;
             local.SeriesId = entity.Id;
 
             remote.Id = local.Id;
-            remote.BookId = local.BookId;
+            remote.IssueId = local.IssueId;
             remote.SeriesId = entity.Id;
         }
 
-        protected override void AddChildren(List<SeriesBookLink> children)
+        protected override void AddChildren(List<SeriesIssueLink> children)
         {
             _linkService.InsertMany(children);
         }
 
-        protected override bool RefreshChildren(SortedChildren localChildren, List<SeriesBookLink> remoteChildren, Author remoteData, bool forceChildRefresh, bool forceUpdateFileTags, DateTime? lastUpdate)
+        protected override bool RefreshChildren(SortedChildren localChildren, List<SeriesIssueLink> remoteChildren, Volume remoteData, bool forceChildRefresh, bool forceUpdateFileTags, DateTime? lastUpdate)
         {
-            return _refreshLinkService.RefreshSeriesBookLinkInfo(localChildren.Added, localChildren.Updated, localChildren.Merged, localChildren.Deleted, localChildren.UpToDate, remoteChildren, forceUpdateFileTags);
+            return _refreshLinkService.RefreshSeriesIssueLinkInfo(localChildren.Added, localChildren.Updated, localChildren.Merged, localChildren.Deleted, localChildren.UpToDate, remoteChildren, forceUpdateFileTags);
         }
 
-        public bool RefreshSeriesInfo(int authorMetadataId, List<Series> remoteSeries, Author remoteData, bool forceBookRefresh, bool forceUpdateFileTags, DateTime? lastUpdate)
+        public bool RefreshSeriesInfo(int volumeMetadataId, List<Series> remoteSeries, Volume remoteData, bool forceIssueRefresh, bool forceUpdateFileTags, DateTime? lastUpdate)
         {
             var updated = false;
 
-            var existingByAuthor = _seriesService.GetByAuthorMetadataId(authorMetadataId);
+            var existingByVolume = _seriesService.GetByVolumeMetadataId(volumeMetadataId);
             var existingBySeries = _seriesService.FindById(remoteSeries.Select(x => x.ForeignSeriesId).ToList());
-            var existing = existingByAuthor.Concat(existingBySeries).GroupBy(x => x.ForeignSeriesId).Select(x => x.First()).ToList();
+            var existing = existingByVolume.Concat(existingBySeries).GroupBy(x => x.ForeignSeriesId).Select(x => x.First()).ToList();
 
-            var books = _bookService.GetBooksByAuthorMetadataId(authorMetadataId);
-            var bookDict = books.ToDictionary(x => x.ForeignBookId);
-            var links = new List<SeriesBookLink>();
+            var issues = _issueService.GetIssuesByVolumeMetadataId(volumeMetadataId);
+            var issueDict = issues.ToDictionary(x => x.ForeignIssueId);
+            var links = new List<SeriesIssueLink>();
 
             foreach (var s in remoteData.Series.Value)
             {
                 s.LinkItems.Value.ForEach(x => x.Series = s);
-                links.AddRange(s.LinkItems.Value.Where(x => bookDict.ContainsKey(x.Book.Value.ForeignBookId)));
+                links.AddRange(s.LinkItems.Value.Where(x => issueDict.ContainsKey(x.Issue.Value.ForeignIssueId)));
             }
 
             var grouped = links.GroupBy(x => x.Series.Value);
 
-            // Put in the links that go with the books we actually have
+            // Put in the links that go with the issues we actually have
             foreach (var group in grouped)
             {
                 group.Key.LinkItems = group.ToList();
@@ -162,7 +162,7 @@ namespace NzbDrone.Core.Books
 
             foreach (var item in all)
             {
-                item.ForeignAuthorId = remoteData.ForeignAuthorId;
+                item.ForeignVolumeId = remoteData.ForeignVolumeId;
                 updated |= RefreshEntityInfo(item, remoteSeries, remoteData, true, forceUpdateFileTags, null);
             }
 

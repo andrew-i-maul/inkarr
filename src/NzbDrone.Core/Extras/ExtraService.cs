@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using NLog;
 using NzbDrone.Common.Disk;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Configuration;
 using NzbDrone.Core.Extras.Files;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaCover;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.MediaFiles.Events;
@@ -17,13 +17,13 @@ namespace NzbDrone.Core.Extras
 {
     public interface IExtraService
     {
-        void ImportTrack(LocalBook localBook, BookFile bookFile, bool isReadOnly);
+        void ImportTrack(LocalIssue localIssue, IssueFile issueFile, bool isReadOnly);
     }
 
     public class ExtraService : IExtraService,
                                 IHandle<MediaCoversUpdatedEvent>,
                                 IHandle<TrackFolderCreatedEvent>,
-                                IHandle<AuthorRenamedEvent>
+                                IHandle<VolumeRenamedEvent>
     {
         private readonly IMediaFileService _mediaFileService;
         private readonly IEditionService _editionService;
@@ -47,21 +47,21 @@ namespace NzbDrone.Core.Extras
             _logger = logger;
         }
 
-        public void ImportTrack(LocalBook localBook, BookFile bookFile, bool isReadOnly)
+        public void ImportTrack(LocalIssue localIssue, IssueFile issueFile, bool isReadOnly)
         {
-            ImportExtraFiles(localBook, bookFile, isReadOnly);
+            ImportExtraFiles(localIssue, issueFile, isReadOnly);
 
-            CreateAfterImport(localBook.Author, bookFile);
+            CreateAfterImport(localIssue.Volume, issueFile);
         }
 
-        public void ImportExtraFiles(LocalBook localBook, BookFile bookFile, bool isReadOnly)
+        public void ImportExtraFiles(LocalIssue localIssue, IssueFile issueFile, bool isReadOnly)
         {
             if (!_configService.ImportExtraFiles)
             {
                 return;
             }
 
-            var sourcePath = localBook.Path;
+            var sourcePath = localIssue.Path;
             var sourceFolder = _diskProvider.GetParentFolder(sourcePath);
             var sourceFileName = Path.GetFileNameWithoutExtension(sourcePath);
             var files = _diskProvider.GetFiles(sourceFolder, false);
@@ -104,7 +104,7 @@ namespace NzbDrone.Core.Extras
                     foreach (var extraFileManager in _extraFileManagers)
                     {
                         var extension = Path.GetExtension(matchingFilename);
-                        var extraFile = extraFileManager.Import(localBook.Author, bookFile, matchingFilename, extension, isReadOnly);
+                        var extraFile = extraFileManager.Import(localIssue.Volume, issueFile, matchingFilename, extension, isReadOnly);
 
                         if (extraFile != null)
                         {
@@ -119,51 +119,51 @@ namespace NzbDrone.Core.Extras
             }
         }
 
-        private void CreateAfterImport(Author author, BookFile bookFile)
+        private void CreateAfterImport(Volume volume, IssueFile issueFile)
         {
             foreach (var extraFileManager in _extraFileManagers)
             {
-                extraFileManager.CreateAfterBookImport(author, bookFile);
+                extraFileManager.CreateAfterIssueImport(volume, issueFile);
             }
         }
 
         public void Handle(MediaCoversUpdatedEvent message)
         {
-            var author = message.Author;
+            var volume = message.Volume;
 
-            var bookFiles = GetBookFiles(author.Id);
+            var issueFiles = GetIssueFiles(volume.Id);
 
             foreach (var extraFileManager in _extraFileManagers)
             {
-                extraFileManager.CreateAfterAuthorScan(author, bookFiles);
+                extraFileManager.CreateAfterVolumeScan(volume, issueFiles);
             }
         }
 
         public void Handle(TrackFolderCreatedEvent message)
         {
-            var author = message.Author;
-            var edition = _editionService.GetEdition(message.BookFile.EditionId);
+            var volume = message.Volume;
+            var edition = _editionService.GetEdition(message.IssueFile.EditionId);
 
             foreach (var extraFileManager in _extraFileManagers)
             {
-                extraFileManager.CreateAfterBookImport(author, edition.Book.Value, message.AuthorFolder, message.BookFolder);
+                extraFileManager.CreateAfterIssueImport(volume, edition.Issue.Value, message.VolumeFolder, message.IssueFolder);
             }
         }
 
-        public void Handle(AuthorRenamedEvent message)
+        public void Handle(VolumeRenamedEvent message)
         {
-            var author = message.Author;
-            var bookFiles = GetBookFiles(author.Id);
+            var volume = message.Volume;
+            var issueFiles = GetIssueFiles(volume.Id);
 
             foreach (var extraFileManager in _extraFileManagers)
             {
-                extraFileManager.MoveFilesAfterRename(author, bookFiles);
+                extraFileManager.MoveFilesAfterRename(volume, issueFiles);
             }
         }
 
-        private List<BookFile> GetBookFiles(int authorId)
+        private List<IssueFile> GetIssueFiles(int volumeId)
         {
-            return _mediaFileService.GetFilesByAuthor(authorId);
+            return _mediaFileService.GetFilesByVolume(volumeId);
         }
     }
 }

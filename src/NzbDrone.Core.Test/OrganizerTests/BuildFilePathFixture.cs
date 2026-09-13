@@ -1,7 +1,7 @@
 using FizzWare.NBuilder;
 using FluentAssertions;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Organizer;
 using NzbDrone.Core.Test.Framework;
 using NzbDrone.Test.Common;
@@ -9,7 +9,7 @@ using NzbDrone.Test.Common;
 namespace NzbDrone.Core.Test.OrganizerTests
 {
     [TestFixture]
-    [Ignore("Don't use book folder in inkarr")]
+    [Ignore("Don't use issue folder in inkarr")]
     public class BuildFilePathFixture : CoreTest<FileNameBuilder>
     {
         private NamingConfig _namingConfig;
@@ -24,27 +24,27 @@ namespace NzbDrone.Core.Test.OrganizerTests
         }
 
         [Test]
-        public void should_clean_book_folder_when_it_contains_illegal_characters_in_book_or_author_title()
+        public void should_clean_issue_folder_when_it_contains_illegal_characters_in_issue_or_volume_title()
         {
-            var filename = @"bookfile";
-            var expectedPath = @"C:\Test\Fake- The Author\Fake- The Book\bookfile.mobi";
+            var filename = @"issuefile";
+            var expectedPath = @"C:\Test\Fake- The Volume\Fake- The Issue\issuefile.mobi";
 
-            var fakeAuthor = Builder<Author>.CreateNew()
-                .With(s => s.Name = "Fake: The Author")
-                .With(s => s.Path = @"C:\Test\Fake- The Author".AsOsAgnostic())
+            var fakeVolume = Builder<Volume>.CreateNew()
+                .With(s => s.Name = "Fake: The Volume")
+                .With(s => s.Path = @"C:\Test\Fake- The Volume".AsOsAgnostic())
                 .Build();
 
-            var fakeBook = Builder<Book>.CreateNew()
-                .With(s => s.Title = "Fake: Book")
+            var fakeIssue = Builder<Issue>.CreateNew()
+                .With(s => s.Title = "Fake: Issue")
                 .Build();
 
             var fakeEdition = Builder<Edition>
                 .CreateNew()
-                .With(s => s.Title = fakeBook.Title)
-                .With(s => s.Book = fakeBook)
+                .With(s => s.Title = fakeIssue.Title)
+                .With(s => s.Issue = fakeIssue)
                 .Build();
 
-            Subject.BuildBookFilePath(fakeAuthor, fakeEdition, filename, ".mobi").Should().Be(expectedPath.AsOsAgnostic());
+            Subject.BuildIssueFilePath(fakeVolume, fakeEdition, filename, ".mobi").Should().Be(expectedPath.AsOsAgnostic());
         }
     }
 }

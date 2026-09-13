@@ -1,5 +1,5 @@
-using Inkarr.Api.V1.Author;
-using Inkarr.Api.V1.Books;
+using Inkarr.Api.V1.Issues;
+using Inkarr.Api.V1.Volume;
 using Inkarr.Http.REST;
 
 namespace Inkarr.Api.V1.Search
@@ -7,7 +7,7 @@ namespace Inkarr.Api.V1.Search
     public class SearchResource : RestResource
     {
         public string ForeignId { get; set; }
-        public AuthorResource Author { get; set; }
-        public BookResource Book { get; set; }
+        public VolumeResource Volume { get; set; }
+        public IssueResource Issue { get; set; }
     }
 }

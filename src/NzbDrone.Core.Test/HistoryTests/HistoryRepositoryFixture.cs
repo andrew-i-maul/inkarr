@@ -30,13 +30,13 @@ namespace NzbDrone.Core.Test.HistoryTests
         {
             var historyBluray = Builder<EntityHistory>.CreateNew()
                 .With(c => c.Quality = new QualityModel(Quality.MP3))
-                .With(c => c.AuthorId = 12)
+                .With(c => c.VolumeId = 12)
                 .With(c => c.EventType = EntityHistoryEventType.Grabbed)
                 .BuildNew();
 
             var historyDvd = Builder<EntityHistory>.CreateNew()
                 .With(c => c.Quality = new QualityModel(Quality.AZW3))
-                .With(c => c.AuthorId = 12)
+                .With(c => c.VolumeId = 12)
                 .With(c => c.EventType = EntityHistoryEventType.Grabbed)
              .BuildNew();
 

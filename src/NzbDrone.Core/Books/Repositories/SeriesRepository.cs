@@ -3,14 +3,14 @@ using System.Linq;
 using NzbDrone.Core.Datastore;
 using NzbDrone.Core.Messaging.Events;
 
-namespace NzbDrone.Core.Books
+namespace NzbDrone.Core.Issues
 {
     public interface ISeriesRepository : IBasicRepository<Series>
     {
         Series FindById(string foreignSeriesId);
         List<Series> FindById(List<string> foreignSeriesId);
-        List<Series> GetByAuthorMetadataId(int authorMetadataId);
-        List<Series> GetByAuthorId(int authorId);
+        List<Series> GetByVolumeMetadataId(int volumeMetadataId);
+        List<Series> GetByVolumeId(int volumeId);
     }
 
     public class SeriesRepository : BasicRepository<Series>, ISeriesRepository
@@ -30,19 +30,19 @@ namespace NzbDrone.Core.Books
             return Query(x => foreignSeriesId.Contains(x.ForeignSeriesId));
         }
 
-        public List<Series> GetByAuthorMetadataId(int authorMetadataId)
+        public List<Series> GetByVolumeMetadataId(int volumeMetadataId)
         {
-            return QueryDistinct(Builder().Join<Series, SeriesBookLink>((l, r) => l.Id == r.SeriesId)
-                                 .Join<SeriesBookLink, Book>((l, r) => l.BookId == r.Id)
-                                 .Where<Book>(x => x.AuthorMetadataId == authorMetadataId));
+            return QueryDistinct(Builder().Join<Series, SeriesIssueLink>((l, r) => l.Id == r.SeriesId)
+                                 .Join<SeriesIssueLink, Issue>((l, r) => l.IssueId == r.Id)
+                                 .Where<Issue>(x => x.VolumeMetadataId == volumeMetadataId));
         }
 
-        public List<Series> GetByAuthorId(int authorId)
+        public List<Series> GetByVolumeId(int volumeId)
         {
-            return QueryDistinct(Builder().Join<Series, SeriesBookLink>((l, r) => l.Id == r.SeriesId)
-                                 .Join<SeriesBookLink, Book>((l, r) => l.BookId == r.Id)
-                                 .Join<Book, Author>((l, r) => l.AuthorMetadataId == r.AuthorMetadataId)
-                                 .Where<Author>(x => x.Id == authorId));
+            return QueryDistinct(Builder().Join<Series, SeriesIssueLink>((l, r) => l.Id == r.SeriesId)
+                                 .Join<SeriesIssueLink, Issue>((l, r) => l.IssueId == r.Id)
+                                 .Join<Issue, Volume>((l, r) => l.VolumeMetadataId == r.VolumeMetadataId)
+                                 .Where<Volume>(x => x.Id == volumeId));
         }
     }
 }

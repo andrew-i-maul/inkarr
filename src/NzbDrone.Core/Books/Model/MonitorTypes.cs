@@ -1,4 +1,4 @@
-namespace NzbDrone.Core.Books
+namespace NzbDrone.Core.Issues
 {
     public enum MonitorTypes
     {

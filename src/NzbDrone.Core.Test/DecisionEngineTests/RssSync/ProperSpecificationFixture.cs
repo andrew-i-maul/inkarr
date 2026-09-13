@@ -4,11 +4,11 @@ using FizzWare.NBuilder;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Configuration;
 using NzbDrone.Core.DecisionEngine.Specifications;
 using NzbDrone.Core.DecisionEngine.Specifications.RssSync;
 using NzbDrone.Core.IndexerSearch.Definitions;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Profiles.Qualities;
@@ -21,42 +21,42 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
 
     public class ProperSpecificationFixture : CoreTest<ProperSpecification>
     {
-        private RemoteBook _parseResultMulti;
-        private RemoteBook _parseResultSingle;
-        private BookFile _firstFile;
-        private BookFile _secondFile;
+        private RemoteIssue _parseResultMulti;
+        private RemoteIssue _parseResultSingle;
+        private IssueFile _firstFile;
+        private IssueFile _secondFile;
 
         [SetUp]
         public void Setup()
         {
             Mocker.Resolve<UpgradableSpecification>();
 
-            _firstFile = new BookFile { Quality = new QualityModel(Quality.FLAC, new Revision(version: 1)), DateAdded = DateTime.Now };
-            _secondFile = new BookFile { Quality = new QualityModel(Quality.FLAC, new Revision(version: 1)), DateAdded = DateTime.Now };
+            _firstFile = new IssueFile { Quality = new QualityModel(Quality.FLAC, new Revision(version: 1)), DateAdded = DateTime.Now };
+            _secondFile = new IssueFile { Quality = new QualityModel(Quality.FLAC, new Revision(version: 1)), DateAdded = DateTime.Now };
 
-            var singleBookList = new List<Book> { new Book { }, new Book { } };
-            var doubleBookList = new List<Book> { new Book { }, new Book { }, new Book { } };
+            var singleIssueList = new List<Issue> { new Issue { }, new Issue { } };
+            var doubleIssueList = new List<Issue> { new Issue { }, new Issue { }, new Issue { } };
 
-            var fakeAuthor = Builder<Author>.CreateNew()
+            var fakeVolume = Builder<Volume>.CreateNew()
                          .With(c => c.QualityProfile = new QualityProfile { Cutoff = Quality.FLAC.Id })
                          .Build();
 
             Mocker.GetMock<IMediaFileService>()
-                .Setup(c => c.GetFilesByBook(It.IsAny<int>()))
-                .Returns(new List<BookFile> { _firstFile, _secondFile });
+                .Setup(c => c.GetFilesByIssue(It.IsAny<int>()))
+                .Returns(new List<IssueFile> { _firstFile, _secondFile });
 
-            _parseResultMulti = new RemoteBook
+            _parseResultMulti = new RemoteIssue
             {
-                Author = fakeAuthor,
-                ParsedBookInfo = new ParsedBookInfo { Quality = new QualityModel(Quality.MOBI, new Revision(version: 2)) },
-                Books = doubleBookList
+                Volume = fakeVolume,
+                ParsedIssueInfo = new ParsedIssueInfo { Quality = new QualityModel(Quality.MOBI, new Revision(version: 2)) },
+                Issues = doubleIssueList
             };
 
-            _parseResultSingle = new RemoteBook
+            _parseResultSingle = new RemoteIssue
             {
-                Author = fakeAuthor,
-                ParsedBookInfo = new ParsedBookInfo { Quality = new QualityModel(Quality.MOBI, new Revision(version: 2)) },
-                Books = singleBookList
+                Volume = fakeVolume,
+                ParsedIssueInfo = new ParsedIssueInfo { Quality = new QualityModel(Quality.MOBI, new Revision(version: 2)) },
+                Issues = singleIssueList
             };
         }
 
@@ -109,7 +109,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
             WithFirstFileUpgradable();
 
             _firstFile.DateAdded = DateTime.Today.AddDays(-30);
-            Subject.IsSatisfiedBy(_parseResultSingle, new BookSearchCriteria()).Accepted.Should().BeTrue();
+            Subject.IsSatisfiedBy(_parseResultSingle, new IssueSearchCriteria()).Accepted.Should().BeTrue();
         }
 
         [Test]

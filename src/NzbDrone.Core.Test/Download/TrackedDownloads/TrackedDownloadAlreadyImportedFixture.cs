@@ -2,10 +2,10 @@ using System.Collections.Generic;
 using FizzWare.NBuilder;
 using FluentAssertions;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Download;
 using NzbDrone.Core.Download.TrackedDownloads;
 using NzbDrone.Core.History;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Test.Framework;
 
@@ -14,23 +14,23 @@ namespace NzbDrone.Core.Test.Download.TrackedDownloads
     [TestFixture]
     public class TrackedDownloadAlreadyImportedFixture : CoreTest<TrackedDownloadAlreadyImported>
     {
-        private List<Book> _books;
+        private List<Issue> _issues;
         private TrackedDownload _trackedDownload;
         private List<EntityHistory> _historyItems;
 
         [SetUp]
         public void Setup()
         {
-            _books = new List<Book>();
+            _issues = new List<Issue>();
 
-            var remoteBook = Builder<RemoteBook>.CreateNew()
-                                                      .With(r => r.Books = _books)
+            var remoteIssue = Builder<RemoteIssue>.CreateNew()
+                                                      .With(r => r.Issues = _issues)
                                                       .Build();
 
             var downloadItem = Builder<DownloadClientItem>.CreateNew().Build();
 
             _trackedDownload = Builder<TrackedDownload>.CreateNew()
-                                                       .With(t => t.RemoteBook = remoteBook)
+                                                       .With(t => t.RemoteIssue = remoteIssue)
                                                        .With(t => t.DownloadItem = downloadItem)
                                                        .Build();
 
@@ -39,17 +39,17 @@ namespace NzbDrone.Core.Test.Download.TrackedDownloads
 
         public void GivenEpisodes(int count)
         {
-            _books.AddRange(Builder<Book>.CreateListOfSize(count)
+            _issues.AddRange(Builder<Issue>.CreateListOfSize(count)
                                                .BuildList());
         }
 
-        public void GivenHistoryForEpisode(Book episode, params EntityHistoryEventType[] eventTypes)
+        public void GivenHistoryForEpisode(Issue episode, params EntityHistoryEventType[] eventTypes)
         {
             foreach (var eventType in eventTypes)
             {
                 _historyItems.Add(
                     Builder<EntityHistory>.CreateNew()
-                                            .With(h => h.BookId = episode.Id)
+                                            .With(h => h.IssueId = episode.Id)
                                             .With(h => h.EventType = eventType)
                                             .Build());
             }
@@ -70,7 +70,7 @@ namespace NzbDrone.Core.Test.Download.TrackedDownloads
         {
             GivenEpisodes(1);
 
-            GivenHistoryForEpisode(_books[0], EntityHistoryEventType.Grabbed);
+            GivenHistoryForEpisode(_issues[0], EntityHistoryEventType.Grabbed);
 
             Subject.IsImported(_trackedDownload, _historyItems)
                    .Should()
@@ -82,8 +82,8 @@ namespace NzbDrone.Core.Test.Download.TrackedDownloads
         {
             GivenEpisodes(2);
 
-            GivenHistoryForEpisode(_books[0], EntityHistoryEventType.Grabbed);
-            GivenHistoryForEpisode(_books[1], EntityHistoryEventType.Grabbed);
+            GivenHistoryForEpisode(_issues[0], EntityHistoryEventType.Grabbed);
+            GivenHistoryForEpisode(_issues[1], EntityHistoryEventType.Grabbed);
 
             Subject.IsImported(_trackedDownload, _historyItems)
                    .Should()
@@ -95,8 +95,8 @@ namespace NzbDrone.Core.Test.Download.TrackedDownloads
         {
             GivenEpisodes(2);
 
-            GivenHistoryForEpisode(_books[0], EntityHistoryEventType.BookFileImported, EntityHistoryEventType.Grabbed);
-            GivenHistoryForEpisode(_books[1], EntityHistoryEventType.Grabbed);
+            GivenHistoryForEpisode(_issues[0], EntityHistoryEventType.IssueFileImported, EntityHistoryEventType.Grabbed);
+            GivenHistoryForEpisode(_issues[1], EntityHistoryEventType.Grabbed);
 
             Subject.IsImported(_trackedDownload, _historyItems)
                    .Should()
@@ -108,7 +108,7 @@ namespace NzbDrone.Core.Test.Download.TrackedDownloads
         {
             GivenEpisodes(1);
 
-            GivenHistoryForEpisode(_books[0], EntityHistoryEventType.BookFileImported, EntityHistoryEventType.Grabbed);
+            GivenHistoryForEpisode(_issues[0], EntityHistoryEventType.IssueFileImported, EntityHistoryEventType.Grabbed);
 
             Subject.IsImported(_trackedDownload, _historyItems)
                    .Should()
@@ -120,8 +120,8 @@ namespace NzbDrone.Core.Test.Download.TrackedDownloads
         {
             GivenEpisodes(2);
 
-            GivenHistoryForEpisode(_books[0], EntityHistoryEventType.BookFileImported, EntityHistoryEventType.Grabbed);
-            GivenHistoryForEpisode(_books[1], EntityHistoryEventType.BookFileImported, EntityHistoryEventType.Grabbed);
+            GivenHistoryForEpisode(_issues[0], EntityHistoryEventType.IssueFileImported, EntityHistoryEventType.Grabbed);
+            GivenHistoryForEpisode(_issues[1], EntityHistoryEventType.IssueFileImported, EntityHistoryEventType.Grabbed);
 
             Subject.IsImported(_trackedDownload, _historyItems)
                    .Should()

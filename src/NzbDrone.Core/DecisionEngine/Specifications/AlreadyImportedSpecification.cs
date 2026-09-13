@@ -31,7 +31,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
         public SpecificationPriority Priority => SpecificationPriority.Database;
         public RejectionType Type => RejectionType.Permanent;
 
-        public Decision IsSatisfiedBy(RemoteBook subject, SearchCriteriaBase searchCriteria)
+        public Decision IsSatisfiedBy(RemoteIssue subject, SearchCriteriaBase searchCriteria)
         {
             var cdhEnabled = _configService.EnableCompletedDownloadHandling;
 
@@ -42,26 +42,26 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
             }
 
             _logger.Debug("Performing already imported check on report");
-            foreach (var book in subject.Books)
+            foreach (var issue in subject.Issues)
             {
-                var bookFiles = _mediaFileService.GetFilesByBook(book.Id);
+                var issueFiles = _mediaFileService.GetFilesByIssue(issue.Id);
 
-                if (bookFiles.Count() == 0)
+                if (issueFiles.Count() == 0)
                 {
-                    _logger.Debug("Skipping already imported check for book without files");
+                    _logger.Debug("Skipping already imported check for issue without files");
                     continue;
                 }
 
-                var historyForBook = _historyService.GetByBook(book.Id, null);
-                var lastGrabbed = historyForBook.FirstOrDefault(h => h.EventType == EntityHistoryEventType.Grabbed);
+                var historyForIssue = _historyService.GetByIssue(issue.Id, null);
+                var lastGrabbed = historyForIssue.FirstOrDefault(h => h.EventType == EntityHistoryEventType.Grabbed);
 
                 if (lastGrabbed == null)
                 {
                     continue;
                 }
 
-                var imported = historyForBook.FirstOrDefault(h =>
-                    h.EventType == EntityHistoryEventType.BookFileImported &&
+                var imported = historyForIssue.FirstOrDefault(h =>
+                    h.EventType == EntityHistoryEventType.IssueFileImported &&
                     h.DownloadId == lastGrabbed.DownloadId);
 
                 if (imported == null)

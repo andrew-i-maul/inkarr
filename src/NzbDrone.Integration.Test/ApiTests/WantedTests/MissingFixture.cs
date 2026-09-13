@@ -2,7 +2,7 @@ using System.Linq;
 using FluentAssertions;
 using Inkarr.Api.V1.RootFolders;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 
 namespace NzbDrone.Integration.Test.ApiTests.WantedTests
 {
@@ -17,7 +17,7 @@ namespace NzbDrone.Integration.Test.ApiTests.WantedTests
             RootFolders.Post(new RootFolderResource
             {
                 Name = "TestLibrary",
-                Path = AuthorRootFolder,
+                Path = VolumeRootFolder,
                 DefaultMetadataProfileId = 1,
                 DefaultQualityProfileId = 1,
                 DefaultMonitorOption = MonitorTypes.All
@@ -28,7 +28,7 @@ namespace NzbDrone.Integration.Test.ApiTests.WantedTests
         [Order(0)]
         public void missing_should_be_empty()
         {
-            EnsureNoAuthor("14586394", "Andrew Hunter Murray");
+            EnsureNoVolume("14586394", "Andrew Hunter Murray");
 
             var result = WantedMissing.GetPaged(0, 15, "releaseDate", "desc");
 
@@ -39,7 +39,7 @@ namespace NzbDrone.Integration.Test.ApiTests.WantedTests
         [Order(1)]
         public void missing_should_have_monitored_items()
         {
-            EnsureAuthor("14586394", "43765115", "Andrew Hunter Murray", true);
+            EnsureVolume("14586394", "43765115", "Andrew Hunter Murray", true);
 
             var result = WantedMissing.GetPaged(0, 15, "releaseDate", "desc");
 
@@ -48,32 +48,32 @@ namespace NzbDrone.Integration.Test.ApiTests.WantedTests
 
         [Test]
         [Order(1)]
-        public void missing_should_have_author()
+        public void missing_should_have_volume()
         {
-            EnsureAuthor("14586394", "43765115", "Andrew Hunter Murray", true);
+            EnsureVolume("14586394", "43765115", "Andrew Hunter Murray", true);
 
-            var result = WantedMissing.GetPagedIncludeAuthor(0, 15, "releaseDate", "desc", includeAuthor: true);
+            var result = WantedMissing.GetPagedIncludeVolume(0, 15, "releaseDate", "desc", includeVolume: true);
 
-            result.Records.First().Author.Should().NotBeNull();
-            result.Records.First().Author.AuthorName.Should().Be("Andrew Hunter Murray");
+            result.Records.First().Volume.Should().NotBeNull();
+            result.Records.First().Volume.VolumeName.Should().Be("Andrew Hunter Murray");
         }
 
         [Test]
         [Order(1)]
-        public void missing_should_not_have_author()
+        public void missing_should_not_have_volume()
         {
-            EnsureAuthor("14586394", "43765115", "Andrew Hunter Murray", true);
+            EnsureVolume("14586394", "43765115", "Andrew Hunter Murray", true);
 
-            var result = WantedMissing.GetPagedIncludeAuthor(0, 15, "releaseDate", "desc", includeAuthor: false);
+            var result = WantedMissing.GetPagedIncludeVolume(0, 15, "releaseDate", "desc", includeVolume: false);
 
-            result.Records.First().Author.Should().BeNull();
+            result.Records.First().Volume.Should().BeNull();
         }
 
         [Test]
         [Order(1)]
         public void missing_should_not_have_unmonitored_items()
         {
-            EnsureAuthor("14586394", "43765115", "Andrew Hunter Murray", false);
+            EnsureVolume("14586394", "43765115", "Andrew Hunter Murray", false);
 
             var result = WantedMissing.GetPaged(0, 15, "releaseDate", "desc");
 
@@ -84,7 +84,7 @@ namespace NzbDrone.Integration.Test.ApiTests.WantedTests
         [Order(2)]
         public void missing_should_have_unmonitored_items()
         {
-            EnsureAuthor("14586394", "43765115", "Andrew Hunter Murray", false);
+            EnsureVolume("14586394", "43765115", "Andrew Hunter Murray", false);
 
             var result = WantedMissing.GetPaged(0, 15, "releaseDate", "desc", "monitored", false);
 

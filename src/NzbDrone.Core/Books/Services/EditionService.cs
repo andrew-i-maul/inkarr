@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books.Events;
+using NzbDrone.Core.Issues.Events;
 using NzbDrone.Core.Messaging.Events;
 using NzbDrone.Core.Parser;
 
-namespace NzbDrone.Core.Books
+namespace NzbDrone.Core.Issues
 {
     public interface IEditionService
     {
@@ -16,18 +16,18 @@ namespace NzbDrone.Core.Books
         void InsertMany(List<Edition> editions);
         void UpdateMany(List<Edition> editions);
         void DeleteMany(List<Edition> editions);
-        List<Edition> GetEditionsForRefresh(int bookId, List<string> foreignEditionIds);
-        List<Edition> GetEditionsByBook(int bookId);
-        List<Edition> GetEditionsByBook(IEnumerable<int> bookIds);
-        List<Edition> GetEditionsByAuthor(int authorId);
-        Edition FindByTitle(int authorMetadataId, string title);
-        Edition FindByTitleInexact(int authorMetadataId, string title);
-        List<Edition> GetCandidates(int authorMetadataId, string title);
+        List<Edition> GetEditionsForRefresh(int issueId, List<string> foreignEditionIds);
+        List<Edition> GetEditionsByIssue(int issueId);
+        List<Edition> GetEditionsByIssue(IEnumerable<int> issueIds);
+        List<Edition> GetEditionsByVolume(int volumeId);
+        Edition FindByTitle(int volumeMetadataId, string title);
+        Edition FindByTitleInexact(int volumeMetadataId, string title);
+        List<Edition> GetCandidates(int volumeMetadataId, string title);
         List<Edition> SetMonitored(Edition edition);
     }
 
     public class EditionService : IEditionService,
-        IHandle<BookDeletedEvent>
+        IHandle<IssueDeletedEvent>
     {
         private readonly IEditionRepository _editionRepository;
         private readonly IEventAggregator _eventAggregator;
@@ -73,38 +73,38 @@ namespace NzbDrone.Core.Books
             }
         }
 
-        public List<Edition> GetEditionsForRefresh(int bookId, List<string> foreignEditionIds)
+        public List<Edition> GetEditionsForRefresh(int issueId, List<string> foreignEditionIds)
         {
-            return _editionRepository.GetEditionsForRefresh(bookId, foreignEditionIds);
+            return _editionRepository.GetEditionsForRefresh(issueId, foreignEditionIds);
         }
 
-        public List<Edition> GetEditionsByBook(int bookId)
+        public List<Edition> GetEditionsByIssue(int issueId)
         {
-            return _editionRepository.FindByBook(new[] { bookId });
+            return _editionRepository.FindByIssue(new[] { issueId });
         }
 
-        public List<Edition> GetEditionsByBook(IEnumerable<int> bookIds)
+        public List<Edition> GetEditionsByIssue(IEnumerable<int> issueIds)
         {
-            return _editionRepository.FindByBook(bookIds);
+            return _editionRepository.FindByIssue(issueIds);
         }
 
-        public List<Edition> GetEditionsByAuthor(int authorId)
+        public List<Edition> GetEditionsByVolume(int volumeId)
         {
-            return _editionRepository.FindByAuthor(authorId);
+            return _editionRepository.FindByVolume(volumeId);
         }
 
-        public Edition FindByTitle(int authorMetadataId, string title)
+        public Edition FindByTitle(int volumeMetadataId, string title)
         {
-            return _editionRepository.FindByTitle(authorMetadataId, title);
+            return _editionRepository.FindByTitle(volumeMetadataId, title);
         }
 
-        public Edition FindByTitleInexact(int authorMetadataId, string title)
+        public Edition FindByTitleInexact(int volumeMetadataId, string title)
         {
-            var books = _editionRepository.FindByAuthorMetadataId(authorMetadataId, true);
+            var issues = _editionRepository.FindByVolumeMetadataId(volumeMetadataId, true);
 
             foreach (var func in EditionScoringFunctions(title))
             {
-                var results = FindByStringInexact(books, func.Item1, func.Item2);
+                var results = FindByStringInexact(issues, func.Item1, func.Item2);
                 if (results.Count == 1)
                 {
                     return results[0];
@@ -114,14 +114,14 @@ namespace NzbDrone.Core.Books
             return null;
         }
 
-        public List<Edition> GetCandidates(int authorMetadataId, string title)
+        public List<Edition> GetCandidates(int volumeMetadataId, string title)
         {
-            var books = _editionRepository.FindByAuthorMetadataId(authorMetadataId, true);
+            var issues = _editionRepository.FindByVolumeMetadataId(volumeMetadataId, true);
             var output = new List<Edition>();
 
             foreach (var func in EditionScoringFunctions(title))
             {
-                output.AddRange(FindByStringInexact(books, func.Item1, func.Item2));
+                output.AddRange(FindByStringInexact(issues, func.Item1, func.Item2));
             }
 
             return output.DistinctBy(x => x.Id).ToList();
@@ -132,9 +132,9 @@ namespace NzbDrone.Core.Books
             return _editionRepository.SetMonitored(edition);
         }
 
-        public void Handle(BookDeletedEvent message)
+        public void Handle(IssueDeletedEvent message)
         {
-            var editions = GetEditionsByBook(message.Book.Id);
+            var editions = GetEditionsByIssue(message.Issue.Id);
             DeleteMany(editions);
         }
 
@@ -144,9 +144,9 @@ namespace NzbDrone.Core.Books
             var scoringFunctions = new List<Tuple<Func<Edition, string, double>, string>>
             {
                 tc((a, t) => a.Title.FuzzyMatch(t), title),
-                tc((a, t) => a.Title.FuzzyMatch(t), title.RemoveBracketsAndContents().CleanAuthorName()),
-                tc((a, t) => a.Title.FuzzyMatch(t), title.RemoveAfterDash().CleanAuthorName()),
-                tc((a, t) => a.Title.FuzzyMatch(t), title.RemoveBracketsAndContents().RemoveAfterDash().CleanAuthorName()),
+                tc((a, t) => a.Title.FuzzyMatch(t), title.RemoveBracketsAndContents().CleanVolumeName()),
+                tc((a, t) => a.Title.FuzzyMatch(t), title.RemoveAfterDash().CleanVolumeName()),
+                tc((a, t) => a.Title.FuzzyMatch(t), title.RemoveBracketsAndContents().RemoveAfterDash().CleanVolumeName()),
                 tc((a, t) => t.FuzzyContains(a.Title), title)
             };
 

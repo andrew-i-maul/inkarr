@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Inkarr.Api.V1.Author;
 using Inkarr.Api.V1.Blocklist;
 using Inkarr.Api.V1.Config;
 using Inkarr.Api.V1.DownloadClient;
@@ -13,13 +12,14 @@ using Inkarr.Api.V1.Profiles.Quality;
 using Inkarr.Api.V1.RootFolders;
 using Inkarr.Api.V1.System.Tasks;
 using Inkarr.Api.V1.Tags;
+using Inkarr.Api.V1.Volume;
 using Microsoft.AspNetCore.SignalR.Client;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
 using NUnit.Framework;
 using NzbDrone.Common.EnvironmentInfo;
-using NzbDrone.Core.MediaFiles.BookImport.Manual;
+using NzbDrone.Core.MediaFiles.IssueImport.Manual;
 using NzbDrone.Core.Qualities;
 using NzbDrone.Integration.Test.Client;
 using NzbDrone.SignalR;
@@ -39,7 +39,7 @@ namespace NzbDrone.Integration.Test
         public CommandClient Commands;
         public ClientBase<TaskResource> Tasks;
         public DownloadClientClient DownloadClients;
-        public BookClient Books;
+        public IssueClient Issues;
         public ClientBase<HistoryResource> History;
         public ClientBase<HostConfigResource> HostConfig;
         public IndexerClient Indexers;
@@ -50,7 +50,7 @@ namespace NzbDrone.Integration.Test
         public ReleaseClient Releases;
         public ReleasePushClient ReleasePush;
         public ClientBase<RootFolderResource> RootFolders;
-        public AuthorClient Author;
+        public VolumeClient Volume;
         public ClientBase<TagResource> Tags;
         public WantedClient WantedMissing;
         public WantedClient WantedCutoffUnmet;
@@ -73,7 +73,7 @@ namespace NzbDrone.Integration.Test
 
         public string TempDirectory { get; private set; }
 
-        public abstract string AuthorRootFolder { get; }
+        public abstract string VolumeRootFolder { get; }
 
         protected abstract string RootUrl { get; }
 
@@ -104,7 +104,7 @@ namespace NzbDrone.Integration.Test
             Commands = new CommandClient(RestClient, ApiKey);
             Tasks = new ClientBase<TaskResource>(RestClient, ApiKey, "system/task");
             DownloadClients = new DownloadClientClient(RestClient, ApiKey);
-            Books = new BookClient(RestClient, ApiKey);
+            Issues = new IssueClient(RestClient, ApiKey);
             History = new ClientBase<HistoryResource>(RestClient, ApiKey);
             HostConfig = new ClientBase<HostConfigResource>(RestClient, ApiKey, "config/host");
             Indexers = new IndexerClient(RestClient, ApiKey);
@@ -115,7 +115,7 @@ namespace NzbDrone.Integration.Test
             Releases = new ReleaseClient(RestClient, ApiKey);
             ReleasePush = new ReleasePushClient(RestClient, ApiKey);
             RootFolders = new ClientBase<RootFolderResource>(RestClient, ApiKey);
-            Author = new AuthorClient(RestClient, ApiKey);
+            Volume = new VolumeClient(RestClient, ApiKey);
             Tags = new ClientBase<TagResource>(RestClient, ApiKey);
             WantedMissing = new WantedClient(RestClient, ApiKey, "wanted/missing");
             WantedCutoffUnmet = new WantedClient(RestClient, ApiKey, "wanted/cutoff");
@@ -236,33 +236,33 @@ namespace NzbDrone.Integration.Test
             Assert.Fail("Timed on wait");
         }
 
-        public AuthorResource EnsureAuthor(string authorId, string goodreadsEditionId, string authorName, bool? monitored = null)
+        public VolumeResource EnsureVolume(string volumeId, string goodreadsEditionId, string volumeName, bool? monitored = null)
         {
-            var result = Author.All().FirstOrDefault(v => v.ForeignAuthorId == authorId);
+            var result = Volume.All().FirstOrDefault(v => v.ForeignVolumeId == volumeId);
 
             if (result == null)
             {
-                var lookup = Author.Lookup("edition:" + goodreadsEditionId);
-                var author = lookup.First();
-                author.QualityProfileId = 1;
-                author.MetadataProfileId = 1;
-                author.Path = Path.Combine(AuthorRootFolder, author.AuthorName);
-                author.Monitored = true;
-                author.AddOptions = new Core.Books.AddAuthorOptions();
-                Directory.CreateDirectory(author.Path);
+                var lookup = Volume.Lookup("edition:" + goodreadsEditionId);
+                var volume = lookup.First();
+                volume.QualityProfileId = 1;
+                volume.MetadataProfileId = 1;
+                volume.Path = Path.Combine(VolumeRootFolder, volume.VolumeName);
+                volume.Monitored = true;
+                volume.AddOptions = new Core.Issues.AddVolumeOptions();
+                Directory.CreateDirectory(volume.Path);
 
-                result = Author.Post(author);
+                result = Volume.Post(volume);
                 Commands.WaitAll();
-                WaitForCompletion(() => Books.GetBooksInAuthor(result.Id).Count > 0);
+                WaitForCompletion(() => Issues.GetIssuesInVolume(result.Id).Count > 0);
             }
 
             var changed = false;
 
-            if (result.RootFolderPath != AuthorRootFolder)
+            if (result.RootFolderPath != VolumeRootFolder)
             {
                 changed = true;
-                result.RootFolderPath = AuthorRootFolder;
-                result.Path = Path.Combine(AuthorRootFolder, result.AuthorName);
+                result.RootFolderPath = VolumeRootFolder;
+                result.Path = Path.Combine(VolumeRootFolder, result.VolumeName);
             }
 
             if (monitored.HasValue)
@@ -276,31 +276,31 @@ namespace NzbDrone.Integration.Test
 
             if (changed)
             {
-                result.NextBook = result.LastBook = null;
-                Author.Put(result);
+                result.NextIssue = result.LastIssue = null;
+                Volume.Put(result);
             }
 
             return result;
         }
 
-        public void EnsureNoAuthor(string inkarrId, string authorTitle)
+        public void EnsureNoVolume(string inkarrId, string volumeTitle)
         {
-            var result = Author.All().FirstOrDefault(v => v.ForeignAuthorId == inkarrId);
+            var result = Volume.All().FirstOrDefault(v => v.ForeignVolumeId == inkarrId);
 
             if (result != null)
             {
-                Author.Delete(result.Id);
+                Volume.Delete(result.Id);
             }
         }
 
-        public void EnsureBookFile(AuthorResource author, int bookId, string foreignEditionId, Quality quality)
+        public void EnsureIssueFile(VolumeResource volume, int issueId, string foreignEditionId, Quality quality)
         {
-            var result = Books.GetBooksInAuthor(author.Id).Single(v => v.Id == bookId);
+            var result = Issues.GetIssuesInVolume(volume.Id).Single(v => v.Id == issueId);
 
-            // if (result.BookFile == null)
+            // if (result.IssueFile == null)
             if (true)
             {
-                var path = Path.Combine(AuthorRootFolder, author.AuthorName, "Track.mp3");
+                var path = Path.Combine(VolumeRootFolder, volume.VolumeName, "Track.mp3");
 
                 Directory.CreateDirectory(Path.GetDirectoryName(path));
                 File.WriteAllText(path, "Fake Track");
@@ -312,8 +312,8 @@ namespace NzbDrone.Integration.Test
                             new ManualImportFile
                             {
                                 Path = path,
-                                AuthorId = author.Id,
-                                BookId = bookId,
+                                VolumeId = volume.Id,
+                                IssueId = issueId,
                                 ForeignEditionId = foreignEditionId,
                                 Quality = new QualityModel(quality)
                             }
@@ -321,9 +321,9 @@ namespace NzbDrone.Integration.Test
                 });
                 Commands.WaitAll();
 
-                var track = Books.GetBooksInAuthor(author.Id).Single(x => x.Id == bookId);
+                var track = Issues.GetIssuesInVolume(volume.Id).Single(x => x.Id == issueId);
 
-                // track.BookFileId.Should().NotBe(0);
+                // track.IssueFileId.Should().NotBe(0);
             }
         }
 

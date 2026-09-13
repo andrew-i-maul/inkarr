@@ -16,7 +16,7 @@ namespace NzbDrone.Core.Configuration
 {
     public enum ConfigKey
     {
-        DownloadedBooksFolder
+        DownloadedIssuesFolder
     }
 
     public class ConfigService : IConfigService
@@ -78,10 +78,10 @@ namespace NzbDrone.Core.Configuration
             return _repository.Get(key.ToLower()) != null;
         }
 
-        public bool AutoUnmonitorPreviouslyDownloadedBooks
+        public bool AutoUnmonitorPreviouslyDownloadedIssues
         {
-            get { return GetValueBoolean("AutoUnmonitorPreviouslyDownloadedBooks"); }
-            set { SetValue("AutoUnmonitorPreviouslyDownloadedBooks", value); }
+            get { return GetValueBoolean("AutoUnmonitorPreviouslyDownloadedIssues"); }
+            set { SetValue("AutoUnmonitorPreviouslyDownloadedIssues", value); }
         }
 
         public int Retention
@@ -151,11 +151,11 @@ namespace NzbDrone.Core.Configuration
             set { SetValue("AutoRedownloadFailedFromInteractiveSearch", value); }
         }
 
-        public bool CreateEmptyAuthorFolders
+        public bool CreateEmptyVolumeFolders
         {
-            get { return GetValueBoolean("CreateEmptyAuthorFolders", false); }
+            get { return GetValueBoolean("CreateEmptyVolumeFolders", false); }
 
-            set { SetValue("CreateEmptyAuthorFolders", value); }
+            set { SetValue("CreateEmptyVolumeFolders", value); }
         }
 
         public bool DeleteEmptyFolders
@@ -290,11 +290,11 @@ namespace NzbDrone.Core.Configuration
             set { SetValue("ScrubAudioTags", value); }
         }
 
-        public WriteBookTagsType WriteBookTags
+        public WriteIssueTagsType WriteIssueTags
         {
-            get { return GetValueEnum("WriteBookTags", WriteBookTagsType.NewFiles); }
+            get { return GetValueEnum("WriteIssueTags", WriteIssueTagsType.NewFiles); }
 
-            set { SetValue("WriteBookTags", value); }
+            set { SetValue("WriteIssueTags", value); }
         }
 
         public bool UpdateCovers

@@ -5,8 +5,8 @@ using FluentAssertions;
 using FluentValidation;
 using Moq;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Exceptions;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MetadataSource;
 using NzbDrone.Core.Organizer;
 using NzbDrone.Core.Test.Framework;
@@ -15,24 +15,24 @@ using NzbDrone.Test.Common;
 namespace NzbDrone.Core.Test.MusicTests
 {
     [TestFixture]
-    public class AddBookFixture : CoreTest<AddBookService>
+    public class AddIssueFixture : CoreTest<AddIssueService>
     {
-        private Author _fakeAuthor;
-        private Book _fakeBook;
+        private Volume _fakeVolume;
+        private Issue _fakeIssue;
 
         [SetUp]
         public void Setup()
         {
-            _fakeAuthor = Builder<Author>
+            _fakeVolume = Builder<Volume>
                 .CreateNew()
                 .With(s => s.Path = null)
-                .With(s => s.Metadata = Builder<AuthorMetadata>.CreateNew().Build())
+                .With(s => s.Metadata = Builder<VolumeMetadata>.CreateNew().Build())
                 .Build();
         }
 
-        private void GivenValidBook(string bookId, string editionId)
+        private void GivenValidIssue(string issueId, string editionId)
         {
-            _fakeBook = Builder<Book>
+            _fakeIssue = Builder<Issue>
                 .CreateNew()
                 .With(x => x.Editions = Builder<Edition>
                       .CreateListOfSize(1)
@@ -42,29 +42,29 @@ namespace NzbDrone.Core.Test.MusicTests
                       .BuildList())
                 .Build();
 
-            Mocker.GetMock<IProvideBookInfo>()
-                .Setup(s => s.GetBookInfo(bookId))
-                .Returns(Tuple.Create(_fakeAuthor.Metadata.Value.ForeignAuthorId,
-                                      _fakeBook,
-                                      new List<AuthorMetadata> { _fakeAuthor.Metadata.Value }));
+            Mocker.GetMock<IProvideIssueInfo>()
+                .Setup(s => s.GetIssueInfo(issueId))
+                .Returns(Tuple.Create(_fakeVolume.Metadata.Value.ForeignVolumeId,
+                                      _fakeIssue,
+                                      new List<VolumeMetadata> { _fakeVolume.Metadata.Value }));
 
-            Mocker.GetMock<IAddAuthorService>()
-                .Setup(s => s.AddAuthor(It.IsAny<Author>(), It.IsAny<bool>()))
-                .Returns(_fakeAuthor);
+            Mocker.GetMock<IAddVolumeService>()
+                .Setup(s => s.AddVolume(It.IsAny<Volume>(), It.IsAny<bool>()))
+                .Returns(_fakeVolume);
         }
 
         private void GivenValidPath()
         {
             Mocker.GetMock<IBuildFileNames>()
-                  .Setup(s => s.GetAuthorFolder(It.IsAny<Author>(), null))
-                  .Returns<Author, NamingConfig>((c, n) => c.Name);
+                  .Setup(s => s.GetVolumeFolder(It.IsAny<Volume>(), null))
+                  .Returns<Volume, NamingConfig>((c, n) => c.Name);
         }
 
-        private Book BookToAdd(string editionId, string bookId, string authorId)
+        private Issue IssueToAdd(string editionId, string issueId, string volumeId)
         {
-            return new Book
+            return new Issue
             {
-                ForeignBookId = bookId,
+                ForeignIssueId = issueId,
                 Editions = new List<Edition>
                 {
                     new Edition
@@ -73,36 +73,36 @@ namespace NzbDrone.Core.Test.MusicTests
                         Monitored = true
                     }
                 },
-                AuthorMetadata = new AuthorMetadata
+                VolumeMetadata = new VolumeMetadata
                 {
-                    ForeignAuthorId = authorId
+                    ForeignVolumeId = volumeId
                 }
             };
         }
 
         [Test]
-        public void should_be_able_to_add_a_book_without_passing_in_name()
+        public void should_be_able_to_add_a_issue_without_passing_in_name()
         {
-            var newBook = BookToAdd("edition", "book", "author");
+            var newIssue = IssueToAdd("edition", "issue", "volume");
 
-            GivenValidBook("book", "edition");
+            GivenValidIssue("issue", "edition");
             GivenValidPath();
 
-            var book = Subject.AddBook(newBook);
+            var issue = Subject.AddIssue(newIssue);
 
-            book.Title.Should().Be(_fakeBook.Title);
+            issue.Title.Should().Be(_fakeIssue.Title);
         }
 
         [Test]
-        public void should_throw_if_book_cannot_be_found()
+        public void should_throw_if_issue_cannot_be_found()
         {
-            var newBook = BookToAdd("edition", "book", "author");
+            var newIssue = IssueToAdd("edition", "issue", "volume");
 
-            Mocker.GetMock<IProvideBookInfo>()
-                  .Setup(s => s.GetBookInfo("book"))
-                  .Throws(new BookNotFoundException("edition"));
+            Mocker.GetMock<IProvideIssueInfo>()
+                  .Setup(s => s.GetIssueInfo("issue"))
+                  .Throws(new IssueNotFoundException("edition"));
 
-            Assert.Throws<ValidationException>(() => Subject.AddBook(newBook));
+            Assert.Throws<ValidationException>(() => Subject.AddIssue(newIssue));
 
             ExceptionVerification.ExpectedErrors(1);
         }

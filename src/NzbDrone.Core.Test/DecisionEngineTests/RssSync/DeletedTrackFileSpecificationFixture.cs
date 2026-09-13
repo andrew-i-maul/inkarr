@@ -5,10 +5,10 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using NzbDrone.Common.Disk;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Configuration;
 using NzbDrone.Core.DecisionEngine.Specifications.RssSync;
 using NzbDrone.Core.IndexerSearch.Definitions;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Profiles.Qualities;
@@ -19,59 +19,59 @@ using NzbDrone.Test.Common;
 namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
 {
     [TestFixture]
-    public class DeletedTrackFileSpecificationFixture : CoreTest<DeletedBookFileSpecification>
+    public class DeletedTrackFileSpecificationFixture : CoreTest<DeletedIssueFileSpecification>
     {
-        private RemoteBook _parseResultMulti;
-        private RemoteBook _parseResultSingle;
-        private BookFile _firstFile;
-        private BookFile _secondFile;
+        private RemoteIssue _parseResultMulti;
+        private RemoteIssue _parseResultSingle;
+        private IssueFile _firstFile;
+        private IssueFile _secondFile;
 
         [SetUp]
         public void Setup()
         {
             _firstFile =
-                new BookFile
+                new IssueFile
                 {
                     Id = 1,
-                    Path = "/My.Author.S01E01.mp3",
+                    Path = "/My.Volume.S01E01.mp3",
                     Quality = new QualityModel(Quality.FLAC, new Revision(version: 1)),
                     DateAdded = DateTime.Now,
                     EditionId = 1
                 };
             _secondFile =
-                new BookFile
+                new IssueFile
                 {
                     Id = 2,
-                    Path = "/My.Author.S01E02.mp3",
+                    Path = "/My.Volume.S01E02.mp3",
                     Quality = new QualityModel(Quality.FLAC, new Revision(version: 1)),
                     DateAdded = DateTime.Now,
                     EditionId = 2
                 };
 
-            var singleBookList = new List<Book> { new Book { Id = 1 } };
-            var doubleBookList = new List<Book>
+            var singleIssueList = new List<Issue> { new Issue { Id = 1 } };
+            var doubleIssueList = new List<Issue>
             {
-                new Book { Id = 1 },
-                new Book { Id = 2 }
+                new Issue { Id = 1 },
+                new Issue { Id = 2 }
             };
 
-            var fakeAuthor = Builder<Author>.CreateNew()
+            var fakeVolume = Builder<Volume>.CreateNew()
                          .With(c => c.QualityProfile = new QualityProfile { Cutoff = Quality.FLAC.Id })
-                         .With(c => c.Path = @"C:\Music\My.Author".AsOsAgnostic())
+                         .With(c => c.Path = @"C:\Music\My.Volume".AsOsAgnostic())
                          .Build();
 
-            _parseResultMulti = new RemoteBook
+            _parseResultMulti = new RemoteIssue
             {
-                Author = fakeAuthor,
-                ParsedBookInfo = new ParsedBookInfo { Quality = new QualityModel(Quality.MP3, new Revision(version: 2)) },
-                Books = doubleBookList
+                Volume = fakeVolume,
+                ParsedIssueInfo = new ParsedIssueInfo { Quality = new QualityModel(Quality.MP3, new Revision(version: 2)) },
+                Issues = doubleIssueList
             };
 
-            _parseResultSingle = new RemoteBook
+            _parseResultSingle = new RemoteIssue
             {
-                Author = fakeAuthor,
-                ParsedBookInfo = new ParsedBookInfo { Quality = new QualityModel(Quality.MP3, new Revision(version: 2)) },
-                Books = singleBookList
+                Volume = fakeVolume,
+                ParsedIssueInfo = new ParsedIssueInfo { Quality = new QualityModel(Quality.MP3, new Revision(version: 2)) },
+                Issues = singleIssueList
             };
 
             GivenUnmonitorDeletedTracks(true);
@@ -80,18 +80,18 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
         private void GivenUnmonitorDeletedTracks(bool enabled)
         {
             Mocker.GetMock<IConfigService>()
-                  .SetupGet(v => v.AutoUnmonitorPreviouslyDownloadedBooks)
+                  .SetupGet(v => v.AutoUnmonitorPreviouslyDownloadedIssues)
                   .Returns(enabled);
         }
 
-        private void SetupMediaFile(List<BookFile> files)
+        private void SetupMediaFile(List<IssueFile> files)
         {
             Mocker.GetMock<IMediaFileService>()
-                              .Setup(v => v.GetFilesByBook(It.IsAny<int>()))
+                              .Setup(v => v.GetFilesByIssue(It.IsAny<int>()))
                               .Returns(files);
         }
 
-        private void WithExistingFile(BookFile trackFile)
+        private void WithExistingFile(IssueFile trackFile)
         {
             var path = trackFile.Path;
 
@@ -111,14 +111,14 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
         [Test]
         public void should_return_true_when_searching()
         {
-            Subject.IsSatisfiedBy(_parseResultSingle, new AuthorSearchCriteria()).Accepted.Should().BeTrue();
+            Subject.IsSatisfiedBy(_parseResultSingle, new VolumeSearchCriteria()).Accepted.Should().BeTrue();
         }
 
         [Test]
         public void should_return_true_if_file_exists()
         {
             WithExistingFile(_firstFile);
-            SetupMediaFile(new List<BookFile> { _firstFile });
+            SetupMediaFile(new List<IssueFile> { _firstFile });
 
             Subject.IsSatisfiedBy(_parseResultSingle, null).Accepted.Should().BeTrue();
         }
@@ -126,7 +126,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
         [Test]
         public void should_return_false_if_file_is_missing()
         {
-            SetupMediaFile(new List<BookFile> { _firstFile });
+            SetupMediaFile(new List<IssueFile> { _firstFile });
             Subject.IsSatisfiedBy(_parseResultSingle, null).Accepted.Should().BeFalse();
         }
 
@@ -135,7 +135,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
         {
             WithExistingFile(_firstFile);
             WithExistingFile(_secondFile);
-            SetupMediaFile(new List<BookFile> { _firstFile, _secondFile });
+            SetupMediaFile(new List<IssueFile> { _firstFile, _secondFile });
 
             Subject.IsSatisfiedBy(_parseResultMulti, null).Accepted.Should().BeTrue();
         }
@@ -144,7 +144,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
         public void should_return_false_if_one_of_multiple_episode_is_missing()
         {
             WithExistingFile(_firstFile);
-            SetupMediaFile(new List<BookFile> { _firstFile, _secondFile });
+            SetupMediaFile(new List<IssueFile> { _firstFile, _secondFile });
 
             Subject.IsSatisfiedBy(_parseResultMulti, null).Accepted.Should().BeFalse();
         }

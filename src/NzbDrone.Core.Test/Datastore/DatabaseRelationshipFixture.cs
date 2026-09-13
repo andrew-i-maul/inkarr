@@ -3,8 +3,8 @@ using System.Linq;
 using FizzWare.NBuilder;
 using FluentAssertions;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.History;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Qualities;
 using NzbDrone.Core.Test.Framework;
 
@@ -16,13 +16,13 @@ namespace NzbDrone.Core.Test.Datastore
         [Test]
         public void one_to_one()
         {
-            var book = Builder<Book>.CreateNew()
+            var issue = Builder<Issue>.CreateNew()
                 .With(c => c.Id = 0)
                 .With(x => x.ReleaseDate = DateTime.UtcNow)
                 .With(x => x.LastInfoSync = DateTime.UtcNow)
                 .With(x => x.Added = DateTime.UtcNow)
                 .BuildNew();
-            Db.Insert(book);
+            Db.Insert(issue);
         }
 
         [Test]

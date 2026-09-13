@@ -3,7 +3,7 @@ using System.Net.Sockets;
 using FluentValidation.Results;
 using NLog;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 
 namespace NzbDrone.Core.Notifications.Subsonic
@@ -28,7 +28,7 @@ namespace NzbDrone.Core.Notifications.Subsonic
             Notify(Settings, header, grabMessage.Message);
         }
 
-        public override void OnReleaseImport(BookDownloadMessage message)
+        public override void OnReleaseImport(IssueDownloadMessage message)
         {
             const string header = "Inkarr - Downloaded";
 
@@ -36,19 +36,19 @@ namespace NzbDrone.Core.Notifications.Subsonic
             Update();
         }
 
-        public override void OnRename(Author author, List<RenamedBookFile> renamedFiles)
+        public override void OnRename(Volume volume, List<RenamedIssueFile> renamedFiles)
         {
             Update();
         }
 
-        public override void OnAuthorAdded(Author author)
+        public override void OnVolumeAdded(Volume volume)
         {
-            Notify(Settings, AUTHOR_ADDED_TITLE_BRANDED, author.Name);
+            Notify(Settings, VOLUME_ADDED_TITLE_BRANDED, volume.Name);
         }
 
-        public override void OnAuthorDelete(AuthorDeleteMessage deleteMessage)
+        public override void OnVolumeDelete(VolumeDeleteMessage deleteMessage)
         {
-            const string header = "Inkarr - Author Deleted";
+            const string header = "Inkarr - Volume Deleted";
 
             Notify(Settings, header, deleteMessage.Message);
 
@@ -58,9 +58,9 @@ namespace NzbDrone.Core.Notifications.Subsonic
             }
         }
 
-        public override void OnBookDelete(BookDeleteMessage deleteMessage)
+        public override void OnIssueDelete(IssueDeleteMessage deleteMessage)
         {
-            const string header = "Inkarr - Book Deleted";
+            const string header = "Inkarr - Issue Deleted";
 
             Notify(Settings, header, deleteMessage.Message);
 
@@ -70,9 +70,9 @@ namespace NzbDrone.Core.Notifications.Subsonic
             }
         }
 
-        public override void OnBookFileDelete(BookFileDeleteMessage deleteMessage)
+        public override void OnIssueFileDelete(IssueFileDeleteMessage deleteMessage)
         {
-            const string header = "Inkarr - Book File Deleted";
+            const string header = "Inkarr - Issue File Deleted";
 
             Notify(Settings, header, deleteMessage.Message);
             Update();
@@ -83,9 +83,9 @@ namespace NzbDrone.Core.Notifications.Subsonic
             Notify(Settings, HEALTH_ISSUE_TITLE_BRANDED, healthCheck.Message);
         }
 
-        public override void OnBookRetag(BookRetagMessage message)
+        public override void OnIssueRetag(IssueRetagMessage message)
         {
-            Notify(Settings, BOOK_RETAGGED_TITLE_BRANDED, message.Message);
+            Notify(Settings, ISSUE_RETAGGED_TITLE_BRANDED, message.Message);
         }
 
         public override string Name => "Subsonic";

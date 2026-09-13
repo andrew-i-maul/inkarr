@@ -134,21 +134,21 @@ namespace Inkarr.Api.V1.Queue
 
         [HttpGet]
         [Produces("application/json")]
-        public PagingResource<QueueResource> GetQueue([FromQuery] PagingRequestResource paging, bool includeUnknownAuthorItems = false, bool includeAuthor = false, bool includeBook = false)
+        public PagingResource<QueueResource> GetQueue([FromQuery] PagingRequestResource paging, bool includeUnknownVolumeItems = false, bool includeVolume = false, bool includeIssue = false)
         {
             var pagingResource = new PagingResource<QueueResource>(paging);
             var pagingSpec = pagingResource.MapToPagingSpec<QueueResource, NzbDrone.Core.Queue.Queue>("timeleft", SortDirection.Ascending);
 
-            return pagingSpec.ApplyToPage((spec) => GetQueue(spec, includeUnknownAuthorItems), (q) => MapToResource(q, includeAuthor, includeBook));
+            return pagingSpec.ApplyToPage((spec) => GetQueue(spec, includeUnknownVolumeItems), (q) => MapToResource(q, includeVolume, includeIssue));
         }
 
-        private PagingSpec<NzbDrone.Core.Queue.Queue> GetQueue(PagingSpec<NzbDrone.Core.Queue.Queue> pagingSpec, bool includeUnknownAuthorItems)
+        private PagingSpec<NzbDrone.Core.Queue.Queue> GetQueue(PagingSpec<NzbDrone.Core.Queue.Queue> pagingSpec, bool includeUnknownVolumeItems)
         {
             var ascending = pagingSpec.SortDirection == SortDirection.Ascending;
             var orderByFunc = GetOrderByFunc(pagingSpec);
 
             var queue = _queueService.GetQueue();
-            var filteredQueue = includeUnknownAuthorItems ? queue : queue.Where(q => q.Author != null);
+            var filteredQueue = includeUnknownVolumeItems ? queue : queue.Where(q => q.Volume != null);
             var pending = _pendingReleaseService.GetPendingQueue();
             var fullQueue = filteredQueue.Concat(pending).ToList();
             IOrderedEnumerable<NzbDrone.Core.Queue.Queue> ordered;
@@ -215,18 +215,18 @@ namespace Inkarr.Api.V1.Queue
             {
                 case "status":
                     return q => q.Status;
-                case "authors.sortName":
-                    return q => q.Author?.Metadata.Value.SortName ?? q.Title;
-                case "authors.sortNameLastFirst":
-                    return q => q.Author?.Metadata.Value.SortNameLastFirst ?? string.Empty;
+                case "volumes.sortName":
+                    return q => q.Volume?.Metadata.Value.SortName ?? q.Title;
+                case "volumes.sortNameLastFirst":
+                    return q => q.Volume?.Metadata.Value.SortNameLastFirst ?? string.Empty;
                 case "title":
                     return q => q.Title;
-                case "book":
-                    return q => q.Book;
-                case "book.title":
-                    return q => q.Book?.Title ?? string.Empty;
-                case "book.releaseDate":
-                    return q => q.Book?.ReleaseDate ?? DateTime.MinValue;
+                case "issue":
+                    return q => q.Issue;
+                case "issue.title":
+                    return q => q.Issue?.Title ?? string.Empty;
+                case "issue.releaseDate":
+                    return q => q.Issue?.ReleaseDate ?? DateTime.MinValue;
                 case "quality":
                     return q => q.Quality;
                 case "size":
@@ -241,7 +241,7 @@ namespace Inkarr.Api.V1.Queue
 
         private void Remove(NzbDrone.Core.Queue.Queue pendingRelease)
         {
-            _blocklistService.Block(pendingRelease.RemoteBook, "Pending release manually blocklisted");
+            _blocklistService.Block(pendingRelease.RemoteIssue, "Pending release manually blocklisted");
             _pendingReleaseService.RemovePendingQueueItems(pendingRelease.Id);
         }
 
@@ -305,9 +305,9 @@ namespace Inkarr.Api.V1.Queue
             return trackedDownload;
         }
 
-        private QueueResource MapToResource(NzbDrone.Core.Queue.Queue queueItem, bool includeAuthor, bool includeBook)
+        private QueueResource MapToResource(NzbDrone.Core.Queue.Queue queueItem, bool includeVolume, bool includeIssue)
         {
-            return queueItem.ToResource(includeAuthor, includeBook);
+            return queueItem.ToResource(includeVolume, includeIssue);
         }
 
         [NonAction]

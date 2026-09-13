@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using FluentValidation.Results;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 
 namespace NzbDrone.Core.Notifications.Join
 {
@@ -20,32 +20,32 @@ namespace NzbDrone.Core.Notifications.Join
 
         public override void OnGrab(GrabMessage message)
         {
-            _proxy.SendNotification(BOOK_GRABBED_TITLE_BRANDED, message.Message, Settings);
+            _proxy.SendNotification(ISSUE_GRABBED_TITLE_BRANDED, message.Message, Settings);
         }
 
-        public override void OnReleaseImport(BookDownloadMessage message)
+        public override void OnReleaseImport(IssueDownloadMessage message)
         {
-            _proxy.SendNotification(BOOK_DOWNLOADED_TITLE_BRANDED, message.Message, Settings);
+            _proxy.SendNotification(ISSUE_DOWNLOADED_TITLE_BRANDED, message.Message, Settings);
         }
 
-        public override void OnAuthorAdded(Author author)
+        public override void OnVolumeAdded(Volume volume)
         {
-            _proxy.SendNotification(AUTHOR_ADDED_TITLE_BRANDED, author.Name, Settings);
+            _proxy.SendNotification(VOLUME_ADDED_TITLE_BRANDED, volume.Name, Settings);
         }
 
-        public override void OnAuthorDelete(AuthorDeleteMessage deleteMessage)
+        public override void OnVolumeDelete(VolumeDeleteMessage deleteMessage)
         {
-            _proxy.SendNotification(AUTHOR_DELETED_TITlE_BRANDED, deleteMessage.Message, Settings);
+            _proxy.SendNotification(VOLUME_DELETED_TITlE_BRANDED, deleteMessage.Message, Settings);
         }
 
-        public override void OnBookDelete(BookDeleteMessage deleteMessage)
+        public override void OnIssueDelete(IssueDeleteMessage deleteMessage)
         {
-            _proxy.SendNotification(BOOK_DELETED_TITLE_BRANDED, deleteMessage.Message, Settings);
+            _proxy.SendNotification(ISSUE_DELETED_TITLE_BRANDED, deleteMessage.Message, Settings);
         }
 
-        public override void OnBookFileDelete(BookFileDeleteMessage deleteMessage)
+        public override void OnIssueFileDelete(IssueFileDeleteMessage deleteMessage)
         {
-            _proxy.SendNotification(BOOK_FILE_DELETED_TITLE_BRANDED, deleteMessage.Message, Settings);
+            _proxy.SendNotification(ISSUE_FILE_DELETED_TITLE_BRANDED, deleteMessage.Message, Settings);
         }
 
         public override void OnHealthIssue(HealthCheck.HealthCheck message)

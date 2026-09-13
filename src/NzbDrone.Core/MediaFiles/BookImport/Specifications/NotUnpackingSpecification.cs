@@ -8,9 +8,9 @@ using NzbDrone.Core.DecisionEngine;
 using NzbDrone.Core.Download;
 using NzbDrone.Core.Parser.Model;
 
-namespace NzbDrone.Core.MediaFiles.BookImport.Specifications
+namespace NzbDrone.Core.MediaFiles.IssueImport.Specifications
 {
-    public class NotUnpackingSpecification : IImportDecisionEngineSpecification<LocalBook>
+    public class NotUnpackingSpecification : IImportDecisionEngineSpecification<LocalIssue>
     {
         private readonly IDiskProvider _diskProvider;
         private readonly IConfigService _configService;
@@ -23,11 +23,11 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Specifications
             _logger = logger;
         }
 
-        public Decision IsSatisfiedBy(LocalBook item, DownloadClientItem downloadClientItem)
+        public Decision IsSatisfiedBy(LocalIssue item, DownloadClientItem downloadClientItem)
         {
             if (item.ExistingFile)
             {
-                _logger.Debug("{0} is in author folder, skipping unpacking check", item.Path);
+                _logger.Debug("{0} is in volume folder, skipping unpacking check", item.Path);
                 return Decision.Accept();
             }
 

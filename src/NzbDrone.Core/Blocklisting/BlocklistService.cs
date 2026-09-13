@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books.Events;
 using NzbDrone.Core.Datastore;
 using NzbDrone.Core.Download;
 using NzbDrone.Core.Indexers;
+using NzbDrone.Core.Issues.Events;
 using NzbDrone.Core.Messaging.Commands;
 using NzbDrone.Core.Messaging.Events;
 using NzbDrone.Core.Parser.Model;
@@ -14,10 +14,10 @@ namespace NzbDrone.Core.Blocklisting
 {
     public interface IBlocklistService
     {
-        bool Blocklisted(int authorId, ReleaseInfo release);
-        bool BlocklistedTorrentHash(int authorId, string hash);
+        bool Blocklisted(int volumeId, ReleaseInfo release);
+        bool BlocklistedTorrentHash(int volumeId, string hash);
         PagingSpec<Blocklist> Paged(PagingSpec<Blocklist> pagingSpec);
-        void Block(RemoteBook remoteEpisode, string message);
+        void Block(RemoteIssue remoteEpisode, string message);
         void Delete(int id);
         void Delete(List<int> ids);
     }
@@ -26,7 +26,7 @@ namespace NzbDrone.Core.Blocklisting
 
                                     IExecute<ClearBlocklistCommand>,
                                     IHandle<DownloadFailedEvent>,
-                                    IHandleAsync<AuthorDeletedEvent>
+                                    IHandleAsync<VolumeDeletedEvent>
     {
         private readonly IBlocklistRepository _blocklistRepository;
 
@@ -35,7 +35,7 @@ namespace NzbDrone.Core.Blocklisting
             _blocklistRepository = blocklistRepository;
         }
 
-        public bool Blocklisted(int authorId, ReleaseInfo release)
+        public bool Blocklisted(int volumeId, ReleaseInfo release)
         {
             if (release.DownloadProtocol == DownloadProtocol.Torrent)
             {
@@ -46,24 +46,24 @@ namespace NzbDrone.Core.Blocklisting
 
                 if (torrentInfo.InfoHash.IsNotNullOrWhiteSpace())
                 {
-                    var blocklistedByTorrentInfohash = _blocklistRepository.BlocklistedByTorrentInfoHash(authorId, torrentInfo.InfoHash);
+                    var blocklistedByTorrentInfohash = _blocklistRepository.BlocklistedByTorrentInfoHash(volumeId, torrentInfo.InfoHash);
 
                     return blocklistedByTorrentInfohash.Any(b => SameTorrent(b, torrentInfo));
                 }
 
-                return _blocklistRepository.BlocklistedByTitle(authorId, release.Title)
+                return _blocklistRepository.BlocklistedByTitle(volumeId, release.Title)
                     .Where(b => b.Protocol == DownloadProtocol.Torrent)
                     .Any(b => SameTorrent(b, torrentInfo));
             }
 
-            return _blocklistRepository.BlocklistedByTitle(authorId, release.Title)
+            return _blocklistRepository.BlocklistedByTitle(volumeId, release.Title)
                 .Where(b => b.Protocol == DownloadProtocol.Usenet)
                 .Any(b => SameNzb(b, release));
         }
 
-        public bool BlocklistedTorrentHash(int authorId, string hash)
+        public bool BlocklistedTorrentHash(int volumeId, string hash)
         {
-            return _blocklistRepository.BlocklistedByTorrentInfoHash(authorId, hash).Any(b =>
+            return _blocklistRepository.BlocklistedByTorrentInfoHash(volumeId, hash).Any(b =>
                 b.TorrentInfoHash.Equals(hash, StringComparison.InvariantCultureIgnoreCase));
         }
 
@@ -72,14 +72,14 @@ namespace NzbDrone.Core.Blocklisting
             return _blocklistRepository.GetPaged(pagingSpec);
         }
 
-        public void Block(RemoteBook remoteEpisode, string message)
+        public void Block(RemoteIssue remoteEpisode, string message)
         {
             var blocklist = new Blocklist
                             {
-                                AuthorId = remoteEpisode.Author.Id,
-                                BookIds = remoteEpisode.Books.Select(e => e.Id).ToList(),
+                                VolumeId = remoteEpisode.Volume.Id,
+                                IssueIds = remoteEpisode.Issues.Select(e => e.Id).ToList(),
                                 SourceTitle =  remoteEpisode.Release.Title,
-                                Quality = remoteEpisode.ParsedBookInfo.Quality,
+                                Quality = remoteEpisode.ParsedIssueInfo.Quality,
                                 Date = DateTime.UtcNow,
                                 PublishedDate = remoteEpisode.Release.PublishDate,
                                 Size = remoteEpisode.Release.Size,
@@ -175,8 +175,8 @@ namespace NzbDrone.Core.Blocklisting
         {
             var blocklist = new Blocklist
             {
-                AuthorId = message.AuthorId,
-                BookIds = message.BookIds,
+                VolumeId = message.VolumeId,
+                IssueIds = message.IssueIds,
                 SourceTitle = message.SourceTitle,
                 Quality = message.Quality,
                 Date = DateTime.UtcNow,
@@ -196,9 +196,9 @@ namespace NzbDrone.Core.Blocklisting
             _blocklistRepository.Insert(blocklist);
         }
 
-        public void HandleAsync(AuthorDeletedEvent message)
+        public void HandleAsync(VolumeDeletedEvent message)
         {
-            var blocklisted = _blocklistRepository.BlocklistedByAuthor(message.Author.Id);
+            var blocklisted = _blocklistRepository.BlocklistedByVolume(message.Volume.Id);
 
             _blocklistRepository.DeleteMany(blocklisted);
         }

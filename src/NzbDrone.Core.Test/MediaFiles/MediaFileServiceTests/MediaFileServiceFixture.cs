@@ -3,7 +3,7 @@ using System.Linq;
 using FizzWare.NBuilder;
 using Moq;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.MediaFiles.Events;
 using NzbDrone.Core.Test.Framework;
@@ -13,18 +13,18 @@ namespace NzbDrone.Core.Test.MediaFiles.TrackFileMovingServiceTests
     [TestFixture]
     public class MediaFileServiceFixture : CoreTest<MediaFileService>
     {
-        private Book _book;
-        private List<BookFile> _trackFiles;
+        private Issue _issue;
+        private List<IssueFile> _trackFiles;
 
         [SetUp]
         public void Setup()
         {
-            _book = Builder<Book>.CreateNew()
+            _issue = Builder<Issue>.CreateNew()
                          .Build();
 
-            _trackFiles = Builder<BookFile>.CreateListOfSize(3)
+            _trackFiles = Builder<IssueFile>.CreateListOfSize(3)
                                                .TheFirst(2)
-                                               .With(f => f.EditionId = _book.Id)
+                                               .With(f => f.EditionId = _issue.Id)
                                                .TheNext(1)
                                                .With(f => f.EditionId = 0)
                                                .Build().ToList();
@@ -35,7 +35,7 @@ namespace NzbDrone.Core.Test.MediaFiles.TrackFileMovingServiceTests
         {
             Subject.DeleteMany(_trackFiles, DeleteMediaFileReason.Manual);
 
-            VerifyEventPublished<BookFileDeletedEvent>(Times.Exactly(2));
+            VerifyEventPublished<IssueFileDeletedEvent>(Times.Exactly(2));
         }
 
         [Test]
@@ -43,7 +43,7 @@ namespace NzbDrone.Core.Test.MediaFiles.TrackFileMovingServiceTests
         {
             Subject.Delete(_trackFiles[0], DeleteMediaFileReason.Manual);
 
-            VerifyEventPublished<BookFileDeletedEvent>(Times.Once());
+            VerifyEventPublished<IssueFileDeletedEvent>(Times.Once());
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace NzbDrone.Core.Test.MediaFiles.TrackFileMovingServiceTests
         {
             Subject.AddMany(_trackFiles);
 
-            VerifyEventPublished<BookFileAddedEvent>(Times.Exactly(3));
+            VerifyEventPublished<IssueFileAddedEvent>(Times.Exactly(3));
         }
 
         [Test]
@@ -59,7 +59,7 @@ namespace NzbDrone.Core.Test.MediaFiles.TrackFileMovingServiceTests
         {
             Subject.Add(_trackFiles[0]);
 
-            VerifyEventPublished<BookFileAddedEvent>(Times.Once());
+            VerifyEventPublished<IssueFileAddedEvent>(Times.Once());
         }
     }
 }

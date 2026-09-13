@@ -35,16 +35,16 @@ namespace NzbDrone.Core.Download.Clients.Sabnzbd
         // patch can be a number (releases) or 'x' (git)
         private static readonly Regex VersionRegex = new Regex(@"(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+|x)", RegexOptions.Compiled);
 
-        protected override string AddFromNzbFile(RemoteBook remoteBook, string filename, byte[] fileContent)
+        protected override string AddFromNzbFile(RemoteIssue remoteIssue, string filename, byte[] fileContent)
         {
             var category = Settings.MusicCategory;
-            var priority = remoteBook.IsRecentBook() ? Settings.RecentTvPriority : Settings.OlderTvPriority;
+            var priority = remoteIssue.IsRecentIssue() ? Settings.RecentTvPriority : Settings.OlderTvPriority;
 
             var response = _proxy.DownloadNzb(fileContent, filename, category, priority, Settings);
 
             if (response == null || response.Ids.Empty())
             {
-                throw new DownloadClientRejectedReleaseException(remoteBook.Release, "SABnzbd rejected the NZB for an unknown reason");
+                throw new DownloadClientRejectedReleaseException(remoteIssue.Release, "SABnzbd rejected the NZB for an unknown reason");
             }
 
             return response.Ids.First();

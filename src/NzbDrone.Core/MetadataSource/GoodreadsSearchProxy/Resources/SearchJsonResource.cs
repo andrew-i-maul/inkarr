@@ -7,14 +7,14 @@ namespace NzbDrone.Core.MetadataSource.Goodreads
         [JsonProperty("imageUrl")]
         public string ImageUrl { get; set; }
 
-        [JsonProperty("bookId")]
-        public int BookId { get; set; }
+        [JsonProperty("issueId")]
+        public int IssueId { get; set; }
 
         [JsonProperty("workId")]
         public int WorkId { get; set; }
 
-        [JsonProperty("bookUrl")]
-        public string BookUrl { get; set; }
+        [JsonProperty("issueUrl")]
+        public string IssueUrl { get; set; }
 
         [JsonProperty("from_search")]
         public bool FromSearch { get; set; }
@@ -31,8 +31,8 @@ namespace NzbDrone.Core.MetadataSource.Goodreads
         [JsonProperty("title")]
         public string Title { get; set; }
 
-        [JsonProperty("bookTitleBare")]
-        public string BookTitleBare { get; set; }
+        [JsonProperty("issueTitleBare")]
+        public string IssueTitleBare { get; set; }
 
         [JsonProperty("numPages")]
         public int PageCount { get; set; }
@@ -43,8 +43,8 @@ namespace NzbDrone.Core.MetadataSource.Goodreads
         [JsonProperty("ratingsCount")]
         public int RatingsCount { get; set; }
 
-        [JsonProperty("author")]
-        public AuthorJsonResource Author { get; set; }
+        [JsonProperty("volume")]
+        public VolumeJsonResource Volume { get; set; }
 
         [JsonProperty("kcrPreviewUrl")]
         public string KcrPreviewUrl { get; set; }
@@ -53,7 +53,7 @@ namespace NzbDrone.Core.MetadataSource.Goodreads
         public DescriptionJsonResource Description { get; set; }
     }
 
-    public class AuthorJsonResource
+    public class VolumeJsonResource
     {
         [JsonProperty("id")]
         public int Id { get; set; }
@@ -61,8 +61,8 @@ namespace NzbDrone.Core.MetadataSource.Goodreads
         [JsonProperty("name")]
         public string Name { get; set; }
 
-        [JsonProperty("isGoodreadsAuthor")]
-        public bool IsGoodreadsAuthor { get; set; }
+        [JsonProperty("isGoodreadsVolume")]
+        public bool IsGoodreadsVolume { get; set; }
 
         [JsonProperty("profileUrl")]
         public string ProfileUrl { get; set; }

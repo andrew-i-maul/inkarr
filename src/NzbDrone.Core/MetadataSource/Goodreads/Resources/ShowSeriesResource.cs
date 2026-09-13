@@ -4,7 +4,7 @@ using System.Xml.Linq;
 namespace NzbDrone.Core.MetadataSource.Goodreads
 {
     /// <summary>
-    /// This class models the best book in a work, as defined by the Goodreads API.
+    /// This class models the best issue in a work, as defined by the Goodreads API.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public sealed class ShowSeriesResource : GoodreadsResource

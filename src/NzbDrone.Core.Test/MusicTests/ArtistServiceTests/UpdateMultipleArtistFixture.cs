@@ -5,22 +5,22 @@ using FizzWare.NBuilder;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Organizer;
 using NzbDrone.Core.Test.Framework;
 using NzbDrone.Test.Common;
 
-namespace NzbDrone.Core.Test.MusicTests.AuthorServiceTests
+namespace NzbDrone.Core.Test.MusicTests.VolumeServiceTests
 {
     [TestFixture]
-    public class UpdateMultipleAuthorFixture : CoreTest<AuthorService>
+    public class UpdateMultipleVolumeFixture : CoreTest<VolumeService>
     {
-        private List<Author> _authors;
+        private List<Volume> _volumes;
 
         [SetUp]
         public void Setup()
         {
-            _authors = Builder<Author>.CreateListOfSize(5)
+            _volumes = Builder<Volume>.CreateListOfSize(5)
                 .All()
                 .With(s => s.QualityProfileId = 1)
                 .With(s => s.Monitored)
@@ -32,55 +32,55 @@ namespace NzbDrone.Core.Test.MusicTests.AuthorServiceTests
         [Test]
         public void should_call_repo_updateMany()
         {
-            Subject.UpdateAuthors(_authors, false);
+            Subject.UpdateVolumes(_volumes, false);
 
-            Mocker.GetMock<IAuthorRepository>().Verify(v => v.UpdateMany(_authors), Times.Once());
+            Mocker.GetMock<IVolumeRepository>().Verify(v => v.UpdateMany(_volumes), Times.Once());
         }
 
         [Test]
         public void should_update_path_when_rootFolderPath_is_supplied()
         {
             Mocker.GetMock<IBuildFileNames>()
-                .Setup(s => s.GetAuthorFolder(It.IsAny<Author>(), null))
-                .Returns<Author, NamingConfig>((c, n) => c.Name);
+                .Setup(s => s.GetVolumeFolder(It.IsAny<Volume>(), null))
+                .Returns<Volume, NamingConfig>((c, n) => c.Name);
 
             var newRoot = @"C:\Test\Music2".AsOsAgnostic();
-            _authors.ForEach(s => s.RootFolderPath = newRoot);
+            _volumes.ForEach(s => s.RootFolderPath = newRoot);
 
-            Mocker.GetMock<IBuildAuthorPaths>()
-                .Setup(s => s.BuildPath(It.IsAny<Author>(), false))
-                .Returns<Author, bool>((s, u) => Path.Combine(s.RootFolderPath, s.Name));
+            Mocker.GetMock<IBuildVolumePaths>()
+                .Setup(s => s.BuildPath(It.IsAny<Volume>(), false))
+                .Returns<Volume, bool>((s, u) => Path.Combine(s.RootFolderPath, s.Name));
 
-            Subject.UpdateAuthors(_authors, false).ForEach(s => s.Path.Should().StartWith(newRoot));
+            Subject.UpdateVolumes(_volumes, false).ForEach(s => s.Path.Should().StartWith(newRoot));
         }
 
         [Test]
         public void should_not_update_path_when_rootFolderPath_is_empty()
         {
-            Subject.UpdateAuthors(_authors, false).ForEach(s =>
+            Subject.UpdateVolumes(_volumes, false).ForEach(s =>
             {
-                var expectedPath = _authors.Single(ser => ser.Id == s.Id).Path;
+                var expectedPath = _volumes.Single(ser => ser.Id == s.Id).Path;
                 s.Path.Should().Be(expectedPath);
             });
         }
 
         [Test]
-        public void should_be_able_to_update_many_author()
+        public void should_be_able_to_update_many_volume()
         {
-            var author = Builder<Author>.CreateListOfSize(50)
+            var volume = Builder<Volume>.CreateListOfSize(50)
                                         .All()
                                         .With(s => s.Path = (@"C:\Test\Music\" + s.Path).AsOsAgnostic())
                                         .Build()
                                         .ToList();
 
             Mocker.GetMock<IBuildFileNames>()
-                .Setup(s => s.GetAuthorFolder(It.IsAny<Author>(), null))
-                .Returns<Author, NamingConfig>((c, n) => c.Name);
+                .Setup(s => s.GetVolumeFolder(It.IsAny<Volume>(), null))
+                .Returns<Volume, NamingConfig>((c, n) => c.Name);
 
             var newRoot = @"C:\Test\Music2".AsOsAgnostic();
-            author.ForEach(s => s.RootFolderPath = newRoot);
+            volume.ForEach(s => s.RootFolderPath = newRoot);
 
-            Subject.UpdateAuthors(author, false);
+            Subject.UpdateVolumes(volume, false);
         }
     }
 }

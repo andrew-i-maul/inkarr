@@ -27,13 +27,13 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
         public SpecificationPriority Priority => SpecificationPriority.Default;
         public RejectionType Type => RejectionType.Permanent;
 
-        public virtual Decision IsSatisfiedBy(RemoteBook subject, SearchCriteriaBase searchCriteria)
+        public virtual Decision IsSatisfiedBy(RemoteIssue subject, SearchCriteriaBase searchCriteria)
         {
-            var qualityProfile = subject.Author.QualityProfile.Value;
+            var qualityProfile = subject.Volume.QualityProfile.Value;
 
-            foreach (var file in subject.Books.SelectMany(b => b.BookFiles.Value))
+            foreach (var file in subject.Issues.SelectMany(b => b.IssueFiles.Value))
             {
-                // Get a distinct list of all current track qualities for a given book
+                // Get a distinct list of all current track qualities for a given issue
                 var currentQualities = new List<QualityModel> { file.Quality };
 
                 _logger.Debug("Comparing file quality with report. Existing files contain {0}", currentQualities.ConcatToString());
@@ -43,7 +43,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
                 if (!_upgradableSpecification.CutoffNotMet(qualityProfile,
                                                            currentQualities,
                                                            customFormats,
-                                                           subject.ParsedBookInfo.Quality))
+                                                           subject.ParsedIssueInfo.Quality))
                 {
                     _logger.Debug("Cutoff already met by existing files, rejecting.");
 

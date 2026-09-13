@@ -3,7 +3,7 @@ using System.Linq;
 using FizzWare.NBuilder;
 using FluentAssertions;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Qualities;
 using NzbDrone.Core.Test.Framework;
@@ -12,39 +12,39 @@ using NzbDrone.Test.Common;
 namespace NzbDrone.Core.Test.MediaFiles
 {
     [TestFixture]
-    public class MediaFileRepositoryFixture : DbTest<MediaFileRepository, BookFile>
+    public class MediaFileRepositoryFixture : DbTest<MediaFileRepository, IssueFile>
     {
-        private Author _author;
-        private Book _book;
+        private Volume _volume;
+        private Issue _issue;
         private Edition _edition;
 
         [SetUp]
         public void Setup()
         {
-            var meta = Builder<AuthorMetadata>.CreateNew()
+            var meta = Builder<VolumeMetadata>.CreateNew()
                 .With(a => a.Id = 0)
                 .Build();
             Db.Insert(meta);
 
-            _author = Builder<Author>.CreateNew()
-                .With(a => a.AuthorMetadataId = meta.Id)
+            _volume = Builder<Volume>.CreateNew()
+                .With(a => a.VolumeMetadataId = meta.Id)
                 .With(a => a.Id = 0)
                 .Build();
-            Db.Insert(_author);
+            Db.Insert(_volume);
 
-            _book = Builder<Book>.CreateNew()
+            _issue = Builder<Issue>.CreateNew()
                 .With(a => a.Id = 0)
-                .With(a => a.AuthorMetadataId = _author.AuthorMetadataId)
+                .With(a => a.VolumeMetadataId = _volume.VolumeMetadataId)
                 .Build();
-            Db.Insert(_book);
+            Db.Insert(_issue);
 
             _edition = Builder<Edition>.CreateNew()
                 .With(a => a.Id = 0)
-                .With(a => a.BookId = _book.Id)
+                .With(a => a.IssueId = _issue.Id)
                 .Build();
             Db.Insert(_edition);
 
-            var files = Builder<BookFile>.CreateListOfSize(10)
+            var files = Builder<IssueFile>.CreateListOfSize(10)
                 .All()
                 .With(c => c.Id = 0)
                 .With(c => c.Quality = new QualityModel(Quality.MP3))
@@ -53,21 +53,21 @@ namespace NzbDrone.Core.Test.MediaFiles
                 .TheRest()
                 .With(c => c.EditionId = 0)
                 .TheFirst(1)
-                .With(c => c.Path = @"C:\Test\Path\Author\somefile1.flac".AsOsAgnostic())
+                .With(c => c.Path = @"C:\Test\Path\Volume\somefile1.flac".AsOsAgnostic())
                 .TheNext(1)
-                .With(c => c.Path = @"C:\Test\Path\Author\somefile2.flac".AsOsAgnostic())
+                .With(c => c.Path = @"C:\Test\Path\Volume\somefile2.flac".AsOsAgnostic())
                 .BuildListOfNew();
             Db.InsertMany(files);
         }
 
         [Test]
-        public void get_files_by_author()
+        public void get_files_by_volume()
         {
             VerifyData();
-            var authorFiles = Subject.GetFilesByAuthor(_author.Id);
-            VerifyEagerLoaded(authorFiles);
+            var volumeFiles = Subject.GetFilesByVolume(_volume.Id);
+            VerifyEagerLoaded(volumeFiles);
 
-            authorFiles.Should().OnlyContain(c => c.Author.Value.Id == _author.Id);
+            volumeFiles.Should().OnlyContain(c => c.Volume.Value.Id == _volume.Id);
         }
 
         [Test]
@@ -96,14 +96,14 @@ namespace NzbDrone.Core.Test.MediaFiles
         {
             VerifyData();
 
-            var files = Builder<BookFile>.CreateListOfSize(2)
+            var files = Builder<IssueFile>.CreateListOfSize(2)
                 .All()
                 .With(c => c.Id = 0)
                 .With(c => c.Quality = new QualityModel(Quality.MP3))
                 .TheFirst(1)
-                .With(c => c.Path = @"C:\Test\Path2\Author\somefile1.flac".AsOsAgnostic())
+                .With(c => c.Path = @"C:\Test\Path2\Volume\somefile1.flac".AsOsAgnostic())
                 .TheNext(1)
-                .With(c => c.Path = @"C:\Test\Path2\Author\somefile2.flac".AsOsAgnostic())
+                .With(c => c.Path = @"C:\Test\Path2\Volume\somefile2.flac".AsOsAgnostic())
                 .BuildListOfNew();
             Db.InsertMany(files);
 
@@ -115,64 +115,64 @@ namespace NzbDrone.Core.Test.MediaFiles
         public void get_file_by_path()
         {
             VerifyData();
-            var file = Subject.GetFileWithPath(@"C:\Test\Path\Author\somefile2.flac".AsOsAgnostic());
+            var file = Subject.GetFileWithPath(@"C:\Test\Path\Volume\somefile2.flac".AsOsAgnostic());
 
             file.Should().NotBeNull();
             file.Edition.IsLoaded.Should().BeTrue();
             file.Edition.Value.Should().NotBeNull();
-            file.Author.IsLoaded.Should().BeTrue();
-            file.Author.Value.Should().NotBeNull();
+            file.Volume.IsLoaded.Should().BeTrue();
+            file.Volume.Value.Should().NotBeNull();
         }
 
         [Test]
-        public void get_files_by_book()
+        public void get_files_by_issue()
         {
             VerifyData();
-            var files = Subject.GetFilesByBook(_book.Id);
+            var files = Subject.GetFilesByIssue(_issue.Id);
             VerifyEagerLoaded(files);
 
-            files.Should().OnlyContain(c => c.EditionId == _book.Id);
+            files.Should().OnlyContain(c => c.EditionId == _issue.Id);
         }
 
         private void VerifyData()
         {
-            Db.All<Author>().Should().HaveCount(1);
-            Db.All<Book>().Should().HaveCount(1);
-            Db.All<BookFile>().Should().HaveCount(10);
+            Db.All<Volume>().Should().HaveCount(1);
+            Db.All<Issue>().Should().HaveCount(1);
+            Db.All<IssueFile>().Should().HaveCount(10);
         }
 
-        private void VerifyEagerLoaded(List<BookFile> files)
+        private void VerifyEagerLoaded(List<IssueFile> files)
         {
             foreach (var file in files)
             {
                 file.Edition.IsLoaded.Should().BeTrue();
                 file.Edition.Value.Should().NotBeNull();
-                file.Author.IsLoaded.Should().BeTrue();
-                file.Author.Value.Should().NotBeNull();
-                file.Author.Value.Metadata.IsLoaded.Should().BeTrue();
-                file.Author.Value.Metadata.Value.Should().NotBeNull();
+                file.Volume.IsLoaded.Should().BeTrue();
+                file.Volume.Value.Should().NotBeNull();
+                file.Volume.Value.Metadata.IsLoaded.Should().BeTrue();
+                file.Volume.Value.Metadata.Value.Should().NotBeNull();
             }
         }
 
-        private void VerifyUnmapped(List<BookFile> files)
+        private void VerifyUnmapped(List<IssueFile> files)
         {
             foreach (var file in files)
             {
                 file.Edition.IsLoaded.Should().BeFalse();
                 file.Edition.Value.Should().BeNull();
-                file.Author.IsLoaded.Should().BeFalse();
-                file.Author.Value.Should().BeNull();
+                file.Volume.IsLoaded.Should().BeFalse();
+                file.Volume.Value.Should().BeNull();
             }
         }
 
         [Ignore("Doesn't make sense now we link to edition")]
         [Test]
-        public void delete_files_by_book_should_work_if_join_fails()
+        public void delete_files_by_issue_should_work_if_join_fails()
         {
-            Db.Delete(_book);
-            Subject.DeleteFilesByBook(_book.Id);
+            Db.Delete(_issue);
+            Subject.DeleteFilesByIssue(_issue.Id);
 
-            Db.All<BookFile>().Where(x => x.EditionId == _book.Id).Should().HaveCount(0);
+            Db.All<IssueFile>().Where(x => x.EditionId == _issue.Id).Should().HaveCount(0);
         }
     }
 }

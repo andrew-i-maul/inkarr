@@ -8,13 +8,13 @@ namespace NzbDrone.Core.Extras.Files
     public interface IExtraFileRepository<TExtraFile> : IBasicRepository<TExtraFile>
         where TExtraFile : ExtraFile, new()
     {
-        void DeleteForAuthor(int authorId);
-        void DeleteForBook(int authorId, int bookId);
-        void DeleteForBookFile(int bookFileId);
-        List<TExtraFile> GetFilesByAuthor(int authorId);
-        List<TExtraFile> GetFilesByBook(int authorId, int bookId);
-        List<TExtraFile> GetFilesByBookFile(int bookFileId);
-        TExtraFile FindByPath(int authorId, string path);
+        void DeleteForVolume(int volumeId);
+        void DeleteForIssue(int volumeId, int issueId);
+        void DeleteForIssueFile(int issueFileId);
+        List<TExtraFile> GetFilesByVolume(int volumeId);
+        List<TExtraFile> GetFilesByIssue(int volumeId, int issueId);
+        List<TExtraFile> GetFilesByIssueFile(int issueFileId);
+        TExtraFile FindByPath(int volumeId, string path);
     }
 
     public class ExtraFileRepository<TExtraFile> : BasicRepository<TExtraFile>, IExtraFileRepository<TExtraFile>
@@ -25,39 +25,39 @@ namespace NzbDrone.Core.Extras.Files
         {
         }
 
-        public void DeleteForAuthor(int authorId)
+        public void DeleteForVolume(int volumeId)
         {
-            Delete(c => c.AuthorId == authorId);
+            Delete(c => c.VolumeId == volumeId);
         }
 
-        public void DeleteForBook(int authorId, int bookId)
+        public void DeleteForIssue(int volumeId, int issueId)
         {
-            Delete(c => c.AuthorId == authorId && c.BookId == bookId);
+            Delete(c => c.VolumeId == volumeId && c.IssueId == issueId);
         }
 
-        public void DeleteForBookFile(int bookFileId)
+        public void DeleteForIssueFile(int issueFileId)
         {
-            Delete(c => c.BookFileId == bookFileId);
+            Delete(c => c.IssueFileId == issueFileId);
         }
 
-        public List<TExtraFile> GetFilesByAuthor(int authorId)
+        public List<TExtraFile> GetFilesByVolume(int volumeId)
         {
-            return Query(c => c.AuthorId == authorId);
+            return Query(c => c.VolumeId == volumeId);
         }
 
-        public List<TExtraFile> GetFilesByBook(int authorId, int bookId)
+        public List<TExtraFile> GetFilesByIssue(int volumeId, int issueId)
         {
-            return Query(c => c.AuthorId == authorId && c.BookId == bookId);
+            return Query(c => c.VolumeId == volumeId && c.IssueId == issueId);
         }
 
-        public List<TExtraFile> GetFilesByBookFile(int bookFileId)
+        public List<TExtraFile> GetFilesByIssueFile(int issueFileId)
         {
-            return Query(c => c.BookFileId == bookFileId);
+            return Query(c => c.IssueFileId == issueFileId);
         }
 
-        public TExtraFile FindByPath(int authorId, string path)
+        public TExtraFile FindByPath(int volumeId, string path)
         {
-            return Query(c => c.AuthorId == authorId && c.RelativePath == path).SingleOrDefault();
+            return Query(c => c.VolumeId == volumeId && c.RelativePath == path).SingleOrDefault();
         }
     }
 }

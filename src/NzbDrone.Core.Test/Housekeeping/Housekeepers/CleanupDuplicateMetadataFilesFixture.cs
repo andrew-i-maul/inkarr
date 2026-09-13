@@ -12,12 +12,12 @@ namespace NzbDrone.Core.Test.Housekeeping.Housekeepers
     public class CleanupDuplicateMetadataFilesFixture : DbTest<CleanupDuplicateMetadataFiles, MetadataFile>
     {
         [Test]
-        public void should_not_delete_metadata_files_when_they_are_for_the_same_author_but_different_consumers()
+        public void should_not_delete_metadata_files_when_they_are_for_the_same_volume_but_different_consumers()
         {
             var files = Builder<MetadataFile>.CreateListOfSize(2)
                                              .All()
-                                             .With(m => m.Type = MetadataType.AuthorMetadata)
-                                             .With(m => m.AuthorId = 1)
+                                             .With(m => m.Type = MetadataType.VolumeMetadata)
+                                             .With(m => m.VolumeId = 1)
                                              .BuildListOfNew();
 
             Db.InsertMany(files);
@@ -26,11 +26,11 @@ namespace NzbDrone.Core.Test.Housekeeping.Housekeepers
         }
 
         [Test]
-        public void should_not_delete_metadata_files_for_different_author()
+        public void should_not_delete_metadata_files_for_different_volume()
         {
             var files = Builder<MetadataFile>.CreateListOfSize(2)
                                              .All()
-                                             .With(m => m.Type = MetadataType.AuthorMetadata)
+                                             .With(m => m.Type = MetadataType.VolumeMetadata)
                                              .With(m => m.Consumer = "XbmcMetadata")
                                              .BuildListOfNew();
 
@@ -40,12 +40,12 @@ namespace NzbDrone.Core.Test.Housekeeping.Housekeepers
         }
 
         [Test]
-        public void should_delete_metadata_files_when_they_are_for_the_same_author_and_consumer()
+        public void should_delete_metadata_files_when_they_are_for_the_same_volume_and_consumer()
         {
             var files = Builder<MetadataFile>.CreateListOfSize(2)
                                              .All()
-                                             .With(m => m.Type = MetadataType.AuthorMetadata)
-                                             .With(m => m.AuthorId = 1)
+                                             .With(m => m.Type = MetadataType.VolumeMetadata)
+                                             .With(m => m.VolumeId = 1)
                                              .With(m => m.Consumer = "XbmcMetadata")
                                              .BuildListOfNew();
 
@@ -55,7 +55,7 @@ namespace NzbDrone.Core.Test.Housekeeping.Housekeepers
         }
 
         [Test]
-        public void should_not_delete_metadata_files_when_there_is_only_one_for_that_author_and_consumer()
+        public void should_not_delete_metadata_files_when_there_is_only_one_for_that_volume_and_consumer()
         {
             var file = Builder<MetadataFile>.CreateNew()
                                          .BuildNew();
@@ -66,13 +66,13 @@ namespace NzbDrone.Core.Test.Housekeeping.Housekeepers
         }
 
         [Test]
-        public void should_not_delete_metadata_files_when_they_are_for_the_same_book_but_different_consumers()
+        public void should_not_delete_metadata_files_when_they_are_for_the_same_issue_but_different_consumers()
         {
             var files = Builder<MetadataFile>.CreateListOfSize(2)
                                              .All()
-                                             .With(m => m.Type = MetadataType.BookMetadata)
-                                             .With(m => m.AuthorId = 1)
-                                             .With(m => m.BookId = 1)
+                                             .With(m => m.Type = MetadataType.IssueMetadata)
+                                             .With(m => m.VolumeId = 1)
+                                             .With(m => m.IssueId = 1)
                                              .BuildListOfNew();
 
             Db.InsertMany(files);
@@ -81,13 +81,13 @@ namespace NzbDrone.Core.Test.Housekeeping.Housekeepers
         }
 
         [Test]
-        public void should_not_delete_metadata_files_for_different_book()
+        public void should_not_delete_metadata_files_for_different_issue()
         {
             var files = Builder<MetadataFile>.CreateListOfSize(2)
                                              .All()
-                                             .With(m => m.Type = MetadataType.BookMetadata)
+                                             .With(m => m.Type = MetadataType.IssueMetadata)
                                              .With(m => m.Consumer = "XbmcMetadata")
-                                             .With(m => m.AuthorId = 1)
+                                             .With(m => m.VolumeId = 1)
                                              .BuildListOfNew();
 
             Db.InsertMany(files);
@@ -96,13 +96,13 @@ namespace NzbDrone.Core.Test.Housekeeping.Housekeepers
         }
 
         [Test]
-        public void should_delete_metadata_files_when_they_are_for_the_same_book_and_consumer()
+        public void should_delete_metadata_files_when_they_are_for_the_same_issue_and_consumer()
         {
             var files = Builder<MetadataFile>.CreateListOfSize(2)
                                              .All()
-                                             .With(m => m.Type = MetadataType.BookMetadata)
-                                             .With(m => m.AuthorId = 1)
-                                             .With(m => m.BookId = 1)
+                                             .With(m => m.Type = MetadataType.IssueMetadata)
+                                             .With(m => m.VolumeId = 1)
+                                             .With(m => m.IssueId = 1)
                                              .With(m => m.Consumer = "XbmcMetadata")
                                              .BuildListOfNew();
 
@@ -112,7 +112,7 @@ namespace NzbDrone.Core.Test.Housekeeping.Housekeepers
         }
 
         [Test]
-        public void should_not_delete_metadata_files_when_there_is_only_one_for_that_book_and_consumer()
+        public void should_not_delete_metadata_files_when_there_is_only_one_for_that_issue_and_consumer()
         {
             var file = Builder<MetadataFile>.CreateNew()
                                          .BuildNew();
@@ -127,8 +127,8 @@ namespace NzbDrone.Core.Test.Housekeeping.Housekeepers
         {
             var files = Builder<MetadataFile>.CreateListOfSize(2)
                                              .All()
-                                             .With(m => m.Type = MetadataType.BookMetadata)
-                                             .With(m => m.BookFileId = 1)
+                                             .With(m => m.Type = MetadataType.IssueMetadata)
+                                             .With(m => m.IssueFileId = 1)
                                              .BuildListOfNew();
 
             Db.InsertMany(files);
@@ -141,7 +141,7 @@ namespace NzbDrone.Core.Test.Housekeeping.Housekeepers
         {
             var files = Builder<MetadataFile>.CreateListOfSize(2)
                                              .All()
-                                             .With(m => m.Type = MetadataType.BookMetadata)
+                                             .With(m => m.Type = MetadataType.IssueMetadata)
                                              .With(m => m.Consumer = "XbmcMetadata")
                                              .BuildListOfNew();
 
@@ -155,8 +155,8 @@ namespace NzbDrone.Core.Test.Housekeeping.Housekeepers
         {
             var files = Builder<MetadataFile>.CreateListOfSize(2)
                                              .All()
-                                             .With(m => m.Type = MetadataType.BookMetadata)
-                                             .With(m => m.BookFileId = 1)
+                                             .With(m => m.Type = MetadataType.IssueMetadata)
+                                             .With(m => m.IssueFileId = 1)
                                              .With(m => m.Consumer = "XbmcMetadata")
                                              .BuildListOfNew();
 

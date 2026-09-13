@@ -21,28 +21,28 @@ public class Kavita : NotificationBase<KavitaSettings>
 
     public override string Link => "https://www.kavitareader.com/";
 
-    public override void OnReleaseImport(BookDownloadMessage message)
+    public override void OnReleaseImport(IssueDownloadMessage message)
     {
-        var allPaths = message.BookFiles.Select(v => v.Path).Distinct();
+        var allPaths = message.IssueFiles.Select(v => v.Path).Distinct();
         var path = Directory.GetParent(allPaths.First())?.FullName;
-        Notify(Settings, BOOK_DOWNLOADED_TITLE_BRANDED, path);
+        Notify(Settings, ISSUE_DOWNLOADED_TITLE_BRANDED, path);
     }
 
-    public override void OnBookDelete(BookDeleteMessage deleteMessage)
+    public override void OnIssueDelete(IssueDeleteMessage deleteMessage)
     {
-        var allPaths = deleteMessage.Book.BookFiles.Value.Select(v => v.Path).Distinct();
+        var allPaths = deleteMessage.Issue.IssueFiles.Value.Select(v => v.Path).Distinct();
         var path = Directory.GetParent(allPaths.First())?.FullName;
-        Notify(Settings, BOOK_FILE_DELETED_TITLE_BRANDED, path);
+        Notify(Settings, ISSUE_FILE_DELETED_TITLE_BRANDED, path);
     }
 
-    public override void OnBookFileDelete(BookFileDeleteMessage message)
+    public override void OnIssueFileDelete(IssueFileDeleteMessage message)
     {
-        Notify(Settings, BOOK_FILE_DELETED_TITLE_BRANDED, Directory.GetParent(message.BookFile.Path)?.FullName);
+        Notify(Settings, ISSUE_FILE_DELETED_TITLE_BRANDED, Directory.GetParent(message.IssueFile.Path)?.FullName);
     }
 
-    public override void OnBookRetag(BookRetagMessage message)
+    public override void OnIssueRetag(IssueRetagMessage message)
     {
-        Notify(Settings, BOOK_RETAGGED_TITLE_BRANDED, Directory.GetParent(message.BookFile.Path)?.FullName);
+        Notify(Settings, ISSUE_RETAGGED_TITLE_BRANDED, Directory.GetParent(message.IssueFile.Path)?.FullName);
     }
 
     public override string Name => "Kavita";

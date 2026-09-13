@@ -9,8 +9,8 @@ namespace Inkarr.Api.V1.ManualImport
     {
         public string Path { get; set; }
         public string Name { get; set; }
-        public int? AuthorId { get; set; }
-        public int? BookId { get; set; }
+        public int? VolumeId { get; set; }
+        public int? IssueId { get; set; }
         public string ForeignEditionId { get; set; }
         public QualityModel Quality { get; set; }
         public string ReleaseGroup { get; set; }

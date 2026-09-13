@@ -31,46 +31,46 @@ namespace NzbDrone.Core.ImportLists.Readarr
 
         public override IList<ImportListItemInfo> Fetch()
         {
-            var authorsAndBooks = new List<ImportListItemInfo>();
+            var volumesAndIssues = new List<ImportListItemInfo>();
 
             try
             {
-                var remoteBooks = _readarrV1Proxy.GetBooks(Settings);
-                var remoteAuthors = _readarrV1Proxy.GetAuthors(Settings);
+                var remoteIssues = _readarrV1Proxy.GetIssues(Settings);
+                var remoteVolumes = _readarrV1Proxy.GetVolumes(Settings);
 
-                var authorDict = remoteAuthors.ToDictionary(x => x.Id);
+                var volumeDict = remoteVolumes.ToDictionary(x => x.Id);
 
-                foreach (var remoteBook in remoteBooks)
+                foreach (var remoteIssue in remoteIssues)
                 {
-                    var remoteAuthor = authorDict[remoteBook.AuthorId];
+                    var remoteVolume = volumeDict[remoteIssue.VolumeId];
 
-                    if (Settings.ProfileIds.Any() && !Settings.ProfileIds.Contains(remoteAuthor.QualityProfileId))
+                    if (Settings.ProfileIds.Any() && !Settings.ProfileIds.Contains(remoteVolume.QualityProfileId))
                     {
                         continue;
                     }
 
-                    if (Settings.TagIds.Any() && !Settings.TagIds.Any(x => remoteAuthor.Tags.Any(y => y == x)))
+                    if (Settings.TagIds.Any() && !Settings.TagIds.Any(x => remoteVolume.Tags.Any(y => y == x)))
                     {
                         continue;
                     }
 
-                    if (Settings.RootFolderPaths.Any() && !Settings.RootFolderPaths.Any(rootFolderPath => remoteAuthor.RootFolderPath.ContainsIgnoreCase(rootFolderPath)))
+                    if (Settings.RootFolderPaths.Any() && !Settings.RootFolderPaths.Any(rootFolderPath => remoteVolume.RootFolderPath.ContainsIgnoreCase(rootFolderPath)))
                     {
                         continue;
                     }
 
-                    if (!remoteBook.Monitored || !remoteAuthor.Monitored)
+                    if (!remoteIssue.Monitored || !remoteVolume.Monitored)
                     {
                         continue;
                     }
 
-                    authorsAndBooks.Add(new ImportListItemInfo
+                    volumesAndIssues.Add(new ImportListItemInfo
                     {
-                        BookGoodreadsId = remoteBook.ForeignBookId,
-                        Book = remoteBook.Title,
-                        EditionGoodreadsId = remoteBook.ForeignEditionId,
-                        Author = remoteAuthor.AuthorName,
-                        AuthorGoodreadsId = remoteAuthor.ForeignAuthorId
+                        IssueGoodreadsId = remoteIssue.ForeignIssueId,
+                        Issue = remoteIssue.Title,
+                        EditionGoodreadsId = remoteIssue.ForeignEditionId,
+                        Volume = remoteVolume.VolumeName,
+                        VolumeGoodreadsId = remoteVolume.ForeignVolumeId
                     });
                 }
 
@@ -82,7 +82,7 @@ namespace NzbDrone.Core.ImportLists.Readarr
                 _importListStatusService.RecordFailure(Definition.Id);
             }
 
-            return CleanupListItems(authorsAndBooks);
+            return CleanupListItems(volumesAndIssues);
         }
 
         public override object RequestAction(string action, IDictionary<string, string> query)

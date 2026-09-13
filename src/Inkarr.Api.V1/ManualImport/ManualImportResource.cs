@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
-using Inkarr.Api.V1.Author;
-using Inkarr.Api.V1.Books;
+using Inkarr.Api.V1.Issues;
+using Inkarr.Api.V1.Volume;
 using Inkarr.Http.REST;
 using NzbDrone.Core.DecisionEngine;
-using NzbDrone.Core.MediaFiles.BookImport.Manual;
+using NzbDrone.Core.MediaFiles.IssueImport.Manual;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Qualities;
 
@@ -15,8 +15,8 @@ namespace Inkarr.Api.V1.ManualImport
         public string Path { get; set; }
         public string Name { get; set; }
         public long Size { get; set; }
-        public AuthorResource Author { get; set; }
-        public BookResource Book { get; set; }
+        public VolumeResource Volume { get; set; }
+        public IssueResource Issue { get; set; }
         public string ForeignEditionId { get; set; }
         public QualityModel Quality { get; set; }
         public string ReleaseGroup { get; set; }
@@ -45,9 +45,9 @@ namespace Inkarr.Api.V1.ManualImport
                 Path = model.Path,
                 Name = model.Name,
                 Size = model.Size,
-                Author = model.Author.ToResource(),
-                Book = model.Book.ToResource(),
-                ForeignEditionId = model.Edition?.ForeignEditionId ?? model.Book?.Editions.Value.Single(x => x.Monitored).ForeignEditionId,
+                Volume = model.Volume.ToResource(),
+                Issue = model.Issue.ToResource(),
+                ForeignEditionId = model.Edition?.ForeignEditionId ?? model.Issue?.Editions.Value.Single(x => x.Monitored).ForeignEditionId,
                 Quality = model.Quality,
                 ReleaseGroup = model.ReleaseGroup,
 

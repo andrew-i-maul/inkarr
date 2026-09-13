@@ -6,8 +6,8 @@ using Equ;
 using FluentAssertions;
 using NUnit.Framework;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Datastore;
+using NzbDrone.Core.Issues;
 using NzbDrone.Test.Common;
 
 namespace NzbDrone.Core.Test.MusicTests
@@ -51,9 +51,9 @@ namespace NzbDrone.Core.Test.MusicTests
         }
 
         [Test]
-        public void two_equivalent_author_metadata_should_be_equal()
+        public void two_equivalent_volume_metadata_should_be_equal()
         {
-            var item1 = _fixture.Create<AuthorMetadata>();
+            var item1 = _fixture.Create<VolumeMetadata>();
             var item2 = item1.JsonClone();
 
             item1.Should().NotBeSameAs(item2);
@@ -61,12 +61,12 @@ namespace NzbDrone.Core.Test.MusicTests
         }
 
         [Test]
-        [TestCaseSource(typeof(EqualityPropertySource<AuthorMetadata>), "TestCases")]
-        public void two_different_author_metadata_should_not_be_equal(PropertyInfo prop)
+        [TestCaseSource(typeof(EqualityPropertySource<VolumeMetadata>), "TestCases")]
+        public void two_different_volume_metadata_should_not_be_equal(PropertyInfo prop)
         {
-            var item1 = _fixture.Create<AuthorMetadata>();
+            var item1 = _fixture.Create<VolumeMetadata>();
             var item2 = item1.JsonClone();
-            var different = _fixture.Create<AuthorMetadata>();
+            var different = _fixture.Create<VolumeMetadata>();
 
             // make item2 different in the property under consideration
             var differentEntry = prop.GetValue(different);
@@ -77,10 +77,10 @@ namespace NzbDrone.Core.Test.MusicTests
         }
 
         [Test]
-        public void metadata_and_db_fields_should_replicate_author_metadata()
+        public void metadata_and_db_fields_should_replicate_volume_metadata()
         {
-            var item1 = _fixture.Create<AuthorMetadata>();
-            var item2 = _fixture.Create<AuthorMetadata>();
+            var item1 = _fixture.Create<VolumeMetadata>();
+            var item2 = _fixture.Create<VolumeMetadata>();
 
             item1.Should().NotBe(item2);
 
@@ -89,19 +89,19 @@ namespace NzbDrone.Core.Test.MusicTests
             item1.Should().Be(item2);
         }
 
-        private Book GivenBook()
+        private Issue GivenIssue()
         {
-            return _fixture.Build<Book>()
-                .Without(x => x.AuthorMetadata)
-                .Without(x => x.Author)
-                .Without(x => x.AuthorId)
+            return _fixture.Build<Issue>()
+                .Without(x => x.VolumeMetadata)
+                .Without(x => x.Volume)
+                .Without(x => x.VolumeId)
                 .Create();
         }
 
         [Test]
-        public void two_equivalent_books_should_be_equal()
+        public void two_equivalent_issues_should_be_equal()
         {
-            var item1 = GivenBook();
+            var item1 = GivenIssue();
             var item2 = item1.JsonClone();
 
             item1.Should().NotBeSameAs(item2);
@@ -109,12 +109,12 @@ namespace NzbDrone.Core.Test.MusicTests
         }
 
         [Test]
-        [TestCaseSource(typeof(EqualityPropertySource<Book>), "TestCases")]
-        public void two_different_books_should_not_be_equal(PropertyInfo prop)
+        [TestCaseSource(typeof(EqualityPropertySource<Issue>), "TestCases")]
+        public void two_different_issues_should_not_be_equal(PropertyInfo prop)
         {
-            var item1 = GivenBook();
+            var item1 = GivenIssue();
             var item2 = item1.JsonClone();
-            var different = GivenBook();
+            var different = GivenIssue();
 
             // make item2 different in the property under consideration
             if (prop.PropertyType == typeof(bool))
@@ -131,10 +131,10 @@ namespace NzbDrone.Core.Test.MusicTests
         }
 
         [Test]
-        public void metadata_and_db_fields_should_replicate_book()
+        public void metadata_and_db_fields_should_replicate_issue()
         {
-            var item1 = GivenBook();
-            var item2 = GivenBook();
+            var item1 = GivenIssue();
+            var item2 = GivenIssue();
 
             item1.Should().NotBe(item2);
 
@@ -146,8 +146,8 @@ namespace NzbDrone.Core.Test.MusicTests
         private Edition GivenEdition()
         {
             return _fixture.Build<Edition>()
-                .Without(x => x.Book)
-                .Without(x => x.BookFiles)
+                .Without(x => x.Issue)
+                .Without(x => x.IssueFiles)
                 .Create();
         }
 
@@ -196,22 +196,22 @@ namespace NzbDrone.Core.Test.MusicTests
             item1.Should().Be(item2);
         }
 
-        private Author GivenAuthor()
+        private Volume GivenVolume()
         {
-            return _fixture.Build<Author>()
-                .With(x => x.Metadata, new LazyLoaded<AuthorMetadata>(_fixture.Create<AuthorMetadata>()))
+            return _fixture.Build<Volume>()
+                .With(x => x.Metadata, new LazyLoaded<VolumeMetadata>(_fixture.Create<VolumeMetadata>()))
                 .Without(x => x.QualityProfile)
                 .Without(x => x.MetadataProfile)
-                .Without(x => x.Books)
+                .Without(x => x.Issues)
                 .Without(x => x.Name)
-                .Without(x => x.ForeignAuthorId)
+                .Without(x => x.ForeignVolumeId)
                 .Create();
         }
 
         [Test]
-        public void two_equivalent_authors_should_be_equal()
+        public void two_equivalent_volumes_should_be_equal()
         {
-            var item1 = GivenAuthor();
+            var item1 = GivenVolume();
             var item2 = item1.JsonClone();
 
             item1.Should().NotBeSameAs(item2);
@@ -219,12 +219,12 @@ namespace NzbDrone.Core.Test.MusicTests
         }
 
         [Test]
-        [TestCaseSource(typeof(EqualityPropertySource<Author>), "TestCases")]
-        public void two_different_authors_should_not_be_equal(PropertyInfo prop)
+        [TestCaseSource(typeof(EqualityPropertySource<Volume>), "TestCases")]
+        public void two_different_volumes_should_not_be_equal(PropertyInfo prop)
         {
-            var item1 = GivenAuthor();
+            var item1 = GivenVolume();
             var item2 = item1.JsonClone();
-            var different = GivenAuthor();
+            var different = GivenVolume();
 
             // make item2 different in the property under consideration
             if (prop.PropertyType == typeof(bool))
@@ -241,10 +241,10 @@ namespace NzbDrone.Core.Test.MusicTests
         }
 
         [Test]
-        public void metadata_and_db_fields_should_replicate_author()
+        public void metadata_and_db_fields_should_replicate_volume()
         {
-            var item1 = GivenAuthor();
-            var item2 = GivenAuthor();
+            var item1 = GivenVolume();
+            var item2 = GivenVolume();
 
             item1.Should().NotBe(item2);
 

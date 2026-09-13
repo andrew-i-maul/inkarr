@@ -1,8 +1,8 @@
 using System.Data.SQLite;
 using FluentAssertions;
 using NUnit.Framework;
-using NzbDrone.Core.Books.Commands;
 using NzbDrone.Core.Datastore.Converters;
+using NzbDrone.Core.Issues.Commands;
 using NzbDrone.Core.Messaging.Commands;
 using NzbDrone.Core.Test.Framework;
 
@@ -22,7 +22,7 @@ namespace NzbDrone.Core.Test.Datastore.Converters
         [Test]
         public void should_return_json_string_when_saving_boolean_to_db()
         {
-            var command = new RefreshAuthorCommand();
+            var command = new RefreshVolumeCommand();
 
             Subject.SetValue(_param, command);
             _param.Value.Should().BeOfType<string>();
@@ -38,9 +38,9 @@ namespace NzbDrone.Core.Test.Datastore.Converters
         [Test]
         public void should_return_command_when_getting_json_from_db()
         {
-            var data = "{\"name\": \"RefreshAuthor\"}";
+            var data = "{\"name\": \"RefreshVolume\"}";
 
-            Subject.Parse(data).Should().BeOfType<RefreshAuthorCommand>();
+            Subject.Parse(data).Should().BeOfType<RefreshVolumeCommand>();
         }
 
         [Test]

@@ -4,8 +4,8 @@ using System.Linq;
 using FizzWare.NBuilder;
 using FluentAssertions;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.CustomFormats;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Organizer;
 using NzbDrone.Core.Qualities;
@@ -16,16 +16,16 @@ namespace NzbDrone.Core.Test.OrganizerTests.FileNameBuilderTests
     [TestFixture]
     public class ColonReplacementFixture : CoreTest<FileNameBuilder>
     {
-        private Author _author;
-        private Book _book;
+        private Volume _volume;
+        private Issue _issue;
         private Edition _edition;
-        private BookFile _bookFile;
+        private IssueFile _issueFile;
         private NamingConfig _namingConfig;
 
         [SetUp]
         public void Setup()
         {
-            _author = Builder<Author>
+            _volume = Builder<Volume>
                 .CreateNew()
                 .With(s => s.Name = "Christopher Hopper")
                 .Build();
@@ -35,17 +35,17 @@ namespace NzbDrone.Core.Test.OrganizerTests.FileNameBuilderTests
                 .With(x => x.Title = "Series: Ruins of the Earth")
                 .Build();
 
-            var seriesLink = Builder<SeriesBookLink>
+            var seriesLink = Builder<SeriesIssueLink>
                 .CreateListOfSize(1)
                 .All()
                 .With(s => s.Position = "1-2")
                 .With(s => s.Series = series)
                 .BuildListOfNew();
 
-            _book = Builder<Book>
+            _issue = Builder<Issue>
                 .CreateNew()
                 .With(s => s.Title = "Fake: Phantom Deadfall")
-                .With(s => s.AuthorMetadata = _author.Metadata.Value)
+                .With(s => s.VolumeMetadata = _volume.Metadata.Value)
                 .With(s => s.ReleaseDate = new DateTime(2021, 2, 14))
                 .With(s => s.SeriesLinks = seriesLink)
                 .Build();
@@ -53,15 +53,15 @@ namespace NzbDrone.Core.Test.OrganizerTests.FileNameBuilderTests
             _edition = Builder<Edition>
                 .CreateNew()
                 .With(s => s.Monitored = true)
-                .With(s => s.Book = _book)
-                .With(s => s.Title = _book.Title)
+                .With(s => s.Issue = _issue)
+                .With(s => s.Title = _issue.Title)
                 .With(s => s.ReleaseDate = new DateTime(2021, 2, 17))
                 .Build();
 
-            _bookFile = new BookFile { Quality = new QualityModel(Quality.EPUB), ReleaseGroup = "InkarrTest" };
+            _issueFile = new IssueFile { Quality = new QualityModel(Quality.EPUB), ReleaseGroup = "InkarrTest" };
 
             _namingConfig = NamingConfig.Default;
-            _namingConfig.RenameBooks = true;
+            _namingConfig.RenameIssues = true;
 
             Mocker.GetMock<INamingConfigService>()
                   .Setup(c => c.GetConfig()).Returns(_namingConfig);
@@ -78,9 +78,9 @@ namespace NzbDrone.Core.Test.OrganizerTests.FileNameBuilderTests
         [Test]
         public void should_replace_colon_followed_by_space_with_space_dash_space_by_default()
         {
-            _namingConfig.StandardBookFormat = "{Author Name} - {Book SeriesTitle - }{Book Title} {(Release Year)}";
+            _namingConfig.StandardIssueFormat = "{Volume Name} - {Issue SeriesTitle - }{Issue Title} {(Release Year)}";
 
-            Subject.BuildBookFileName(_author, _edition, _bookFile)
+            Subject.BuildIssueFileName(_volume, _edition, _issueFile)
                    .Should().Be("Christopher Hopper - Series - Ruins of the Earth #1-2 - Fake - Phantom Deadfall (2021)");
         }
 
@@ -89,28 +89,28 @@ namespace NzbDrone.Core.Test.OrganizerTests.FileNameBuilderTests
         [TestCase("Fake: Phantom Deadfall", ColonReplacementFormat.Delete, "Christopher Hopper - Series Ruins of the Earth - Fake Phantom Deadfall (2021)")]
         [TestCase("Fake: Phantom Deadfall", ColonReplacementFormat.SpaceDash, "Christopher Hopper - Series - Ruins of the Earth - Fake - Phantom Deadfall (2021)")]
         [TestCase("Fake: Phantom Deadfall", ColonReplacementFormat.SpaceDashSpace, "Christopher Hopper - Series - Ruins of the Earth - Fake - Phantom Deadfall (2021)")]
-        public void should_replace_colon_followed_by_space_with_expected_result(string bookTitle, ColonReplacementFormat replacementFormat, string expected)
+        public void should_replace_colon_followed_by_space_with_expected_result(string issueTitle, ColonReplacementFormat replacementFormat, string expected)
         {
-            _book.Title = bookTitle;
-            _namingConfig.StandardBookFormat = "{Author Name} - {Book Series - }{Book Title} {(Release Year)}";
+            _issue.Title = issueTitle;
+            _namingConfig.StandardIssueFormat = "{Volume Name} - {Issue Series - }{Issue Title} {(Release Year)}";
             _namingConfig.ColonReplacementFormat = replacementFormat;
 
-            Subject.BuildBookFileName(_author, _edition, _bookFile)
+            Subject.BuildIssueFileName(_volume, _edition, _issueFile)
                 .Should().Be(expected);
         }
 
-        [TestCase("Author:Name", ColonReplacementFormat.Smart, "Author-Name")]
-        [TestCase("Author:Name", ColonReplacementFormat.Dash, "Author-Name")]
-        [TestCase("Author:Name", ColonReplacementFormat.Delete, "AuthorName")]
-        [TestCase("Author:Name", ColonReplacementFormat.SpaceDash, "Author -Name")]
-        [TestCase("Author:Name", ColonReplacementFormat.SpaceDashSpace, "Author - Name")]
-        public void should_replace_colon_with_expected_result(string authorName, ColonReplacementFormat replacementFormat, string expected)
+        [TestCase("Volume:Name", ColonReplacementFormat.Smart, "Volume-Name")]
+        [TestCase("Volume:Name", ColonReplacementFormat.Dash, "Volume-Name")]
+        [TestCase("Volume:Name", ColonReplacementFormat.Delete, "VolumeName")]
+        [TestCase("Volume:Name", ColonReplacementFormat.SpaceDash, "Volume -Name")]
+        [TestCase("Volume:Name", ColonReplacementFormat.SpaceDashSpace, "Volume - Name")]
+        public void should_replace_colon_with_expected_result(string volumeName, ColonReplacementFormat replacementFormat, string expected)
         {
-            _author.Name = authorName;
-            _namingConfig.StandardBookFormat = "{Author Name}";
+            _volume.Name = volumeName;
+            _namingConfig.StandardIssueFormat = "{Volume Name}";
             _namingConfig.ColonReplacementFormat = replacementFormat;
 
-            Subject.BuildBookFileName(_author, _edition, _bookFile)
+            Subject.BuildIssueFileName(_volume, _edition, _issueFile)
                 .Should().Be(expected);
         }
     }

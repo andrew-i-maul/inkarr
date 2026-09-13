@@ -4,7 +4,7 @@ using FizzWare.NBuilder;
 using FluentAssertions;
 using NUnit.Framework;
 using NzbDrone.Common.EnvironmentInfo;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Test.Framework;
 using NzbDrone.Core.Validation.Paths;
 using NzbDrone.Test.Common;
@@ -13,12 +13,12 @@ namespace NzbDrone.Core.Test.ValidationTests
 {
     public class SystemFolderValidatorFixture : CoreTest<SystemFolderValidator>
     {
-        private TestValidator<Author> _validator;
+        private TestValidator<Volume> _validator;
 
         [SetUp]
         public void Setup()
         {
-            _validator = new TestValidator<Author>
+            _validator = new TestValidator<Volume>
                             {
                                 v => v.RuleFor(s => s.Path).SetValidator(Subject)
                             };
@@ -29,11 +29,11 @@ namespace NzbDrone.Core.Test.ValidationTests
         {
             WindowsOnly();
 
-            var author = Builder<Author>.CreateNew()
+            var volume = Builder<Volume>.CreateNew()
                                         .With(s => s.Path = Environment.GetFolderPath(Environment.SpecialFolder.Windows))
                                         .Build();
 
-            _validator.Validate(author).IsValid.Should().BeFalse();
+            _validator.Validate(volume).IsValid.Should().BeFalse();
         }
 
         [Test]
@@ -41,11 +41,11 @@ namespace NzbDrone.Core.Test.ValidationTests
         {
             WindowsOnly();
 
-            var author = Builder<Author>.CreateNew()
+            var volume = Builder<Volume>.CreateNew()
                                         .With(s => s.Path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "Test"))
                                         .Build();
 
-            _validator.Validate(author).IsValid.Should().BeFalse();
+            _validator.Validate(volume).IsValid.Should().BeFalse();
         }
 
         [Test]
@@ -54,11 +54,11 @@ namespace NzbDrone.Core.Test.ValidationTests
             PosixOnly();
 
             var bin = OsInfo.IsOsx ? "/System" : "/bin";
-            var author = Builder<Author>.CreateNew()
+            var volume = Builder<Volume>.CreateNew()
                                         .With(s => s.Path = bin)
                                         .Build();
 
-            _validator.Validate(author).IsValid.Should().BeFalse();
+            _validator.Validate(volume).IsValid.Should().BeFalse();
         }
 
         [Test]
@@ -67,11 +67,11 @@ namespace NzbDrone.Core.Test.ValidationTests
             PosixOnly();
 
             var bin = OsInfo.IsOsx ? "/System" : "/bin";
-            var author = Builder<Author>.CreateNew()
+            var volume = Builder<Volume>.CreateNew()
                 .With(s => s.Path = Path.Combine(bin, "test"))
                 .Build();
 
-            _validator.Validate(author).IsValid.Should().BeFalse();
+            _validator.Validate(volume).IsValid.Should().BeFalse();
         }
     }
 }

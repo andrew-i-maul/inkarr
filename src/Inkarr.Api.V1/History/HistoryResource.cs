@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Inkarr.Api.V1.Author;
-using Inkarr.Api.V1.Books;
 using Inkarr.Api.V1.CustomFormats;
+using Inkarr.Api.V1.Issues;
+using Inkarr.Api.V1.Volume;
 using Inkarr.Http.REST;
 using NzbDrone.Core.CustomFormats;
 using NzbDrone.Core.History;
@@ -12,8 +12,8 @@ namespace Inkarr.Api.V1.History
 {
     public class HistoryResource : RestResource
     {
-        public int BookId { get; set; }
-        public int AuthorId { get; set; }
+        public int IssueId { get; set; }
+        public int VolumeId { get; set; }
         public string SourceTitle { get; set; }
         public QualityModel Quality { get; set; }
         public List<CustomFormatResource> CustomFormats { get; set; }
@@ -26,8 +26,8 @@ namespace Inkarr.Api.V1.History
 
         public Dictionary<string, string> Data { get; set; }
 
-        public BookResource Book { get; set; }
-        public AuthorResource Author { get; set; }
+        public IssueResource Issue { get; set; }
+        public VolumeResource Volume { get; set; }
     }
 
     public static class HistoryResourceMapper
@@ -39,15 +39,15 @@ namespace Inkarr.Api.V1.History
                 return null;
             }
 
-            var customFormats = formatCalculator.ParseCustomFormat(model, model.Author);
-            var customFormatScore = model.Author?.QualityProfile?.Value?.CalculateCustomFormatScore(customFormats) ?? 0;
+            var customFormats = formatCalculator.ParseCustomFormat(model, model.Volume);
+            var customFormatScore = model.Volume?.QualityProfile?.Value?.CalculateCustomFormatScore(customFormats) ?? 0;
 
             return new HistoryResource
             {
                 Id = model.Id,
 
-                BookId = model.BookId,
-                AuthorId = model.AuthorId,
+                IssueId = model.IssueId,
+                VolumeId = model.VolumeId,
                 SourceTitle = model.SourceTitle,
                 Quality = model.Quality,
                 CustomFormats = customFormats.ToResource(false),

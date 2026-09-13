@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using NLog;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles.Comics;
 using NzbDrone.Core.MediaFiles.Commands;
 using NzbDrone.Core.Messaging.Commands;
@@ -12,15 +12,15 @@ namespace NzbDrone.Core.MediaFiles
     public interface IMetadataTagService
     {
         ParsedTrackInfo ReadTags(IFileInfo file);
-        void WriteTags(BookFile trackfile, bool newDownload, bool force = false);
-        void SyncTags(List<Edition> books);
-        List<RetagBookFilePreview> GetRetagPreviewsByAuthor(int authorId);
-        List<RetagBookFilePreview> GetRetagPreviewsByBook(int authorId);
+        void WriteTags(IssueFile trackfile, bool newDownload, bool force = false);
+        void SyncTags(List<Edition> issues);
+        List<RetagIssueFilePreview> GetRetagPreviewsByVolume(int volumeId);
+        List<RetagIssueFilePreview> GetRetagPreviewsByIssue(int volumeId);
     }
 
     public class MetadataTagService : IMetadataTagService,
         IExecute<RetagFilesCommand>,
-        IExecute<RetagAuthorCommand>
+        IExecute<RetagVolumeCommand>
     {
         private readonly IComicTagService _comicTagService;
         private readonly Logger _logger;
@@ -38,9 +38,9 @@ namespace NzbDrone.Core.MediaFiles
             return _comicTagService.ReadTags(file);
         }
 
-        public void WriteTags(BookFile bookFile, bool newDownload, bool force = false)
+        public void WriteTags(IssueFile issueFile, bool newDownload, bool force = false)
         {
-            _comicTagService.WriteTags(bookFile, newDownload, force);
+            _comicTagService.WriteTags(issueFile, newDownload, force);
         }
 
         public void SyncTags(List<Edition> editions)
@@ -48,14 +48,14 @@ namespace NzbDrone.Core.MediaFiles
             _comicTagService.SyncTags(editions);
         }
 
-        public List<RetagBookFilePreview> GetRetagPreviewsByAuthor(int authorId)
+        public List<RetagIssueFilePreview> GetRetagPreviewsByVolume(int volumeId)
         {
-            return _comicTagService.GetRetagPreviewsByAuthor(authorId);
+            return _comicTagService.GetRetagPreviewsByVolume(volumeId);
         }
 
-        public List<RetagBookFilePreview> GetRetagPreviewsByBook(int bookId)
+        public List<RetagIssueFilePreview> GetRetagPreviewsByIssue(int issueId)
         {
-            return _comicTagService.GetRetagPreviewsByBook(bookId);
+            return _comicTagService.GetRetagPreviewsByIssue(issueId);
         }
 
         public void Execute(RetagFilesCommand message)
@@ -63,9 +63,9 @@ namespace NzbDrone.Core.MediaFiles
             _comicTagService.RetagFiles(message);
         }
 
-        public void Execute(RetagAuthorCommand message)
+        public void Execute(RetagVolumeCommand message)
         {
-            _comicTagService.RetagAuthor(message);
+            _comicTagService.RetagVolume(message);
         }
     }
 }

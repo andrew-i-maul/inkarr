@@ -344,9 +344,9 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.NzbgetTests
         {
             GivenSuccessfulDownload();
 
-            var remoteBook = CreateRemoteBook();
+            var remoteIssue = CreateRemoteIssue();
 
-            var id = await Subject.Download(remoteBook, CreateIndexer());
+            var id = await Subject.Download(remoteIssue, CreateIndexer());
 
             id.Should().NotBeNullOrEmpty();
         }
@@ -356,9 +356,9 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.NzbgetTests
         {
             GivenFailedDownload();
 
-            var remoteBook = CreateRemoteBook();
+            var remoteIssue = CreateRemoteIssue();
 
-            Assert.ThrowsAsync<DownloadClientRejectedReleaseException>(async () => await Subject.Download(remoteBook, CreateIndexer()));
+            Assert.ThrowsAsync<DownloadClientRejectedReleaseException>(async () => await Subject.Download(remoteIssue, CreateIndexer()));
         }
 
         [Test]
@@ -461,7 +461,7 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.NzbgetTests
         [Test]
         public void should_use_final_dir_when_set_instead_of_dest_dir()
         {
-            _completed.FinalDir = "/remote/mount/music2/Some.Author-Some.Book.FLAC.2018-DRONE";
+            _completed.FinalDir = "/remote/mount/music2/Some.Volume-Some.Issue.FLAC.2018-DRONE";
 
             GivenQueue(null);
             GivenHistory(_completed);

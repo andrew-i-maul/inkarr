@@ -19,26 +19,26 @@ namespace NzbDrone.Core.Indexers.FileList
             return pageableRequests;
         }
 
-        public IndexerPageableRequestChain GetSearchRequests(BookSearchCriteria searchCriteria)
+        public IndexerPageableRequestChain GetSearchRequests(IssueSearchCriteria searchCriteria)
         {
             var pageableRequests = new IndexerPageableRequestChain();
 
-            var authorQuery = searchCriteria.AuthorQuery.Replace("+", " ").Trim();
-            var bookQuery = searchCriteria.BookQuery.Replace("+", " ").Trim();
+            var volumeQuery = searchCriteria.VolumeQuery.Replace("+", " ").Trim();
+            var issueQuery = searchCriteria.IssueQuery.Replace("+", " ").Trim();
 
-            pageableRequests.Add(GetRequest("search-torrents", Settings.Categories, string.Format("&type=name&query={0}+{1}", Uri.EscapeDataString(authorQuery), Uri.EscapeDataString(bookQuery))));
-            pageableRequests.Add(GetRequest("search-torrents", Settings.Categories, string.Format("&type=name&query={0}+{1}", Uri.EscapeDataString(bookQuery), Uri.EscapeDataString(authorQuery))));
+            pageableRequests.Add(GetRequest("search-torrents", Settings.Categories, string.Format("&type=name&query={0}+{1}", Uri.EscapeDataString(volumeQuery), Uri.EscapeDataString(issueQuery))));
+            pageableRequests.Add(GetRequest("search-torrents", Settings.Categories, string.Format("&type=name&query={0}+{1}", Uri.EscapeDataString(issueQuery), Uri.EscapeDataString(volumeQuery))));
 
             return pageableRequests;
         }
 
-        public IndexerPageableRequestChain GetSearchRequests(AuthorSearchCriteria searchCriteria)
+        public IndexerPageableRequestChain GetSearchRequests(VolumeSearchCriteria searchCriteria)
         {
             var pageableRequests = new IndexerPageableRequestChain();
 
-            var authorQuery = searchCriteria.AuthorQuery.Replace("+", " ").Trim();
+            var volumeQuery = searchCriteria.VolumeQuery.Replace("+", " ").Trim();
 
-            pageableRequests.Add(GetRequest("search-torrents", Settings.Categories, string.Format("&type=name&query={0}", Uri.EscapeDataString(authorQuery))));
+            pageableRequests.Add(GetRequest("search-torrents", Settings.Categories, string.Format("&type=name&query={0}", Uri.EscapeDataString(volumeQuery))));
 
             return pageableRequests;
         }

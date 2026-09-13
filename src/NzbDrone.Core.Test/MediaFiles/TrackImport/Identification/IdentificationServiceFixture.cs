@@ -7,15 +7,15 @@ using FluentValidation.Results;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
-using NzbDrone.Core.Books.Commands;
 using NzbDrone.Core.Configuration;
 using NzbDrone.Core.ImportLists.Exclusions;
+using NzbDrone.Core.Issues;
+using NzbDrone.Core.Issues.Commands;
 using NzbDrone.Core.MediaFiles;
-using NzbDrone.Core.MediaFiles.BookImport;
-using NzbDrone.Core.MediaFiles.BookImport.Aggregation;
-using NzbDrone.Core.MediaFiles.BookImport.Aggregation.Aggregators;
-using NzbDrone.Core.MediaFiles.BookImport.Identification;
+using NzbDrone.Core.MediaFiles.IssueImport;
+using NzbDrone.Core.MediaFiles.IssueImport.Aggregation;
+using NzbDrone.Core.MediaFiles.IssueImport.Aggregation.Aggregators;
+using NzbDrone.Core.MediaFiles.IssueImport.Identification;
 using NzbDrone.Core.Messaging.Commands;
 using NzbDrone.Core.MetadataSource;
 using NzbDrone.Core.MetadataSource.ComicVine;
@@ -24,14 +24,14 @@ using NzbDrone.Core.Profiles.Metadata;
 using NzbDrone.Core.Test.Framework;
 using NzbDrone.Test.Common;
 
-namespace NzbDrone.Core.Test.MediaFiles.BookImport.Identification
+namespace NzbDrone.Core.Test.MediaFiles.IssueImport.Identification
 {
     [TestFixture]
     public class IdentificationServiceFixture : DbTest
     {
-        private AuthorService _authorService;
-        private AddAuthorService _addAuthorService;
-        private RefreshAuthorService _refreshAuthorService;
+        private VolumeService _volumeService;
+        private AddVolumeService _addVolumeService;
+        private RefreshVolumeService _refreshVolumeService;
 
         private IdentificationService _Subject;
 
@@ -41,31 +41,31 @@ namespace NzbDrone.Core.Test.MediaFiles.BookImport.Identification
             UseRealHttp();
 
             // Resolve all the parts we need
-            Mocker.SetConstant<IAuthorRepository>(Mocker.Resolve<AuthorRepository>());
-            Mocker.SetConstant<IAuthorMetadataRepository>(Mocker.Resolve<AuthorMetadataRepository>());
-            Mocker.SetConstant<IBookRepository>(Mocker.Resolve<BookRepository>());
+            Mocker.SetConstant<IVolumeRepository>(Mocker.Resolve<VolumeRepository>());
+            Mocker.SetConstant<IVolumeMetadataRepository>(Mocker.Resolve<VolumeMetadataRepository>());
+            Mocker.SetConstant<IIssueRepository>(Mocker.Resolve<IssueRepository>());
             Mocker.SetConstant<IImportListExclusionRepository>(Mocker.Resolve<ImportListExclusionRepository>());
             Mocker.SetConstant<IMediaFileRepository>(Mocker.Resolve<MediaFileRepository>());
 
             Mocker.GetMock<IMetadataProfileService>().Setup(x => x.Exists(It.IsAny<int>())).Returns(true);
 
-            _authorService = Mocker.Resolve<AuthorService>();
-            Mocker.SetConstant<IAuthorService>(_authorService);
-            Mocker.SetConstant<IAuthorMetadataService>(Mocker.Resolve<AuthorMetadataService>());
-            Mocker.SetConstant<IBookService>(Mocker.Resolve<BookService>());
+            _volumeService = Mocker.Resolve<VolumeService>();
+            Mocker.SetConstant<IVolumeService>(_volumeService);
+            Mocker.SetConstant<IVolumeMetadataService>(Mocker.Resolve<VolumeMetadataService>());
+            Mocker.SetConstant<IIssueService>(Mocker.Resolve<IssueService>());
             Mocker.SetConstant<IImportListExclusionService>(Mocker.Resolve<ImportListExclusionService>());
             Mocker.SetConstant<IMediaFileService>(Mocker.Resolve<MediaFileService>());
 
             Mocker.SetConstant<IConfigService>(Mocker.Resolve<IConfigService>());
-            Mocker.SetConstant<IProvideAuthorInfo>(Mocker.Resolve<ComicVineProxy>());
-            Mocker.SetConstant<IProvideBookInfo>(Mocker.Resolve<ComicVineProxy>());
+            Mocker.SetConstant<IProvideVolumeInfo>(Mocker.Resolve<ComicVineProxy>());
+            Mocker.SetConstant<IProvideIssueInfo>(Mocker.Resolve<ComicVineProxy>());
 
-            _addAuthorService = Mocker.Resolve<AddAuthorService>();
+            _addVolumeService = Mocker.Resolve<AddVolumeService>();
 
-            Mocker.SetConstant<IRefreshBookService>(Mocker.Resolve<RefreshBookService>());
-            _refreshAuthorService = Mocker.Resolve<RefreshAuthorService>();
+            Mocker.SetConstant<IRefreshIssueService>(Mocker.Resolve<RefreshIssueService>());
+            _refreshVolumeService = Mocker.Resolve<RefreshVolumeService>();
 
-            Mocker.GetMock<IAddAuthorValidator>().Setup(x => x.Validate(It.IsAny<Author>())).Returns(new ValidationResult());
+            Mocker.GetMock<IAddVolumeValidator>().Setup(x => x.Validate(It.IsAny<Volume>())).Returns(new ValidationResult());
 
             Mocker.SetConstant<ITrackGroupingService>(Mocker.Resolve<TrackGroupingService>());
             Mocker.SetConstant<ICandidateService>(Mocker.Resolve<CandidateService>());
@@ -86,41 +86,41 @@ namespace NzbDrone.Core.Test.MediaFiles.BookImport.Identification
             Mocker.GetMock<IMetadataProfileService>().Setup(x => x.Get(profile.Id)).Returns(profile);
         }
 
-        private List<Author> GivenAuthors(List<AuthorTestCase> authors)
+        private List<Volume> GivenVolumes(List<VolumeTestCase> volumes)
         {
-            var outp = new List<Author>();
-            for (var i = 0; i < authors.Count; i++)
+            var outp = new List<Volume>();
+            for (var i = 0; i < volumes.Count; i++)
             {
-                var meta = authors[i].MetadataProfile;
+                var meta = volumes[i].MetadataProfile;
                 meta.Id = i + 1;
                 GivenMetadataProfile(meta);
-                outp.Add(GivenAuthor(authors[i].Author, meta.Id));
+                outp.Add(GivenVolume(volumes[i].Volume, meta.Id));
             }
 
             return outp;
         }
 
-        private Author GivenAuthor(string foreignAuthorId, int metadataProfileId)
+        private Volume GivenVolume(string foreignVolumeId, int metadataProfileId)
         {
-            var author = _addAuthorService.AddAuthor(new Author
+            var volume = _addVolumeService.AddVolume(new Volume
             {
-                Metadata = new AuthorMetadata
+                Metadata = new VolumeMetadata
                 {
-                    ForeignAuthorId = foreignAuthorId
+                    ForeignVolumeId = foreignVolumeId
                 },
                 Path = @"c:\test".AsOsAgnostic(),
                 MetadataProfileId = metadataProfileId
             });
 
-            var command = new RefreshAuthorCommand
+            var command = new RefreshVolumeCommand
             {
-                AuthorId = author.Id,
+                VolumeId = volume.Id,
                 Trigger = CommandTrigger.Unspecified
             };
 
-            _refreshAuthorService.Execute(command);
+            _refreshVolumeService.Execute(command);
 
-            return _authorService.FindById(foreignAuthorId);
+            return _volumeService.FindById(foreignVolumeId);
         }
 
         public static class IdTestCaseFactory
@@ -130,8 +130,8 @@ namespace NzbDrone.Core.Test.MediaFiles.BookImport.Identification
             {
                 "FilesWithMBIds.json",
                 "PreferMissingToBadMatch.json",
-                "InconsistentTyposInBook.json",
-                "SucceedWhenManyBooksHaveSameTitle.json",
+                "InconsistentTyposInIssue.json",
+                "SucceedWhenManyIssuesHaveSameTitle.json",
                 "PenalizeUnknownMedia.json",
                 "CorruptFile.json",
                 "FilesWithoutTags.json"
@@ -157,11 +157,11 @@ namespace NzbDrone.Core.Test.MediaFiles.BookImport.Identification
             var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "Files", "Identification", file);
             var testcase = JsonConvert.DeserializeObject<IdTestCase>(File.ReadAllText(path));
 
-            var authors = GivenAuthors(testcase.LibraryAuthors);
-            var specifiedAuthor = authors.SingleOrDefault(x => x.Metadata.Value.ForeignAuthorId == testcase.Author);
-            var idOverrides = new IdentificationOverrides { Author = specifiedAuthor };
+            var volumes = GivenVolumes(testcase.LibraryVolumes);
+            var specifiedVolume = volumes.SingleOrDefault(x => x.Metadata.Value.ForeignVolumeId == testcase.Volume);
+            var idOverrides = new IdentificationOverrides { Volume = specifiedVolume };
 
-            var tracks = testcase.Tracks.Select(x => new LocalBook
+            var tracks = testcase.Tracks.Select(x => new LocalIssue
             {
                 Path = x.Path.AsOsAgnostic(),
                 FileTrackInfo = x.FileTrackInfo

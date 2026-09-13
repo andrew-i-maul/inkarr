@@ -5,8 +5,8 @@ using FluentValidation.Results;
 using NLog;
 using NzbDrone.Common.Cache;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Exceptions;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Notifications.Plex.PlexTv;
 using NzbDrone.Core.Validation;
@@ -21,11 +21,11 @@ namespace NzbDrone.Core.Notifications.Plex.Server
 
         private class PlexUpdateQueue
         {
-            public Dictionary<int, Author> Pending { get; } = new ();
+            public Dictionary<int, Volume> Pending { get; } = new ();
             public bool Refreshing { get; set; }
         }
 
-        private readonly ICached<PlexUpdateQueue> _pendingAuthorsCache;
+        private readonly ICached<PlexUpdateQueue> _pendingVolumesCache;
 
         public PlexServer(IPlexServerService plexServerService, IPlexTvService plexTvService, ICacheManager cacheManager, Logger logger)
         {
@@ -33,61 +33,61 @@ namespace NzbDrone.Core.Notifications.Plex.Server
             _plexTvService = plexTvService;
             _logger = logger;
 
-            _pendingAuthorsCache = cacheManager.GetRollingCache<PlexUpdateQueue>(GetType(), "pendingAuthors", TimeSpan.FromDays(1));
+            _pendingVolumesCache = cacheManager.GetRollingCache<PlexUpdateQueue>(GetType(), "pendingVolumes", TimeSpan.FromDays(1));
         }
 
         public override string Link => "https://www.plex.tv/";
         public override string Name => "Plex Media Server";
 
-        public override void OnReleaseImport(BookDownloadMessage message)
+        public override void OnReleaseImport(IssueDownloadMessage message)
         {
-            UpdateIfEnabled(message.Author);
+            UpdateIfEnabled(message.Volume);
         }
 
-        public override void OnRename(Author author, List<RenamedBookFile> renamedFiles)
+        public override void OnRename(Volume volume, List<RenamedIssueFile> renamedFiles)
         {
-            UpdateIfEnabled(author);
+            UpdateIfEnabled(volume);
         }
 
-        public override void OnBookRetag(BookRetagMessage message)
+        public override void OnIssueRetag(IssueRetagMessage message)
         {
-            UpdateIfEnabled(message.Author);
+            UpdateIfEnabled(message.Volume);
         }
 
-        public override void OnBookDelete(BookDeleteMessage deleteMessage)
-        {
-            if (deleteMessage.DeletedFiles)
-            {
-                UpdateIfEnabled(deleteMessage.Book.Author);
-            }
-        }
-
-        public override void OnAuthorDelete(AuthorDeleteMessage deleteMessage)
+        public override void OnIssueDelete(IssueDeleteMessage deleteMessage)
         {
             if (deleteMessage.DeletedFiles)
             {
-                UpdateIfEnabled(deleteMessage.Author);
+                UpdateIfEnabled(deleteMessage.Issue.Volume);
             }
         }
 
-        private void UpdateIfEnabled(Author author)
+        public override void OnVolumeDelete(VolumeDeleteMessage deleteMessage)
+        {
+            if (deleteMessage.DeletedFiles)
+            {
+                UpdateIfEnabled(deleteMessage.Volume);
+            }
+        }
+
+        private void UpdateIfEnabled(Volume volume)
         {
             _plexTvService.Ping(Settings.AuthToken);
 
             if (Settings.UpdateLibrary)
             {
-                _logger.Debug("Scheduling library update for author {0} {1}", author.Id, author.Name);
-                var queue = _pendingAuthorsCache.Get(Settings.Host, () => new PlexUpdateQueue());
+                _logger.Debug("Scheduling library update for volume {0} {1}", volume.Id, volume.Name);
+                var queue = _pendingVolumesCache.Get(Settings.Host, () => new PlexUpdateQueue());
                 lock (queue)
                 {
-                    queue.Pending[author.Id] = author;
+                    queue.Pending[volume.Id] = volume;
                 }
             }
         }
 
         public override void ProcessQueue()
         {
-            var queue = _pendingAuthorsCache.Find(Settings.Host);
+            var queue = _pendingVolumesCache.Find(Settings.Host);
 
             if (queue == null)
             {
@@ -108,7 +108,7 @@ namespace NzbDrone.Core.Notifications.Plex.Server
             {
                 while (true)
                 {
-                    List<Author> refreshingAuthors;
+                    List<Volume> refreshingVolumes;
                     lock (queue)
                     {
                         if (queue.Pending.Empty())
@@ -117,14 +117,14 @@ namespace NzbDrone.Core.Notifications.Plex.Server
                             return;
                         }
 
-                        refreshingAuthors = queue.Pending.Values.ToList();
+                        refreshingVolumes = queue.Pending.Values.ToList();
                         queue.Pending.Clear();
                     }
 
                     if (Settings.UpdateLibrary)
                     {
-                        _logger.Debug("Performing library update for {0} authors", refreshingAuthors.Count);
-                        _plexServerService.UpdateLibrary(refreshingAuthors, Settings);
+                        _logger.Debug("Performing library update for {0} volumes", refreshingVolumes.Count);
+                        _plexServerService.UpdateLibrary(refreshingVolumes, Settings);
                     }
                 }
             }

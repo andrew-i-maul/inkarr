@@ -2,54 +2,54 @@ using System.Collections.Generic;
 using FizzWare.NBuilder;
 using FluentAssertions;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Test.Framework;
 
-namespace NzbDrone.Core.Test.MusicTests.AuthorServiceTests
+namespace NzbDrone.Core.Test.MusicTests.VolumeServiceTests
 {
     [TestFixture]
 
-    public class FindByNameInexactFixture : CoreTest<AuthorService>
+    public class FindByNameInexactFixture : CoreTest<VolumeService>
     {
-        private List<Author> _authors;
+        private List<Volume> _volumes;
 
-        private Author CreateAuthor(string name)
+        private Volume CreateVolume(string name)
         {
-            return Builder<Author>.CreateNew()
+            return Builder<Volume>.CreateNew()
                 .With(a => a.Name = name)
-                .With(a => a.CleanName = Parser.Parser.CleanAuthorName(name))
-                .With(a => a.ForeignAuthorId = name)
+                .With(a => a.CleanName = Parser.Parser.CleanVolumeName(name))
+                .With(a => a.ForeignVolumeId = name)
                 .BuildNew();
         }
 
         [SetUp]
         public void Setup()
         {
-            _authors = new List<Author>();
-            _authors.Add(CreateAuthor("The Black Eyed Peas"));
-            _authors.Add(CreateAuthor("The Black Keys"));
+            _volumes = new List<Volume>();
+            _volumes.Add(CreateVolume("The Black Eyed Peas"));
+            _volumes.Add(CreateVolume("The Black Keys"));
 
-            Mocker.GetMock<IAuthorRepository>()
+            Mocker.GetMock<IVolumeRepository>()
                 .Setup(s => s.All())
-                .Returns(_authors);
+                .Returns(_volumes);
         }
 
         [TestCase("The Black Eyd Peas", "The Black Eyed Peas")]
         [TestCase("The Black eys", "The Black Keys")]
-        public void should_find_author_in_db_by_name_inexact(string name, string expected)
+        public void should_find_volume_in_db_by_name_inexact(string name, string expected)
         {
-            var author = Subject.FindByNameInexact(name);
+            var volume = Subject.FindByNameInexact(name);
 
-            author.Should().NotBeNull();
-            author.Name.Should().Be(expected);
+            volume.Should().NotBeNull();
+            volume.Name.Should().Be(expected);
         }
 
         [TestCase("The Black Peas")]
-        public void should_not_find_author_in_db_by_ambiguous_name(string name)
+        public void should_not_find_volume_in_db_by_ambiguous_name(string name)
         {
-            var author = Subject.FindByNameInexact(name);
+            var volume = Subject.FindByNameInexact(name);
 
-            author.Should().BeNull();
+            volume.Should().BeNull();
         }
     }
 }

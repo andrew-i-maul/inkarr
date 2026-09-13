@@ -58,7 +58,7 @@ namespace NzbDrone.Core.Test.ProviderTests.DiskScanProviderTests
         [Test]
         public void should_check_all_directories()
         {
-            Subject.GetBookFiles(_path);
+            Subject.GetIssueFiles(_path);
 
             Mocker.GetMock<IDiskProvider>().Verify(s => s.GetFileInfos(_path, true), Times.Once());
             Mocker.GetMock<IDiskProvider>().Verify(s => s.GetFileInfos(_path, false), Times.Never());
@@ -67,7 +67,7 @@ namespace NzbDrone.Core.Test.ProviderTests.DiskScanProviderTests
         [Test]
         public void should_check_all_directories_when_allDirectories_is_true()
         {
-            Subject.GetBookFiles(_path, true);
+            Subject.GetIssueFiles(_path, true);
 
             Mocker.GetMock<IDiskProvider>().Verify(s => s.GetFileInfos(_path, true), Times.Once());
             Mocker.GetMock<IDiskProvider>().Verify(s => s.GetFileInfos(_path, false), Times.Never());
@@ -76,18 +76,18 @@ namespace NzbDrone.Core.Test.ProviderTests.DiskScanProviderTests
         [Test]
         public void should_check_top_level_directory_only_when_allDirectories_is_false()
         {
-            Subject.GetBookFiles(_path, false);
+            Subject.GetIssueFiles(_path, false);
 
             Mocker.GetMock<IDiskProvider>().Verify(s => s.GetFileInfos(_path, true), Times.Never());
             Mocker.GetMock<IDiskProvider>().Verify(s => s.GetFileInfos(_path, false), Times.Once());
         }
 
         [Test]
-        public void should_return_book_files_only()
+        public void should_return_issue_files_only()
         {
             GivenFiles(GetFiles(_path));
 
-            Subject.GetBookFiles(_path).Should().HaveCount(5);
+            Subject.GetIssueFiles(_path).Should().HaveCount(5);
         }
 
         [TestCase("Extras")]

@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using System.Linq;
 using NLog;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MetadataSource;
 using NzbDrone.Core.MetadataSource.Goodreads;
 using NzbDrone.Core.Parser.Model;
 
-namespace NzbDrone.Core.MediaFiles.BookImport.Identification
+namespace NzbDrone.Core.MediaFiles.IssueImport.Identification
 {
     public interface ICandidateService
     {
@@ -17,23 +17,23 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
 
     public class CandidateService : ICandidateService
     {
-        private readonly ISearchForNewBook _bookSearchService;
-        private readonly IAuthorService _authorService;
-        private readonly IBookService _bookService;
+        private readonly ISearchForNewIssue _issueSearchService;
+        private readonly IVolumeService _volumeService;
+        private readonly IIssueService _issueService;
         private readonly IEditionService _editionService;
         private readonly IMediaFileService _mediaFileService;
         private readonly Logger _logger;
 
-        public CandidateService(ISearchForNewBook bookSearchService,
-                                IAuthorService authorService,
-                                IBookService bookService,
+        public CandidateService(ISearchForNewIssue issueSearchService,
+                                IVolumeService volumeService,
+                                IIssueService issueService,
                                 IEditionService editionService,
                                 IMediaFileService mediaFileService,
                                 Logger logger)
         {
-            _bookSearchService = bookSearchService;
-            _authorService = authorService;
-            _bookService = bookService;
+            _issueSearchService = issueSearchService;
+            _volumeService = volumeService;
+            _issueService = issueService;
             _editionService = editionService;
             _mediaFileService = mediaFileService;
             _logger = logger;
@@ -43,12 +43,12 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
-            // Generally author, book and release are null.  But if they're not then limit candidates appropriately.
+            // Generally volume, issue and release are null.  But if they're not then limit candidates appropriately.
             // We've tried to make sure that tracks are all for a single release.
             List<CandidateEdition> candidateReleases;
 
-            // if we have a Book ID, use that
-            Book tagMbidRelease = null;
+            // if we have a Issue ID, use that
+            Issue tagMbidRelease = null;
             List<CandidateEdition> tagCandidate = null;
 
             // TODO: select by ISBN?
@@ -60,7 +60,7 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
 
             //     if (tagMbidRelease != null)
             //     {
-            //         tagCandidate = GetDbCandidatesByRelease(new List<BookRelease> { tagMbidRelease }, includeExisting);
+            //         tagCandidate = GetDbCandidatesByRelease(new List<IssueRelease> { tagMbidRelease }, includeExisting);
             //     }
             // }
             if (idOverrides?.Edition != null)
@@ -69,28 +69,28 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
                 _logger.Debug("Edition {0} was forced", release);
                 candidateReleases = GetDbCandidatesByEdition(new List<Edition> { release }, includeExisting);
             }
-            else if (idOverrides?.Book != null)
+            else if (idOverrides?.Issue != null)
             {
-                // use the release from file tags if it exists and agrees with the specified book
-                if (tagMbidRelease?.Id == idOverrides.Book.Id)
+                // use the release from file tags if it exists and agrees with the specified issue
+                if (tagMbidRelease?.Id == idOverrides.Issue.Id)
                 {
                     candidateReleases = tagCandidate;
                 }
                 else
                 {
-                    candidateReleases = GetDbCandidatesByBook(idOverrides.Book, includeExisting);
+                    candidateReleases = GetDbCandidatesByIssue(idOverrides.Issue, includeExisting);
                 }
             }
-            else if (idOverrides?.Author != null)
+            else if (idOverrides?.Volume != null)
             {
-                // use the release from file tags if it exists and agrees with the specified book
-                if (tagMbidRelease?.AuthorMetadataId == idOverrides.Author.AuthorMetadataId)
+                // use the release from file tags if it exists and agrees with the specified issue
+                if (tagMbidRelease?.VolumeMetadataId == idOverrides.Volume.VolumeMetadataId)
                 {
                     candidateReleases = tagCandidate;
                 }
                 else
                 {
-                    candidateReleases = GetDbCandidatesByAuthor(localEdition, idOverrides.Author, includeExisting);
+                    candidateReleases = GetDbCandidatesByVolume(localEdition, idOverrides.Volume, includeExisting);
                 }
             }
             else
@@ -106,48 +106,48 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
             }
 
             watch.Stop();
-            _logger.Debug($"Getting {candidateReleases.Count} candidates from tags for {localEdition.LocalBooks.Count} tracks took {watch.ElapsedMilliseconds}ms");
+            _logger.Debug($"Getting {candidateReleases.Count} candidates from tags for {localEdition.LocalIssues.Count} tracks took {watch.ElapsedMilliseconds}ms");
 
             return candidateReleases;
         }
 
         private List<CandidateEdition> GetDbCandidatesByEdition(List<Edition> editions, bool includeExisting)
         {
-            // get the local tracks on disk for each book
-            var bookFiles = editions.Select(x => x.BookId)
+            // get the local tracks on disk for each issue
+            var issueFiles = editions.Select(x => x.IssueId)
                 .Distinct()
-                .ToDictionary(id => id, id => includeExisting ? _mediaFileService.GetFilesByBook(id) : new List<BookFile>());
+                .ToDictionary(id => id, id => includeExisting ? _mediaFileService.GetFilesByIssue(id) : new List<IssueFile>());
 
             return editions.Select(x => new CandidateEdition
             {
                 Edition = x,
-                ExistingFiles = bookFiles[x.BookId]
+                ExistingFiles = issueFiles[x.IssueId]
             }).ToList();
         }
 
-        private List<CandidateEdition> GetDbCandidatesByBook(Book book, bool includeExisting)
+        private List<CandidateEdition> GetDbCandidatesByIssue(Issue issue, bool includeExisting)
         {
             // Sort by most voted so less likely to swap to a random release
-            return GetDbCandidatesByEdition(_editionService.GetEditionsByBook(book.Id)
+            return GetDbCandidatesByEdition(_editionService.GetEditionsByIssue(issue.Id)
                                             .OrderByDescending(x => x.Ratings.Popularity)
                                             .ToList(), includeExisting);
         }
 
-        private List<CandidateEdition> GetDbCandidatesByAuthor(LocalEdition localEdition, Author author, bool includeExisting)
+        private List<CandidateEdition> GetDbCandidatesByVolume(LocalEdition localEdition, Volume volume, bool includeExisting)
         {
-            _logger.Trace("Getting candidates for {0}", author);
+            _logger.Trace("Getting candidates for {0}", volume);
             var candidateReleases = new List<CandidateEdition>();
 
-            var bookTag = localEdition.LocalBooks.MostCommon(x => x.FileTrackInfo.BookTitle) ?? "";
-            if (bookTag.IsNotNullOrWhiteSpace())
+            var issueTag = localEdition.LocalIssues.MostCommon(x => x.FileTrackInfo.IssueTitle) ?? "";
+            if (issueTag.IsNotNullOrWhiteSpace())
             {
-                var possibleBooks = _bookService.GetCandidates(author.AuthorMetadataId, bookTag);
-                foreach (var book in possibleBooks)
+                var possibleIssues = _issueService.GetCandidates(volume.VolumeMetadataId, issueTag);
+                foreach (var issue in possibleIssues)
                 {
-                    candidateReleases.AddRange(GetDbCandidatesByBook(book, includeExisting));
+                    candidateReleases.AddRange(GetDbCandidatesByIssue(issue, includeExisting));
                 }
 
-                var possibleEditions = _editionService.GetCandidates(author.AuthorMetadataId, bookTag);
+                var possibleEditions = _editionService.GetCandidates(volume.VolumeMetadataId, issueTag);
                 candidateReleases.AddRange(GetDbCandidatesByEdition(possibleEditions, includeExisting));
             }
 
@@ -157,32 +157,32 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
         private List<CandidateEdition> GetDbCandidates(LocalEdition localEdition, bool includeExisting)
         {
             // most general version, nothing has been specified.
-            // get all plausible authors, then all plausible books, then get releases for each of these.
+            // get all plausible volumes, then all plausible issues, then get releases for each of these.
             var candidateReleases = new List<CandidateEdition>();
 
             // check if it looks like VA.
-            if (TrackGroupingService.IsVariousAuthors(localEdition.LocalBooks))
+            if (TrackGroupingService.IsVariousVolumes(localEdition.LocalIssues))
             {
-                var va = _authorService.FindById(DistanceCalculator.VariousAuthorIds[0]);
+                var va = _volumeService.FindById(DistanceCalculator.VariousVolumeIds[0]);
                 if (va != null)
                 {
-                    candidateReleases.AddRange(GetDbCandidatesByAuthor(localEdition, va, includeExisting));
+                    candidateReleases.AddRange(GetDbCandidatesByVolume(localEdition, va, includeExisting));
                 }
             }
 
-            var authorTags = localEdition.LocalBooks.MostCommon(x => x.FileTrackInfo.Authors) ?? new List<string>();
-            if (authorTags.Any())
+            var volumeTags = localEdition.LocalIssues.MostCommon(x => x.FileTrackInfo.Volumes) ?? new List<string>();
+            if (volumeTags.Any())
             {
-                var variants = DistanceCalculator.GetAuthorVariants(authorTags.Where(x => x.IsNotNullOrWhiteSpace()).ToList());
+                var variants = DistanceCalculator.GetVolumeVariants(volumeTags.Where(x => x.IsNotNullOrWhiteSpace()).ToList());
 
-                foreach (var authorTag in variants)
+                foreach (var volumeTag in variants)
                 {
-                    if (authorTag.IsNotNullOrWhiteSpace())
+                    if (volumeTag.IsNotNullOrWhiteSpace())
                     {
-                        var possibleAuthors = _authorService.GetCandidates(authorTag);
-                        foreach (var author in possibleAuthors)
+                        var possibleVolumes = _volumeService.GetCandidates(volumeTag);
+                        foreach (var volume in possibleVolumes)
                         {
-                            candidateReleases.AddRange(GetDbCandidatesByAuthor(localEdition, author, includeExisting));
+                            candidateReleases.AddRange(GetDbCandidatesByVolume(localEdition, volume, includeExisting));
                         }
                     }
                 }
@@ -195,14 +195,14 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
         {
             // TODO handle edition override
 
-            // Gets candidate book releases from the metadata server.
+            // Gets candidate issue releases from the metadata server.
             // Will eventually need adding locally if we find a match
-            List<Book> remoteBooks;
+            List<Issue> remoteIssues;
             var seenCandidates = new HashSet<string>();
 
-            var isbns = localEdition.LocalBooks.Select(x => x.FileTrackInfo.Isbn).Distinct().ToList();
-            var asins = localEdition.LocalBooks.Select(x => x.FileTrackInfo.Asin).Distinct().ToList();
-            var goodreads = localEdition.LocalBooks.Select(x => x.FileTrackInfo.GoodreadsId).Distinct().ToList();
+            var isbns = localEdition.LocalIssues.Select(x => x.FileTrackInfo.Isbn).Distinct().ToList();
+            var asins = localEdition.LocalIssues.Select(x => x.FileTrackInfo.Asin).Distinct().ToList();
+            var goodreads = localEdition.LocalIssues.Select(x => x.FileTrackInfo.GoodreadsId).Distinct().ToList();
 
             // grab possibilities for all the IDs present
             if (isbns.Count == 1 && isbns[0].IsNotNullOrWhiteSpace())
@@ -211,15 +211,15 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
 
                 try
                 {
-                    remoteBooks = _bookSearchService.SearchByIsbn(isbns[0]);
+                    remoteIssues = _issueSearchService.SearchByIsbn(isbns[0]);
                 }
                 catch (GoodreadsException e)
                 {
                     _logger.Info(e, "Skipping ISBN search due to Goodreads Error");
-                    remoteBooks = new List<Book>();
+                    remoteIssues = new List<Issue>();
                 }
 
-                foreach (var candidate in ToCandidates(remoteBooks, seenCandidates, idOverrides))
+                foreach (var candidate in ToCandidates(remoteIssues, seenCandidates, idOverrides))
                 {
                     yield return candidate;
                 }
@@ -233,15 +233,15 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
 
                 try
                 {
-                    remoteBooks = _bookSearchService.SearchByAsin(asins[0]);
+                    remoteIssues = _issueSearchService.SearchByAsin(asins[0]);
                 }
                 catch (GoodreadsException e)
                 {
                     _logger.Info(e, "Skipping ASIN search due to Goodreads Error");
-                    remoteBooks = new List<Book>();
+                    remoteIssues = new List<Issue>();
                 }
 
-                foreach (var candidate in ToCandidates(remoteBooks, seenCandidates, idOverrides))
+                foreach (var candidate in ToCandidates(remoteIssues, seenCandidates, idOverrides))
                 {
                     yield return candidate;
                 }
@@ -256,15 +256,15 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
 
                     try
                     {
-                        remoteBooks = _bookSearchService.SearchByGoodreadsBookId(id, true);
+                        remoteIssues = _issueSearchService.SearchByGoodreadsIssueId(id, true);
                     }
                     catch (GoodreadsException e)
                     {
                         _logger.Info(e, "Skipping Goodreads ID search due to Goodreads Error");
-                        remoteBooks = new List<Book>();
+                        remoteIssues = new List<Issue>();
                     }
 
-                    foreach (var candidate in ToCandidates(remoteBooks, seenCandidates, idOverrides))
+                    foreach (var candidate in ToCandidates(remoteIssues, seenCandidates, idOverrides))
                     {
                         yield return candidate;
                     }
@@ -274,110 +274,110 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
             // If we got an id result, or any overrides are set, stop
             if (seenCandidates.Any() ||
                 idOverrides?.Edition != null ||
-                idOverrides?.Book != null ||
-                idOverrides?.Author != null)
+                idOverrides?.Issue != null ||
+                idOverrides?.Volume != null)
             {
                 yield break;
             }
 
-            // fall back to author / book name search
-            var authorTags = new List<string>();
+            // fall back to volume / issue name search
+            var volumeTags = new List<string>();
 
-            if (TrackGroupingService.IsVariousAuthors(localEdition.LocalBooks))
+            if (TrackGroupingService.IsVariousVolumes(localEdition.LocalIssues))
             {
-                authorTags.Add("Various Authors");
+                volumeTags.Add("Various Volumes");
             }
             else
             {
-                // the most common list of authors reported by a file
-                var authors = localEdition.LocalBooks.Select(x => x.FileTrackInfo.Authors.Where(a => a.IsNotNullOrWhiteSpace()).ToList())
+                // the most common list of volumes reported by a file
+                var volumes = localEdition.LocalIssues.Select(x => x.FileTrackInfo.Volumes.Where(a => a.IsNotNullOrWhiteSpace()).ToList())
                     .GroupBy(x => x.ConcatToString())
                     .OrderByDescending(x => x.Count())
                     .First()
                     .First();
-                authorTags.AddRange(authors);
+                volumeTags.AddRange(volumes);
             }
 
-            var bookTag = localEdition.LocalBooks.MostCommon(x => x.FileTrackInfo.BookTitle) ?? "";
+            var issueTag = localEdition.LocalIssues.MostCommon(x => x.FileTrackInfo.IssueTitle) ?? "";
 
-            // If no valid author or book tags, stop
-            if (!authorTags.Any() || bookTag.IsNullOrWhiteSpace())
+            // If no valid volume or issue tags, stop
+            if (!volumeTags.Any() || issueTag.IsNullOrWhiteSpace())
             {
                 yield break;
             }
 
-            // Search by author+book
-            foreach (var authorTag in authorTags)
+            // Search by volume+issue
+            foreach (var volumeTag in volumeTags)
             {
                 try
                 {
-                    remoteBooks = _bookSearchService.SearchForNewBook(bookTag, authorTag);
+                    remoteIssues = _issueSearchService.SearchForNewIssue(issueTag, volumeTag);
                 }
                 catch (GoodreadsException e)
                 {
-                    _logger.Info(e, "Skipping author/title search due to Goodreads Error");
-                    remoteBooks = new List<Book>();
+                    _logger.Info(e, "Skipping volume/title search due to Goodreads Error");
+                    remoteIssues = new List<Issue>();
                 }
 
-                foreach (var candidate in ToCandidates(remoteBooks, seenCandidates, idOverrides))
+                foreach (var candidate in ToCandidates(remoteIssues, seenCandidates, idOverrides))
                 {
                     yield return candidate;
                 }
             }
 
-            // If we got an author/book search result, stop
+            // If we got an volume/issue search result, stop
             if (seenCandidates.Any())
             {
                 yield break;
             }
 
-            // Search by just book title
+            // Search by just issue title
             try
             {
-                remoteBooks = _bookSearchService.SearchForNewBook(bookTag, null);
+                remoteIssues = _issueSearchService.SearchForNewIssue(issueTag, null);
             }
             catch (GoodreadsException e)
             {
-                _logger.Info(e, "Skipping book title search due to Goodreads Error");
-                remoteBooks = new List<Book>();
+                _logger.Info(e, "Skipping issue title search due to Goodreads Error");
+                remoteIssues = new List<Issue>();
             }
 
-            foreach (var candidate in ToCandidates(remoteBooks, seenCandidates, idOverrides))
+            foreach (var candidate in ToCandidates(remoteIssues, seenCandidates, idOverrides))
             {
                 yield return candidate;
             }
 
-            // Search by just author
-            foreach (var a in authorTags)
+            // Search by just volume
+            foreach (var a in volumeTags)
             {
                 try
                 {
-                    remoteBooks = _bookSearchService.SearchForNewBook(a, null);
+                    remoteIssues = _issueSearchService.SearchForNewIssue(a, null);
                 }
                 catch (GoodreadsException e)
                 {
-                    _logger.Info(e, "Skipping author search due to Goodreads Error");
-                    remoteBooks = new List<Book>();
+                    _logger.Info(e, "Skipping volume search due to Goodreads Error");
+                    remoteIssues = new List<Issue>();
                 }
 
-                foreach (var candidate in ToCandidates(remoteBooks, seenCandidates, idOverrides))
+                foreach (var candidate in ToCandidates(remoteIssues, seenCandidates, idOverrides))
                 {
                     yield return candidate;
                 }
             }
         }
 
-        private List<CandidateEdition> ToCandidates(IEnumerable<Book> books, HashSet<string> seenCandidates, IdentificationOverrides idOverrides)
+        private List<CandidateEdition> ToCandidates(IEnumerable<Issue> issues, HashSet<string> seenCandidates, IdentificationOverrides idOverrides)
         {
             var candidates = new List<CandidateEdition>();
 
-            foreach (var book in books)
+            foreach (var issue in issues)
             {
                 // We have to make sure various bits and pieces are populated that are normally handled
                 // by a database lazy load
-                foreach (var edition in book.Editions.Value)
+                foreach (var edition in issue.Editions.Value)
                 {
-                    edition.Book = book;
+                    edition.Issue = issue;
 
                     if (!seenCandidates.Contains(edition.ForeignEditionId) && SatisfiesOverride(edition, idOverrides))
                     {
@@ -385,7 +385,7 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
                         candidates.Add(new CandidateEdition
                         {
                             Edition = edition,
-                            ExistingFiles = new List<BookFile>()
+                            ExistingFiles = new List<IssueFile>()
                         });
                     }
                 }
@@ -401,14 +401,14 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
                 return edition.ForeignEditionId == idOverride.Edition.ForeignEditionId;
             }
 
-            if (idOverride?.Book != null)
+            if (idOverride?.Issue != null)
             {
-                return edition.Book.Value.ForeignBookId == idOverride.Book.ForeignBookId;
+                return edition.Issue.Value.ForeignIssueId == idOverride.Issue.ForeignIssueId;
             }
 
-            if (idOverride?.Author != null)
+            if (idOverride?.Volume != null)
             {
-                return edition.Book.Value.Author.Value.ForeignAuthorId == idOverride.Author.ForeignAuthorId;
+                return edition.Issue.Value.Volume.Value.ForeignVolumeId == idOverride.Volume.ForeignVolumeId;
             }
 
             return true;

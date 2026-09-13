@@ -11,12 +11,12 @@ using NzbDrone.Common.Disk;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Instrumentation.Extensions;
 using NzbDrone.Common.Serializer;
-using NzbDrone.Core.Books;
-using NzbDrone.Core.Books.Calibre;
 using NzbDrone.Core.Configuration;
-using NzbDrone.Core.MediaFiles.BookImport;
+using NzbDrone.Core.Issues;
+using NzbDrone.Core.Issues.Calibre;
 using NzbDrone.Core.MediaFiles.Commands;
 using NzbDrone.Core.MediaFiles.Events;
+using NzbDrone.Core.MediaFiles.IssueImport;
 using NzbDrone.Core.Messaging.Commands;
 using NzbDrone.Core.Messaging.Events;
 using NzbDrone.Core.RootFolders;
@@ -25,9 +25,9 @@ namespace NzbDrone.Core.MediaFiles
 {
     public interface IDiskScanService
     {
-        void Scan(List<string> folders = null, FilterFilesType filter = FilterFilesType.Known, bool addNewAuthors = false, List<int> authorIds = null);
-        IFileInfo[] GetBookFiles(string path, bool allDirectories = true);
-        string[] GetNonBookFiles(string path, bool allDirectories = true);
+        void Scan(List<string> folders = null, FilterFilesType filter = FilterFilesType.Known, bool addNewVolumes = false, List<int> volumeIds = null);
+        IFileInfo[] GetIssueFiles(string path, bool allDirectories = true);
+        string[] GetNonIssueFiles(string path, bool allDirectories = true);
         List<IFileInfo> FilterFiles(string basePath, IEnumerable<IFileInfo> files);
         List<string> FilterPaths(string basePath, IEnumerable<string> paths);
     }
@@ -44,8 +44,8 @@ namespace NzbDrone.Core.MediaFiles
         private readonly ICalibreProxy _calibre;
         private readonly IMediaFileService _mediaFileService;
         private readonly IMakeImportDecision _importDecisionMaker;
-        private readonly IImportApprovedBooks _importApprovedTracks;
-        private readonly IAuthorService _authorService;
+        private readonly IImportApprovedIssues _importApprovedTracks;
+        private readonly IVolumeService _volumeService;
         private readonly IMediaFileTableCleanupService _mediaFileTableCleanupService;
         private readonly IRootFolderService _rootFolderService;
         private readonly IEventAggregator _eventAggregator;
@@ -56,8 +56,8 @@ namespace NzbDrone.Core.MediaFiles
                                ICalibreProxy calibre,
                                IMediaFileService mediaFileService,
                                IMakeImportDecision importDecisionMaker,
-                               IImportApprovedBooks importApprovedTracks,
-                               IAuthorService authorService,
+                               IImportApprovedIssues importApprovedTracks,
+                               IVolumeService volumeService,
                                IRootFolderService rootFolderService,
                                IMediaFileTableCleanupService mediaFileTableCleanupService,
                                IEventAggregator eventAggregator,
@@ -70,23 +70,23 @@ namespace NzbDrone.Core.MediaFiles
             _mediaFileService = mediaFileService;
             _importDecisionMaker = importDecisionMaker;
             _importApprovedTracks = importApprovedTracks;
-            _authorService = authorService;
+            _volumeService = volumeService;
             _mediaFileTableCleanupService = mediaFileTableCleanupService;
             _rootFolderService = rootFolderService;
             _eventAggregator = eventAggregator;
             _logger = logger;
         }
 
-        public void Scan(List<string> folders = null, FilterFilesType filter = FilterFilesType.Known, bool addNewAuthors = false, List<int> authorIds = null)
+        public void Scan(List<string> folders = null, FilterFilesType filter = FilterFilesType.Known, bool addNewVolumes = false, List<int> volumeIds = null)
         {
             if (folders == null)
             {
                 folders = _rootFolderService.All().Select(x => x.Path).ToList();
             }
 
-            if (authorIds == null)
+            if (volumeIds == null)
             {
-                authorIds = new List<int>();
+                volumeIds = new List<int>();
             }
 
             var mediaFileList = new List<IFileInfo>();
@@ -111,17 +111,17 @@ namespace NzbDrone.Core.MediaFiles
                 {
                     if (!_diskProvider.FolderExists(rootFolder.Path))
                     {
-                        _logger.Warn("Authors' root folder ({0}) doesn't exist.", rootFolder.Path);
-                        var skippedAuthors = _authorService.GetAuthors(authorIds);
-                        skippedAuthors.ForEach(x => _eventAggregator.PublishEvent(new AuthorScanSkippedEvent(x, AuthorScanSkippedReason.RootFolderDoesNotExist)));
+                        _logger.Warn("Volumes' root folder ({0}) doesn't exist.", rootFolder.Path);
+                        var skippedVolumes = _volumeService.GetVolumes(volumeIds);
+                        skippedVolumes.ForEach(x => _eventAggregator.PublishEvent(new VolumeScanSkippedEvent(x, VolumeScanSkippedReason.RootFolderDoesNotExist)));
                         return;
                     }
 
                     if (_diskProvider.FolderEmpty(rootFolder.Path))
                     {
-                        _logger.Warn("Authors' root folder ({0}) is empty.", rootFolder.Path);
-                        var skippedAuthors = _authorService.GetAuthors(authorIds);
-                        skippedAuthors.ForEach(x => _eventAggregator.PublishEvent(new AuthorScanSkippedEvent(x, AuthorScanSkippedReason.RootFolderIsEmpty)));
+                        _logger.Warn("Volumes' root folder ({0}) is empty.", rootFolder.Path);
+                        var skippedVolumes = _volumeService.GetVolumes(volumeIds);
+                        skippedVolumes.ForEach(x => _eventAggregator.PublishEvent(new VolumeScanSkippedEvent(x, VolumeScanSkippedReason.RootFolderIsEmpty)));
                         return;
                     }
                 }
@@ -136,7 +136,7 @@ namespace NzbDrone.Core.MediaFiles
 
                 _logger.ProgressInfo("Scanning {0}", folder);
 
-                var files = FilterFiles(folder, GetBookFiles(folder));
+                var files = FilterFiles(folder, GetIssueFiles(folder));
 
                 if (!files.Any())
                 {
@@ -157,7 +157,7 @@ namespace NzbDrone.Core.MediaFiles
             {
                 Filter = filter,
                 IncludeExisting = true,
-                AddNewAuthors = addNewAuthors
+                AddNewVolumes = addNewVolumes
             };
 
             var decisions = _importDecisionMaker.GetImportDecisions(mediaFileList, null, null, config);
@@ -171,12 +171,12 @@ namespace NzbDrone.Core.MediaFiles
             // decisions may have been filtered to just new files.  Anything new and approved will have been inserted.
             // Now we need to make sure anything new but not approved gets inserted
             // Note that knownFiles will include anything imported just now
-            var knownFiles = new List<BookFile>();
+            var knownFiles = new List<IssueFile>();
             folders.ForEach(x => knownFiles.AddRange(_mediaFileService.GetFilesWithBasePath(x)));
 
             var newFiles = decisions
                 .ExceptBy(x => x.Item.Path, knownFiles, x => x.Path, PathEqualityComparer.Instance)
-                .Select(decision => new BookFile
+                .Select(decision => new IssueFile
                 {
                     Path = decision.Item.Path,
                     CalibreId = decision.Item.CalibreId,
@@ -221,14 +221,14 @@ namespace NzbDrone.Core.MediaFiles
 
             _logger.Debug($"Updated info for {updatedFiles.Count} known files");
 
-            var authors = _authorService.GetAuthors(authorIds);
-            foreach (var author in authors)
+            var volumes = _volumeService.GetVolumes(volumeIds);
+            foreach (var volume in volumes)
             {
-                CompletedScanning(author);
+                CompletedScanning(volume);
             }
 
             importStopwatch.Stop();
-            _logger.Debug("Book import complete for:\n{0} [{1}]", folders.ConcatToString("\n"), importStopwatch.Elapsed);
+            _logger.Debug("Issue import complete for:\n{0} [{1}]", folders.ConcatToString("\n"), importStopwatch.Elapsed);
         }
 
         private void CleanMediaFiles(string folder, List<string> mediaFileList)
@@ -237,13 +237,13 @@ namespace NzbDrone.Core.MediaFiles
             _mediaFileTableCleanupService.Clean(folder, mediaFileList);
         }
 
-        private void CompletedScanning(Author author)
+        private void CompletedScanning(Volume volume)
         {
-            _logger.Info("Completed scanning disk for {0}", author.Name);
-            _eventAggregator.PublishEvent(new AuthorScannedEvent(author));
+            _logger.Info("Completed scanning disk for {0}", volume.Name);
+            _eventAggregator.PublishEvent(new VolumeScannedEvent(volume));
         }
 
-        public IFileInfo[] GetBookFiles(string path, bool allDirectories = true)
+        public IFileInfo[] GetIssueFiles(string path, bool allDirectories = true)
         {
             IEnumerable<IFileInfo> filesOnDisk;
 
@@ -253,15 +253,15 @@ namespace NzbDrone.Core.MediaFiles
 
             if (rootFolder != null && rootFolder.IsCalibreLibrary && rootFolder.CalibreSettings != null)
             {
-                _logger.Info($"Getting book list from calibre for {path}");
-                var paths = _calibre.GetAllBookFilePaths(rootFolder.CalibreSettings);
+                _logger.Info($"Getting issue list from calibre for {path}");
+                var paths = _calibre.GetAllIssueFilePaths(rootFolder.CalibreSettings);
                 var folderPaths = paths.Where(x => path.IsParentPath(x));
 
                 filesOnDisk = folderPaths.Select(x => _diskProvider.GetFileInfo(x));
             }
             else
             {
-                _logger.Debug("Scanning '{0}' for ebook files", path);
+                _logger.Debug("Scanning '{0}' for eissue files", path);
 
                 filesOnDisk = _diskProvider.GetFileInfos(path, allDirectories);
 
@@ -271,14 +271,14 @@ namespace NzbDrone.Core.MediaFiles
             var mediaFileList = filesOnDisk.Where(file => MediaFileExtensions.AllExtensions.Contains(file.Extension))
                 .ToArray();
 
-            _logger.Debug("{0} book files were found in {1}", mediaFileList.Length, path);
+            _logger.Debug("{0} issue files were found in {1}", mediaFileList.Length, path);
 
             return mediaFileList;
         }
 
-        public string[] GetNonBookFiles(string path, bool allDirectories = true)
+        public string[] GetNonIssueFiles(string path, bool allDirectories = true)
         {
-            _logger.Debug("Scanning '{0}' for non-ebook files", path);
+            _logger.Debug("Scanning '{0}' for non-eissue files", path);
 
             var filesOnDisk = _diskProvider.GetFiles(path, allDirectories).ToList();
 
@@ -286,7 +286,7 @@ namespace NzbDrone.Core.MediaFiles
                                            .ToList();
 
             _logger.Trace("{0} files were found in {1}", filesOnDisk.Count, path);
-            _logger.Debug("{0} non-ebook files were found in {1}", mediaFileList.Count, path);
+            _logger.Debug("{0} non-eissue files were found in {1}", mediaFileList.Count, path);
 
             return mediaFileList.ToArray();
         }
@@ -307,7 +307,7 @@ namespace NzbDrone.Core.MediaFiles
 
         public void Execute(RescanFoldersCommand message)
         {
-            Scan(message.Folders, message.Filter, message.AddNewAuthors, message.AuthorIds);
+            Scan(message.Folders, message.Filter, message.AddNewVolumes, message.VolumeIds);
         }
     }
 }

@@ -17,7 +17,7 @@ namespace NzbDrone.Core.Download
 {
     public interface IDownloadService
     {
-        Task DownloadReport(RemoteBook remoteBook, int? downloadClientId);
+        Task DownloadReport(RemoteIssue remoteIssue, int? downloadClientId);
     }
 
     public class DownloadService : IDownloadService
@@ -50,96 +50,96 @@ namespace NzbDrone.Core.Download
             _logger = logger;
         }
 
-        public async Task DownloadReport(RemoteBook remoteBook, int? downloadClientId)
+        public async Task DownloadReport(RemoteIssue remoteIssue, int? downloadClientId)
         {
-            var filterBlockedClients = remoteBook.Release.PendingReleaseReason == PendingReleaseReason.DownloadClientUnavailable;
+            var filterBlockedClients = remoteIssue.Release.PendingReleaseReason == PendingReleaseReason.DownloadClientUnavailable;
 
-            var tags = remoteBook.Author?.Tags;
+            var tags = remoteIssue.Volume?.Tags;
 
             var downloadClient = downloadClientId.HasValue
                 ? _downloadClientProvider.Get(downloadClientId.Value)
-                : _downloadClientProvider.GetDownloadClient(remoteBook.Release.DownloadProtocol, remoteBook.Release.IndexerId, filterBlockedClients, tags);
+                : _downloadClientProvider.GetDownloadClient(remoteIssue.Release.DownloadProtocol, remoteIssue.Release.IndexerId, filterBlockedClients, tags);
 
-            await DownloadReport(remoteBook, downloadClient);
+            await DownloadReport(remoteIssue, downloadClient);
         }
 
-        private async Task DownloadReport(RemoteBook remoteBook, IDownloadClient downloadClient)
+        private async Task DownloadReport(RemoteIssue remoteIssue, IDownloadClient downloadClient)
         {
-            Ensure.That(remoteBook.Author, () => remoteBook.Author).IsNotNull();
-            Ensure.That(remoteBook.Books, () => remoteBook.Books).HasItems();
+            Ensure.That(remoteIssue.Volume, () => remoteIssue.Volume).IsNotNull();
+            Ensure.That(remoteIssue.Issues, () => remoteIssue.Issues).HasItems();
 
-            var downloadTitle = remoteBook.Release.Title;
+            var downloadTitle = remoteIssue.Release.Title;
 
             if (downloadClient == null)
             {
-                throw new DownloadClientUnavailableException($"{remoteBook.Release.DownloadProtocol} Download client isn't configured yet");
+                throw new DownloadClientUnavailableException($"{remoteIssue.Release.DownloadProtocol} Download client isn't configured yet");
             }
 
             // Get the seed configuration for this release.
-            remoteBook.SeedConfiguration = _seedConfigProvider.GetSeedConfiguration(remoteBook);
+            remoteIssue.SeedConfiguration = _seedConfigProvider.GetSeedConfiguration(remoteIssue);
 
             // Limit grabs to 2 per second.
-            if (remoteBook.Release.DownloadUrl.IsNotNullOrWhiteSpace() && !remoteBook.Release.DownloadUrl.StartsWith("magnet:"))
+            if (remoteIssue.Release.DownloadUrl.IsNotNullOrWhiteSpace() && !remoteIssue.Release.DownloadUrl.StartsWith("magnet:"))
             {
-                var url = new HttpUri(remoteBook.Release.DownloadUrl);
+                var url = new HttpUri(remoteIssue.Release.DownloadUrl);
                 await _rateLimitService.WaitAndPulseAsync(url.Host, TimeSpan.FromSeconds(2));
             }
 
             IIndexer indexer = null;
 
-            if (remoteBook.Release.IndexerId > 0)
+            if (remoteIssue.Release.IndexerId > 0)
             {
-                indexer = _indexerFactory.GetInstance(_indexerFactory.Get(remoteBook.Release.IndexerId));
+                indexer = _indexerFactory.GetInstance(_indexerFactory.Get(remoteIssue.Release.IndexerId));
             }
 
             string downloadClientId;
             try
             {
-                downloadClientId = await downloadClient.Download(remoteBook, indexer);
+                downloadClientId = await downloadClient.Download(remoteIssue, indexer);
                 _downloadClientStatusService.RecordSuccess(downloadClient.Definition.Id);
-                _indexerStatusService.RecordSuccess(remoteBook.Release.IndexerId);
+                _indexerStatusService.RecordSuccess(remoteIssue.Release.IndexerId);
             }
             catch (ReleaseUnavailableException)
             {
-                _logger.Trace("Release {0} no longer available on indexer.", remoteBook);
+                _logger.Trace("Release {0} no longer available on indexer.", remoteIssue);
                 throw;
             }
             catch (ReleaseBlockedException)
             {
-                _logger.Trace("Release {0} previously added to blocklist, not sending to download client again.", remoteBook);
+                _logger.Trace("Release {0} previously added to blocklist, not sending to download client again.", remoteIssue);
                 throw;
             }
             catch (DownloadClientRejectedReleaseException)
             {
-                _logger.Trace("Release {0} rejected by download client, possible duplicate.", remoteBook);
+                _logger.Trace("Release {0} rejected by download client, possible duplicate.", remoteIssue);
                 throw;
             }
             catch (ReleaseDownloadException ex)
             {
                 if (ex.InnerException is TooManyRequestsException http429)
                 {
-                    _indexerStatusService.RecordFailure(remoteBook.Release.IndexerId, http429.RetryAfter);
+                    _indexerStatusService.RecordFailure(remoteIssue.Release.IndexerId, http429.RetryAfter);
                 }
                 else
                 {
-                    _indexerStatusService.RecordFailure(remoteBook.Release.IndexerId);
+                    _indexerStatusService.RecordFailure(remoteIssue.Release.IndexerId);
                 }
 
                 throw;
             }
 
-            var bookGrabbedEvent = new BookGrabbedEvent(remoteBook);
-            bookGrabbedEvent.DownloadClient = downloadClient.Name;
-            bookGrabbedEvent.DownloadClientId = downloadClient.Definition.Id;
-            bookGrabbedEvent.DownloadClientName = downloadClient.Definition.Name;
+            var issueGrabbedEvent = new IssueGrabbedEvent(remoteIssue);
+            issueGrabbedEvent.DownloadClient = downloadClient.Name;
+            issueGrabbedEvent.DownloadClientId = downloadClient.Definition.Id;
+            issueGrabbedEvent.DownloadClientName = downloadClient.Definition.Name;
 
             if (downloadClientId.IsNotNullOrWhiteSpace())
             {
-                bookGrabbedEvent.DownloadId = downloadClientId;
+                issueGrabbedEvent.DownloadId = downloadClientId;
             }
 
-            _logger.ProgressInfo("Report sent to {0} from indexer {1}. {2}", downloadClient.Definition.Name, remoteBook.Release.Indexer, downloadTitle);
-            _eventAggregator.PublishEvent(bookGrabbedEvent);
+            _logger.ProgressInfo("Report sent to {0} from indexer {1}. {2}", downloadClient.Definition.Name, remoteIssue.Release.Indexer, downloadTitle);
+            _eventAggregator.PublishEvent(issueGrabbedEvent);
         }
     }
 }

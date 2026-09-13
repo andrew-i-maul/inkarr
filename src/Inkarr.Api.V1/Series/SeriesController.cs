@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Inkarr.Http;
 using Microsoft.AspNetCore.Mvc;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 
 namespace Inkarr.Api.V1.Series
 {
@@ -16,9 +16,9 @@ namespace Inkarr.Api.V1.Series
         }
 
         [HttpGet]
-        public List<SeriesResource> GetSeries(int authorId)
+        public List<SeriesResource> GetSeries(int volumeId)
         {
-            return _seriesService.GetByAuthorId(authorId).ToResource();
+            return _seriesService.GetByVolumeId(volumeId).ToResource();
         }
     }
 }

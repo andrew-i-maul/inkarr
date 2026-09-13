@@ -4,7 +4,7 @@ using System.Linq;
 using NLog;
 using NzbDrone.Core.MediaFiles;
 
-namespace NzbDrone.Core.Books
+namespace NzbDrone.Core.Issues
 {
     public interface IRefreshEditionService
     {
@@ -47,7 +47,7 @@ namespace NzbDrone.Core.Books
             var tagsToUpdate = updateList;
             if (forceUpdateFileTags)
             {
-                _logger.Debug("Forcing tag update due to Author/Book/Edition updates");
+                _logger.Debug("Forcing tag update due to Volume/Issue/Edition updates");
                 tagsToUpdate = updateList.Concat(upToDate).ToList();
             }
 

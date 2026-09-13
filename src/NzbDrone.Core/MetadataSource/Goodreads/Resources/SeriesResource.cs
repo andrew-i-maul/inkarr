@@ -5,7 +5,7 @@ using System.Xml.Linq;
 namespace NzbDrone.Core.MetadataSource.Goodreads
 {
     /// <summary>
-    /// Represents information about a book series as defined by the Goodreads API.
+    /// Represents information about a issue series as defined by the Goodreads API.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public sealed class SeriesResource : GoodreadsResource

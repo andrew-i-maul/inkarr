@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using Dapper;
 using FluentAssertions;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Datastore;
 using NzbDrone.Core.Datastore.Converters;
+using NzbDrone.Core.Issues;
 
 namespace NzbDrone.Core.Test.Datastore
 {
@@ -27,7 +27,7 @@ namespace NzbDrone.Core.Test.Datastore
 
         public class TypeWithNoMappableProperties
         {
-            public Author Author { get; set; }
+            public Volume Volume { get; set; }
 
             public int ReadOnly { get; private set; }
             public int WriteOnly { private get; set; }

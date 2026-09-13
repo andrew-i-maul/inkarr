@@ -8,25 +8,25 @@ using NLog;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Http;
 using NzbDrone.Common.TPL;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Configuration;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaCover;
 using NzbDrone.Core.MetadataSource.ComicVine.Resources;
 
 namespace NzbDrone.Core.MetadataSource.ComicVine
 {
-    // Replaces the Goodreads/BookInfo metadata sources with ComicVine as the sole source of
+    // Replaces the Goodreads/IssueInfo metadata sources with ComicVine as the sole source of
     // comic metadata. Domain mapping (see Phase 1 scoping): a ComicVine Volume (e.g. "Batman
-    // (2016)") is the atomic, monitorable unit users subscribe to - it becomes an Author, since
-    // Author is Readarr's root aggregate carrying QualityProfileId/RootFolderPath/Monitored/Tags,
-    // and monitoring needs to happen per-volume, not per-publisher. AuthorMetadata's
+    // (2016)") is the atomic, monitorable unit users subscribe to - it becomes an Volume, since
+    // Volume is Readarr's root aggregate carrying QualityProfileId/RootFolderPath/Monitored/Tags,
+    // and monitoring needs to happen per-volume, not per-publisher. VolumeMetadata's
     // Name/Overview/Images are populated directly from the Volume's own name/description/image
-    // fields - not from person_credits, which is per-issue and has no stable "volume author".
-    // A ComicVine Issue becomes a Book. ComicVine has no variant-cover/printing entity, so each
-    // Book gets exactly one synthesized Edition (matching the existing "exactly one edition
-    // monitored" invariant used by Goodreads/BookInfoProxy); the Volume's publisher name is
+    // fields - not from person_credits, which is per-issue and has no stable "volume volume".
+    // A ComicVine Issue becomes a Issue. ComicVine has no variant-cover/printing entity, so each
+    // Issue gets exactly one synthesized Edition (matching the existing "exactly one edition
+    // monitored" invariant used by Goodreads/IssueInfoProxy); the Volume's publisher name is
     // stored on that Edition's existing Publisher string field.
-    public class ComicVineProxy : IProvideAuthorInfo, IProvideBookInfo, ISearchForNewBook, ISearchForNewAuthor, ISearchForNewEntity
+    public class ComicVineProxy : IProvideVolumeInfo, IProvideIssueInfo, ISearchForNewIssue, ISearchForNewVolume, ISearchForNewEntity
     {
         private const string BaseUrl = "https://comicvine.gamespot.com/api/";
 
@@ -154,7 +154,7 @@ namespace NzbDrone.Core.MetadataSource.ComicVine
             return results;
         }
 
-        public Author GetAuthorInfo(string inkarrId, bool useCache = true)
+        public Volume GetVolumeInfo(string inkarrId, bool useCache = true)
         {
             _logger.Debug("Getting Volume with ComicVine id of {0}", inkarrId);
 
@@ -169,28 +169,28 @@ namespace NzbDrone.Core.MetadataSource.ComicVine
                 { "field_list", "id,name,issue_number,deck,description,cover_date,store_date,volume,image,site_detail_url,api_detail_url" }
             });
 
-            return MapAuthor(volume, issues);
+            return MapVolume(volume, issues);
         }
 
-        public HashSet<string> GetChangedAuthors(DateTime startTime)
+        public HashSet<string> GetChangedVolumes(DateTime startTime)
         {
             // ComicVine's public API has no documented "recently changed volumes" feed
-            // analogous to Goodreads/BookInfo's author/changed route. Returning null tells
-            // RefreshAuthorService to fall back to its own per-author staleness check
-            // (see RefreshAuthorService.cs, ShouldRefresh), which is already null-tolerant.
+            // analogous to Goodreads/IssueInfo's volume/changed route. Returning null tells
+            // RefreshVolumeService to fall back to its own per-volume staleness check
+            // (see RefreshVolumeService.cs, ShouldRefresh), which is already null-tolerant.
             return null;
         }
 
-        public Tuple<string, Book, List<AuthorMetadata>> GetBookInfo(string id)
+        public Tuple<string, Issue, List<VolumeMetadata>> GetIssueInfo(string id)
         {
             // "4000-" prefix for issue ids: same caveat as the "4050-" volume prefix above.
-            var issue = GetDetail<IssueResource>($"issue/4000-{id}").Results;
-            var volume = GetDetail<VolumeResource>($"volume/4050-{issue.Volume.Id}").Results;
+            var issueResource = GetDetail<IssueResource>($"issue/4000-{id}").Results;
+            var volume = GetDetail<VolumeResource>($"volume/4050-{issueResource.Volume.Id}").Results;
 
-            var book = MapBook(issue, volume.Publisher?.Name);
-            var authorMetadata = MapAuthorMetadata(volume);
+            var issue = MapIssue(issueResource, volume.Publisher?.Name);
+            var volumeMetadata = MapVolumeMetadata(volume);
 
-            return Tuple.Create(volume.Id.ToString(CultureInfo.InvariantCulture), book, new List<AuthorMetadata> { authorMetadata });
+            return Tuple.Create(volume.Id.ToString(CultureInfo.InvariantCulture), issue, new List<VolumeMetadata> { volumeMetadata });
         }
 
         public List<object> SearchForNewEntity(string title)
@@ -203,61 +203,61 @@ namespace NzbDrone.Core.MetadataSource.ComicVine
 
                 if (int.TryParse(idPart, out var issueId))
                 {
-                    return SearchByGoodreadsBookId(issueId, true).Cast<object>().ToList();
+                    return SearchByGoodreadsIssueId(issueId, true).Cast<object>().ToList();
                 }
 
                 return new List<object>();
             }
 
-            var authors = SearchForNewAuthor(title);
+            var volumes = SearchForNewVolume(title);
 
-            return authors.Cast<object>().ToList();
+            return volumes.Cast<object>().ToList();
         }
 
-        public List<Author> SearchForNewAuthor(string title)
+        public List<Volume> SearchForNewVolume(string title)
         {
             var volumes = SearchVolumes(title);
 
-            return volumes.Select(v => MapAuthor(v, new List<IssueResource>())).ToList();
+            return volumes.Select(v => MapVolume(v, new List<IssueResource>())).ToList();
         }
 
-        public List<Book> SearchForNewBook(string title, string author, bool getAllEditions = true)
+        public List<Issue> SearchForNewIssue(string title, string volume, bool getAllEditions = true)
         {
-            var q = author.IsNotNullOrWhiteSpace() ? $"{title} {author}" : title;
+            var q = volume.IsNotNullOrWhiteSpace() ? $"{title} {volume}" : title;
 
             var issues = SearchIssues(q);
 
-            return issues.Select(i => MapBook(i, null)).ToList();
+            return issues.Select(i => MapIssue(i, null)).ToList();
         }
 
-        public List<Book> SearchByIsbn(string isbn)
+        public List<Issue> SearchByIsbn(string isbn)
         {
             // Individual comic issues are not indexed by ISBN in ComicVine's basic search -
             // ISBNs, where they exist at all for comics, are usually only assigned to
             // collected editions/trades, which are out of scope for this Volume/Issue mapping.
             _logger.Debug("SearchByIsbn is not meaningful for ComicVine single issues; returning no results for {0}", isbn);
-            return new List<Book>();
+            return new List<Issue>();
         }
 
-        public List<Book> SearchByAsin(string asin)
+        public List<Issue> SearchByAsin(string asin)
         {
             _logger.Debug("SearchByAsin is not meaningful for ComicVine single issues; returning no results for {0}", asin);
-            return new List<Book>();
+            return new List<Issue>();
         }
 
-        public List<Book> SearchByGoodreadsBookId(int goodreadsId, bool getAllEditions)
+        public List<Issue> SearchByGoodreadsIssueId(int goodreadsId, bool getAllEditions)
         {
-            // Interface method name is a leftover from its Goodreads origin (ISearchForNewBook
+            // Interface method name is a leftover from its Goodreads origin (ISearchForNewIssue
             // is shared across metadata sources) - here it means "search by ComicVine issue id".
             try
             {
-                var tuple = GetBookInfo(goodreadsId.ToString(CultureInfo.InvariantCulture));
-                return new List<Book> { tuple.Item2 };
+                var tuple = GetIssueInfo(goodreadsId.ToString(CultureInfo.InvariantCulture));
+                return new List<Issue> { tuple.Item2 };
             }
             catch (ComicVineException e)
             {
                 _logger.Warn(e, "Error looking up ComicVine issue id {0}", goodreadsId);
-                return new List<Book>();
+                return new List<Issue>();
             }
         }
 
@@ -285,15 +285,15 @@ namespace NzbDrone.Core.MetadataSource.ComicVine
             return GetAllPages<IssueResource>("search", searchParams, 50);
         }
 
-        private static AuthorMetadata MapAuthorMetadata(VolumeResource volume)
+        private static VolumeMetadata MapVolumeMetadata(VolumeResource volume)
         {
-            var metadata = new AuthorMetadata
+            var metadata = new VolumeMetadata
             {
-                ForeignAuthorId = volume.Id.ToString(CultureInfo.InvariantCulture),
+                ForeignVolumeId = volume.Id.ToString(CultureInfo.InvariantCulture),
                 TitleSlug = volume.Id.ToString(CultureInfo.InvariantCulture),
                 Name = volume.Name,
                 Overview = volume.Description.IsNotNullOrWhiteSpace() ? volume.Description : volume.Deck,
-                Status = AuthorStatusType.Continuing
+                Status = VolumeStatusType.Continuing
             };
 
             metadata.SortName = metadata.Name?.ToLowerInvariant();
@@ -317,50 +317,50 @@ namespace NzbDrone.Core.MetadataSource.ComicVine
             return metadata;
         }
 
-        private static Author MapAuthor(VolumeResource volume, List<IssueResource> issues)
+        private static Volume MapVolume(VolumeResource volume, List<IssueResource> issueResources)
         {
-            var metadata = MapAuthorMetadata(volume);
+            var metadata = MapVolumeMetadata(volume);
             var publisherName = volume.Publisher?.Name;
 
-            var books = issues.Select(i => MapBook(i, publisherName)).ToList();
-            books.ForEach(b => b.AuthorMetadata = metadata);
+            var issues = issueResources.Select(i => MapIssue(i, publisherName)).ToList();
+            issues.ForEach(b => b.VolumeMetadata = metadata);
 
-            return new Author
+            return new Volume
             {
                 Metadata = metadata,
                 CleanName = metadata.Name,
-                Books = books
+                Issues = issues
             };
         }
 
-        private static Book MapBook(IssueResource issue, string publisherName)
+        private static Issue MapIssue(IssueResource issueResource, string publisherName)
         {
-            var releaseDate = ParseComicVineDate(issue.CoverDate) ?? ParseComicVineDate(issue.StoreDate);
+            var releaseDate = ParseComicVineDate(issueResource.CoverDate) ?? ParseComicVineDate(issueResource.StoreDate);
 
-            var title = issue.Name.IsNotNullOrWhiteSpace()
-                ? $"#{issue.IssueNumber} - {issue.Name}"
-                : $"#{issue.IssueNumber}";
+            var title = issueResource.Name.IsNotNullOrWhiteSpace()
+                ? $"#{issueResource.IssueNumber} - {issueResource.Name}"
+                : $"#{issueResource.IssueNumber}";
 
-            var book = new Book
+            var issue = new Issue
             {
-                ForeignBookId = issue.Id.ToString(CultureInfo.InvariantCulture),
+                ForeignIssueId = issueResource.Id.ToString(CultureInfo.InvariantCulture),
                 Title = title,
-                TitleSlug = issue.Id.ToString(CultureInfo.InvariantCulture),
+                TitleSlug = issueResource.Id.ToString(CultureInfo.InvariantCulture),
                 CleanTitle = title,
                 ReleaseDate = releaseDate,
                 AnyEditionOk = true
             };
 
-            if (issue.SiteDetailUrl.IsNotNullOrWhiteSpace())
+            if (issueResource.SiteDetailUrl.IsNotNullOrWhiteSpace())
             {
-                book.Links.Add(new Links { Url = issue.SiteDetailUrl, Name = "ComicVine" });
+                issue.Links.Add(new Links { Url = issueResource.SiteDetailUrl, Name = "ComicVine" });
             }
 
-            var edition = MapEdition(issue, publisherName);
+            var edition = MapEdition(issueResource, publisherName);
             edition.Monitored = true;
-            book.Editions = new List<Edition> { edition };
+            issue.Editions = new List<Edition> { edition };
 
-            return book;
+            return issue;
         }
 
         private static Edition MapEdition(IssueResource issue, string publisherName)

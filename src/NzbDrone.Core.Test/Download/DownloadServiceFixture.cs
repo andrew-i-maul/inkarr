@@ -7,11 +7,11 @@ using FizzWare.NBuilder;
 using Moq;
 using NUnit.Framework;
 using NzbDrone.Common.Http;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Download;
 using NzbDrone.Core.Download.Clients;
 using NzbDrone.Core.Exceptions;
 using NzbDrone.Core.Indexers;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Test.Framework;
 
@@ -20,7 +20,7 @@ namespace NzbDrone.Core.Test.Download
     [TestFixture]
     public class DownloadServiceFixture : CoreTest<DownloadService>
     {
-        private RemoteBook _parseResult;
+        private RemoteIssue _parseResult;
         private List<IDownloadClient> _downloadClients;
         [SetUp]
         public void Setup()
@@ -35,10 +35,10 @@ namespace NzbDrone.Core.Test.Download
                 .Setup(v => v.GetDownloadClient(It.IsAny<DownloadProtocol>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<HashSet<int>>()))
                 .Returns<DownloadProtocol, int, bool, HashSet<int>>((v, i, f, t) => _downloadClients.FirstOrDefault(d => d.Protocol == v));
 
-            var episodes = Builder<Book>.CreateListOfSize(2)
+            var episodes = Builder<Issue>.CreateListOfSize(2)
                 .TheFirst(1).With(s => s.Id = 12)
                 .TheNext(1).With(s => s.Id = 99)
-                .All().With(s => s.AuthorId = 5)
+                .All().With(s => s.VolumeId = 5)
                 .Build().ToList();
 
             var releaseInfo = Builder<ReleaseInfo>.CreateNew()
@@ -46,10 +46,10 @@ namespace NzbDrone.Core.Test.Download
                 .With(v => v.DownloadUrl = "http://test.site/download1.ext")
                 .Build();
 
-            _parseResult = Builder<RemoteBook>.CreateNew()
-                   .With(c => c.Author = Builder<Author>.CreateNew().Build())
+            _parseResult = Builder<RemoteIssue>.CreateNew()
+                   .With(c => c.Volume = Builder<Volume>.CreateNew().Build())
                    .With(c => c.Release = releaseInfo)
-                   .With(c => c.Books = episodes)
+                   .With(c => c.Issues = episodes)
                    .Build();
         }
 
@@ -81,42 +81,42 @@ namespace NzbDrone.Core.Test.Download
         public async Task Download_report_should_publish_on_grab_event()
         {
             var mock = WithUsenetClient();
-            mock.Setup(s => s.Download(It.IsAny<RemoteBook>(), It.IsAny<IIndexer>()));
+            mock.Setup(s => s.Download(It.IsAny<RemoteIssue>(), It.IsAny<IIndexer>()));
 
             await Subject.DownloadReport(_parseResult, null);
 
-            VerifyEventPublished<BookGrabbedEvent>();
+            VerifyEventPublished<IssueGrabbedEvent>();
         }
 
         [Test]
         public async Task Download_report_should_grab_using_client()
         {
             var mock = WithUsenetClient();
-            mock.Setup(s => s.Download(It.IsAny<RemoteBook>(), It.IsAny<IIndexer>()));
+            mock.Setup(s => s.Download(It.IsAny<RemoteIssue>(), It.IsAny<IIndexer>()));
 
             await Subject.DownloadReport(_parseResult, null);
 
-            mock.Verify(s => s.Download(It.IsAny<RemoteBook>(), It.IsAny<IIndexer>()), Times.Once());
+            mock.Verify(s => s.Download(It.IsAny<RemoteIssue>(), It.IsAny<IIndexer>()), Times.Once());
         }
 
         [Test]
         public void Download_report_should_not_publish_on_failed_grab_event()
         {
             var mock = WithUsenetClient();
-            mock.Setup(s => s.Download(It.IsAny<RemoteBook>(), It.IsAny<IIndexer>()))
+            mock.Setup(s => s.Download(It.IsAny<RemoteIssue>(), It.IsAny<IIndexer>()))
                 .Throws(new WebException());
 
             Assert.ThrowsAsync<WebException>(async () => await Subject.DownloadReport(_parseResult, null));
 
-            VerifyEventNotPublished<BookGrabbedEvent>();
+            VerifyEventNotPublished<IssueGrabbedEvent>();
         }
 
         [Test]
         public void Download_report_should_trigger_indexer_backoff_on_indexer_error()
         {
             var mock = WithUsenetClient();
-            mock.Setup(s => s.Download(It.IsAny<RemoteBook>(), It.IsAny<IIndexer>()))
-                .Callback<RemoteBook, IIndexer>((v, indexer) =>
+            mock.Setup(s => s.Download(It.IsAny<RemoteIssue>(), It.IsAny<IIndexer>()))
+                .Callback<RemoteIssue, IIndexer>((v, indexer) =>
                 {
                     throw new ReleaseDownloadException(v.Release, "Error", new WebException());
                 });
@@ -135,8 +135,8 @@ namespace NzbDrone.Core.Test.Download
             response.Headers["Retry-After"] = "300";
 
             var mock = WithUsenetClient();
-            mock.Setup(s => s.Download(It.IsAny<RemoteBook>(), It.IsAny<IIndexer>()))
-                .Callback<RemoteBook, IIndexer>((v, indexer) =>
+            mock.Setup(s => s.Download(It.IsAny<RemoteIssue>(), It.IsAny<IIndexer>()))
+                .Callback<RemoteIssue, IIndexer>((v, indexer) =>
                 {
                     throw new ReleaseDownloadException(v.Release, "Error", new TooManyRequestsException(request, response));
                 });
@@ -155,8 +155,8 @@ namespace NzbDrone.Core.Test.Download
             response.Headers["Retry-After"] = DateTime.UtcNow.AddSeconds(300).ToString("r");
 
             var mock = WithUsenetClient();
-            mock.Setup(s => s.Download(It.IsAny<RemoteBook>(), It.IsAny<IIndexer>()))
-                .Callback<RemoteBook, IIndexer>((v, indexer) =>
+            mock.Setup(s => s.Download(It.IsAny<RemoteIssue>(), It.IsAny<IIndexer>()))
+                .Callback<RemoteIssue, IIndexer>((v, indexer) =>
                 {
                     throw new ReleaseDownloadException(v.Release, "Error", new TooManyRequestsException(request, response));
                 });
@@ -172,7 +172,7 @@ namespace NzbDrone.Core.Test.Download
         public void Download_report_should_not_trigger_indexer_backoff_on_downloadclient_error()
         {
             var mock = WithUsenetClient();
-            mock.Setup(s => s.Download(It.IsAny<RemoteBook>(), It.IsAny<IIndexer>()))
+            mock.Setup(s => s.Download(It.IsAny<RemoteIssue>(), It.IsAny<IIndexer>()))
                 .Throws(new DownloadClientException("Some Error"));
 
             Assert.ThrowsAsync<DownloadClientException>(async () => await Subject.DownloadReport(_parseResult, null));
@@ -185,8 +185,8 @@ namespace NzbDrone.Core.Test.Download
         public void Download_report_should_not_trigger_indexer_backoff_on_indexer_404_error()
         {
             var mock = WithUsenetClient();
-            mock.Setup(s => s.Download(It.IsAny<RemoteBook>(), It.IsAny<IIndexer>()))
-                .Callback<RemoteBook, IIndexer>((v, indexer) =>
+            mock.Setup(s => s.Download(It.IsAny<RemoteIssue>(), It.IsAny<IIndexer>()))
+                .Callback<RemoteIssue, IIndexer>((v, indexer) =>
                 {
                     throw new ReleaseUnavailableException(v.Release, "Error", new WebException());
                 });
@@ -202,8 +202,8 @@ namespace NzbDrone.Core.Test.Download
         {
             Assert.ThrowsAsync<DownloadClientUnavailableException>(async () => await Subject.DownloadReport(_parseResult, null));
 
-            Mocker.GetMock<IDownloadClient>().Verify(c => c.Download(It.IsAny<RemoteBook>(), It.IsAny<IIndexer>()), Times.Never());
-            VerifyEventNotPublished<BookGrabbedEvent>();
+            Mocker.GetMock<IDownloadClient>().Verify(c => c.Download(It.IsAny<RemoteIssue>(), It.IsAny<IIndexer>()), Times.Never());
+            VerifyEventNotPublished<IssueGrabbedEvent>();
         }
 
         [Test]
@@ -225,8 +225,8 @@ namespace NzbDrone.Core.Test.Download
             await Subject.DownloadReport(_parseResult, null);
 
             Mocker.GetMock<IDownloadClientStatusService>().Verify(c => c.GetBlockedProviders(), Times.Never());
-            mockUsenet.Verify(c => c.Download(It.IsAny<RemoteBook>(), It.IsAny<IIndexer>()), Times.Once());
-            VerifyEventPublished<BookGrabbedEvent>();
+            mockUsenet.Verify(c => c.Download(It.IsAny<RemoteIssue>(), It.IsAny<IIndexer>()), Times.Once());
+            VerifyEventPublished<IssueGrabbedEvent>();
         }
 
         [Test]
@@ -237,8 +237,8 @@ namespace NzbDrone.Core.Test.Download
 
             await Subject.DownloadReport(_parseResult, null);
 
-            mockTorrent.Verify(c => c.Download(It.IsAny<RemoteBook>(), It.IsAny<IIndexer>()), Times.Never());
-            mockUsenet.Verify(c => c.Download(It.IsAny<RemoteBook>(), It.IsAny<IIndexer>()), Times.Once());
+            mockTorrent.Verify(c => c.Download(It.IsAny<RemoteIssue>(), It.IsAny<IIndexer>()), Times.Never());
+            mockUsenet.Verify(c => c.Download(It.IsAny<RemoteIssue>(), It.IsAny<IIndexer>()), Times.Once());
         }
 
         [Test]
@@ -251,8 +251,8 @@ namespace NzbDrone.Core.Test.Download
 
             await Subject.DownloadReport(_parseResult, null);
 
-            mockTorrent.Verify(c => c.Download(It.IsAny<RemoteBook>(), It.IsAny<IIndexer>()), Times.Once());
-            mockUsenet.Verify(c => c.Download(It.IsAny<RemoteBook>(), It.IsAny<IIndexer>()), Times.Never());
+            mockTorrent.Verify(c => c.Download(It.IsAny<RemoteIssue>(), It.IsAny<IIndexer>()), Times.Once());
+            mockUsenet.Verify(c => c.Download(It.IsAny<RemoteIssue>(), It.IsAny<IIndexer>()), Times.Never());
         }
     }
 }

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace NzbDrone.Core.Books.Calibre
+namespace NzbDrone.Core.Issues.Calibre
 {
     public enum CalibreFormat
     {
@@ -28,8 +28,8 @@ namespace NzbDrone.Core.Books.Calibre
     public enum CalibreProfile
     {
         @default,
-        cybookg3,
-        cybook_opus,
+        cyissueg3,
+        cyissue_opus,
         generic_eink,
         generic_eink_hd,
         generic_eink_large,
@@ -40,7 +40,7 @@ namespace NzbDrone.Core.Books.Calibre
         ipad3,
         irexdr1000,
         irexdr800,
-        jetbook5,
+        jetissue5,
         kindle,
         kindle_dx,
         kindle_fire,
@@ -54,8 +54,8 @@ namespace NzbDrone.Core.Books.Calibre
         nook,
         nook_color,
         nook_hd_plus,
-        pocketbook_900,
-        pocketbook_pro_912,
+        pocketissue_900,
+        pocketissue_pro_912,
         galaxy,
         sony,
         sony300,
@@ -65,10 +65,10 @@ namespace NzbDrone.Core.Books.Calibre
         tablet
     }
 
-    public class CalibreBookData
+    public class CalibreIssueData
     {
         public CalibreConversionOptions Conversion_options { get; set; }
-        public int Book_id { get; set; }
+        public int Issue_id { get; set; }
         public List<string> Input_formats { get; set; }
         public List<string> Output_formats { get; set; }
     }

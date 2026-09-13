@@ -8,8 +8,8 @@ using NzbDrone.Common.Disk;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Processes;
 using NzbDrone.Common.Serializer;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.HealthCheck;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.ThingiProvider;
 using NzbDrone.Core.Validation;
@@ -37,27 +37,27 @@ namespace NzbDrone.Core.Notifications.CustomScript
 
         public override void OnGrab(GrabMessage message)
         {
-            var author = message.Author;
-            var remoteBook = message.RemoteBook;
-            var releaseGroup = remoteBook.ParsedBookInfo.ReleaseGroup;
+            var volume = message.Volume;
+            var remoteIssue = message.RemoteIssue;
+            var releaseGroup = remoteIssue.ParsedIssueInfo.ReleaseGroup;
             var environmentVariables = new StringDictionary();
 
             environmentVariables.Add("Inkarr_EventType", "Grab");
-            environmentVariables.Add("Inkarr_Author_Id", author.Id.ToString());
-            environmentVariables.Add("Inkarr_Author_Name", author.Metadata.Value.Name);
-            environmentVariables.Add("Inkarr_Author_GRId", author.Metadata.Value.ForeignAuthorId);
-            environmentVariables.Add("Inkarr_Release_BookCount", remoteBook.Books.Count.ToString());
-            environmentVariables.Add("Inkarr_Release_BookReleaseDates", string.Join(",", remoteBook.Books.Select(e => e.ReleaseDate)));
-            environmentVariables.Add("Inkarr_Release_BookTitles", string.Join("|", remoteBook.Books.Select(e => e.Title)));
-            environmentVariables.Add("Inkarr_Release_BookIds", string.Join("|", remoteBook.Books.Select(e => e.Id.ToString())));
-            environmentVariables.Add("Inkarr_Release_GRIds", remoteBook.Books.Select(x => x.Editions.Value.Single(e => e.Monitored).ForeignEditionId).ConcatToString("|"));
-            environmentVariables.Add("Inkarr_Release_Title", remoteBook.Release.Title);
-            environmentVariables.Add("Inkarr_Release_Indexer", remoteBook.Release.Indexer ?? string.Empty);
-            environmentVariables.Add("Inkarr_Release_Size", remoteBook.Release.Size.ToString());
-            environmentVariables.Add("Inkarr_Release_Quality", remoteBook.ParsedBookInfo.Quality.Quality.Name);
-            environmentVariables.Add("Inkarr_Release_QualityVersion", remoteBook.ParsedBookInfo.Quality.Revision.Version.ToString());
+            environmentVariables.Add("Inkarr_Volume_Id", volume.Id.ToString());
+            environmentVariables.Add("Inkarr_Volume_Name", volume.Metadata.Value.Name);
+            environmentVariables.Add("Inkarr_Volume_GRId", volume.Metadata.Value.ForeignVolumeId);
+            environmentVariables.Add("Inkarr_Release_IssueCount", remoteIssue.Issues.Count.ToString());
+            environmentVariables.Add("Inkarr_Release_IssueReleaseDates", string.Join(",", remoteIssue.Issues.Select(e => e.ReleaseDate)));
+            environmentVariables.Add("Inkarr_Release_IssueTitles", string.Join("|", remoteIssue.Issues.Select(e => e.Title)));
+            environmentVariables.Add("Inkarr_Release_IssueIds", string.Join("|", remoteIssue.Issues.Select(e => e.Id.ToString())));
+            environmentVariables.Add("Inkarr_Release_GRIds", remoteIssue.Issues.Select(x => x.Editions.Value.Single(e => e.Monitored).ForeignEditionId).ConcatToString("|"));
+            environmentVariables.Add("Inkarr_Release_Title", remoteIssue.Release.Title);
+            environmentVariables.Add("Inkarr_Release_Indexer", remoteIssue.Release.Indexer ?? string.Empty);
+            environmentVariables.Add("Inkarr_Release_Size", remoteIssue.Release.Size.ToString());
+            environmentVariables.Add("Inkarr_Release_Quality", remoteIssue.ParsedIssueInfo.Quality.Quality.Name);
+            environmentVariables.Add("Inkarr_Release_QualityVersion", remoteIssue.ParsedIssueInfo.Quality.Revision.Version.ToString());
             environmentVariables.Add("Inkarr_Release_ReleaseGroup", releaseGroup ?? string.Empty);
-            environmentVariables.Add("Inkarr_Release_IndexerFlags", remoteBook.Release.IndexerFlags.ToString());
+            environmentVariables.Add("Inkarr_Release_IndexerFlags", remoteIssue.Release.IndexerFlags.ToString());
             environmentVariables.Add("Inkarr_Download_Client", message.DownloadClientName ?? string.Empty);
             environmentVariables.Add("Inkarr_Download_Client_Type", message.DownloadClientType ?? string.Empty);
             environmentVariables.Add("Inkarr_Download_Id", message.DownloadId ?? string.Empty);
@@ -65,28 +65,28 @@ namespace NzbDrone.Core.Notifications.CustomScript
             ExecuteScript(environmentVariables);
         }
 
-        public override void OnReleaseImport(BookDownloadMessage message)
+        public override void OnReleaseImport(IssueDownloadMessage message)
         {
-            var author = message.Author;
-            var book = message.Book;
+            var volume = message.Volume;
+            var issue = message.Issue;
             var environmentVariables = new StringDictionary();
 
             environmentVariables.Add("Inkarr_EventType", "Download");
-            environmentVariables.Add("Inkarr_Author_Id", author.Id.ToString());
-            environmentVariables.Add("Inkarr_Author_Name", author.Metadata.Value.Name);
-            environmentVariables.Add("Inkarr_Author_Path", author.Path);
-            environmentVariables.Add("Inkarr_Author_GRId", author.Metadata.Value.ForeignAuthorId);
-            environmentVariables.Add("Inkarr_Book_Id", book.Id.ToString());
-            environmentVariables.Add("Inkarr_Book_Title", book.Title);
-            environmentVariables.Add("Inkarr_Book_GRId", book.Editions.Value.Single(e => e.Monitored).ForeignEditionId.ToString());
-            environmentVariables.Add("Inkarr_Book_ReleaseDate", book.ReleaseDate.ToString());
+            environmentVariables.Add("Inkarr_Volume_Id", volume.Id.ToString());
+            environmentVariables.Add("Inkarr_Volume_Name", volume.Metadata.Value.Name);
+            environmentVariables.Add("Inkarr_Volume_Path", volume.Path);
+            environmentVariables.Add("Inkarr_Volume_GRId", volume.Metadata.Value.ForeignVolumeId);
+            environmentVariables.Add("Inkarr_Issue_Id", issue.Id.ToString());
+            environmentVariables.Add("Inkarr_Issue_Title", issue.Title);
+            environmentVariables.Add("Inkarr_Issue_GRId", issue.Editions.Value.Single(e => e.Monitored).ForeignEditionId.ToString());
+            environmentVariables.Add("Inkarr_Issue_ReleaseDate", issue.ReleaseDate.ToString());
             environmentVariables.Add("Inkarr_Download_Client", message.DownloadClientInfo?.Name ?? string.Empty);
             environmentVariables.Add("Inkarr_Download_Client_Type", message.DownloadClientInfo?.Type ?? string.Empty);
             environmentVariables.Add("Inkarr_Download_Id", message.DownloadId ?? string.Empty);
 
-            if (message.BookFiles.Any())
+            if (message.IssueFiles.Any())
             {
-                environmentVariables.Add("Inkarr_AddedBookPaths", string.Join("|", message.BookFiles.Select(e => e.Path)));
+                environmentVariables.Add("Inkarr_AddedIssuePaths", string.Join("|", message.IssueFiles.Select(e => e.Path)));
             }
 
             if (message.OldFiles.Any())
@@ -98,121 +98,121 @@ namespace NzbDrone.Core.Notifications.CustomScript
             ExecuteScript(environmentVariables);
         }
 
-        public override void OnRename(Author author, List<RenamedBookFile> renamedFiles)
+        public override void OnRename(Volume volume, List<RenamedIssueFile> renamedFiles)
         {
             var environmentVariables = new StringDictionary();
 
             environmentVariables.Add("Inkarr_EventType", "Rename");
-            environmentVariables.Add("Inkarr_Author_Id", author.Id.ToString());
-            environmentVariables.Add("Inkarr_Author_Name", author.Metadata.Value.Name);
-            environmentVariables.Add("Inkarr_Author_Path", author.Path);
-            environmentVariables.Add("Inkarr_Author_GRId", author.Metadata.Value.ForeignAuthorId);
+            environmentVariables.Add("Inkarr_Volume_Id", volume.Id.ToString());
+            environmentVariables.Add("Inkarr_Volume_Name", volume.Metadata.Value.Name);
+            environmentVariables.Add("Inkarr_Volume_Path", volume.Path);
+            environmentVariables.Add("Inkarr_Volume_GRId", volume.Metadata.Value.ForeignVolumeId);
 
             ExecuteScript(environmentVariables);
         }
 
-        public override void OnAuthorAdded(Author author)
+        public override void OnVolumeAdded(Volume volume)
         {
             var environmentVariables = new StringDictionary();
 
-            environmentVariables.Add("Inkarr_EventType", "AuthorAdded");
-            environmentVariables.Add("Inkarr_Author_Id", author.Id.ToString());
-            environmentVariables.Add("Inkarr_Author_Name", author.Metadata.Value.Name);
-            environmentVariables.Add("Inkarr_Author_Path", author.Path);
-            environmentVariables.Add("Inkarr_Author_GRId", author.Metadata.Value.ForeignAuthorId);
+            environmentVariables.Add("Inkarr_EventType", "VolumeAdded");
+            environmentVariables.Add("Inkarr_Volume_Id", volume.Id.ToString());
+            environmentVariables.Add("Inkarr_Volume_Name", volume.Metadata.Value.Name);
+            environmentVariables.Add("Inkarr_Volume_Path", volume.Path);
+            environmentVariables.Add("Inkarr_Volume_GRId", volume.Metadata.Value.ForeignVolumeId);
 
             ExecuteScript(environmentVariables);
         }
 
-        public override void OnAuthorDelete(AuthorDeleteMessage deleteMessage)
+        public override void OnVolumeDelete(VolumeDeleteMessage deleteMessage)
         {
-            var author = deleteMessage.Author;
+            var volume = deleteMessage.Volume;
             var environmentVariables = new StringDictionary();
 
-            environmentVariables.Add("Inkarr_EventType", "AuthorDelete");
-            environmentVariables.Add("Inkarr_Author_Id", author.Id.ToString());
-            environmentVariables.Add("Inkarr_Author_Name", author.Name);
-            environmentVariables.Add("Inkarr_Author_Path", author.Path);
-            environmentVariables.Add("Inkarr_Author_GoodreadsId", author.ForeignAuthorId);
-            environmentVariables.Add("Inkarr_Author_DeletedFiles", deleteMessage.DeletedFiles.ToString());
+            environmentVariables.Add("Inkarr_EventType", "VolumeDelete");
+            environmentVariables.Add("Inkarr_Volume_Id", volume.Id.ToString());
+            environmentVariables.Add("Inkarr_Volume_Name", volume.Name);
+            environmentVariables.Add("Inkarr_Volume_Path", volume.Path);
+            environmentVariables.Add("Inkarr_Volume_GoodreadsId", volume.ForeignVolumeId);
+            environmentVariables.Add("Inkarr_Volume_DeletedFiles", deleteMessage.DeletedFiles.ToString());
 
             ExecuteScript(environmentVariables);
         }
 
-        public override void OnBookDelete(BookDeleteMessage deleteMessage)
+        public override void OnIssueDelete(IssueDeleteMessage deleteMessage)
         {
-            var author = deleteMessage.Book.Author.Value;
-            var book = deleteMessage.Book;
+            var volume = deleteMessage.Issue.Volume.Value;
+            var issue = deleteMessage.Issue;
 
             var environmentVariables = new StringDictionary();
 
-            environmentVariables.Add("Inkarr_EventType", "BookDelete");
-            environmentVariables.Add("Inkarr_Author_Id", author.Id.ToString());
-            environmentVariables.Add("Inkarr_Author_Name", author.Name);
-            environmentVariables.Add("Inkarr_Author_Path", author.Path);
-            environmentVariables.Add("Inkarr_Author_GoodreadsId", author.ForeignAuthorId);
-            environmentVariables.Add("Inkarr_Book_Id", book.Id.ToString());
-            environmentVariables.Add("Inkarr_Book_Title", book.Title);
-            environmentVariables.Add("Inkarr_Book_GoodreadsId", book.ForeignBookId);
-            environmentVariables.Add("Inkarr_Book_DeletedFiles", deleteMessage.DeletedFiles.ToString());
+            environmentVariables.Add("Inkarr_EventType", "IssueDelete");
+            environmentVariables.Add("Inkarr_Volume_Id", volume.Id.ToString());
+            environmentVariables.Add("Inkarr_Volume_Name", volume.Name);
+            environmentVariables.Add("Inkarr_Volume_Path", volume.Path);
+            environmentVariables.Add("Inkarr_Volume_GoodreadsId", volume.ForeignVolumeId);
+            environmentVariables.Add("Inkarr_Issue_Id", issue.Id.ToString());
+            environmentVariables.Add("Inkarr_Issue_Title", issue.Title);
+            environmentVariables.Add("Inkarr_Issue_GoodreadsId", issue.ForeignIssueId);
+            environmentVariables.Add("Inkarr_Issue_DeletedFiles", deleteMessage.DeletedFiles.ToString());
 
             ExecuteScript(environmentVariables);
         }
 
-        public override void OnBookFileDelete(BookFileDeleteMessage deleteMessage)
+        public override void OnIssueFileDelete(IssueFileDeleteMessage deleteMessage)
         {
-            var author = deleteMessage.Book.Author.Value;
-            var book = deleteMessage.Book;
-            var bookFile = deleteMessage.BookFile;
-            var edition = bookFile.Edition.Value;
+            var volume = deleteMessage.Issue.Volume.Value;
+            var issue = deleteMessage.Issue;
+            var issueFile = deleteMessage.IssueFile;
+            var edition = issueFile.Edition.Value;
 
             var environmentVariables = new StringDictionary();
 
-            environmentVariables.Add("Inkarr_EventType", "BookFileDelete");
+            environmentVariables.Add("Inkarr_EventType", "IssueFileDelete");
             environmentVariables.Add("Inkarr_Delete_Reason", deleteMessage.Reason.ToString());
-            environmentVariables.Add("Inkarr_Author_Id", author.Id.ToString());
-            environmentVariables.Add("Inkarr_Author_Name", author.Name);
-            environmentVariables.Add("Inkarr_Author_GoodreadsId", author.ForeignAuthorId);
-            environmentVariables.Add("Inkarr_Book_Id", book.Id.ToString());
-            environmentVariables.Add("Inkarr_Book_Title", book.Title);
-            environmentVariables.Add("Inkarr_Book_GoodreadsId", book.ForeignBookId);
-            environmentVariables.Add("Inkarr_BookFile_Id", bookFile.Id.ToString());
-            environmentVariables.Add("Inkarr_BookFile_Path", bookFile.Path);
-            environmentVariables.Add("Inkarr_BookFile_Quality", bookFile.Quality.Quality.Name);
-            environmentVariables.Add("Inkarr_BookFile_QualityVersion", bookFile.Quality.Revision.Version.ToString());
-            environmentVariables.Add("Inkarr_BookFile_ReleaseGroup", bookFile.ReleaseGroup ?? string.Empty);
-            environmentVariables.Add("Inkarr_BookFile_SceneName", bookFile.SceneName ?? string.Empty);
-            environmentVariables.Add("Inkarr_BookFile_Edition_Id", edition.Id.ToString());
-            environmentVariables.Add("Inkarr_BookFile_Edition_Name", edition.Title);
-            environmentVariables.Add("Inkarr_BookFile_Edition_GoodreadsId", edition.ForeignEditionId);
-            environmentVariables.Add("Inkarr_BookFile_Edition_Isbn13", edition.Isbn13);
-            environmentVariables.Add("Inkarr_BookFile_Edition_Asin", edition.Asin);
+            environmentVariables.Add("Inkarr_Volume_Id", volume.Id.ToString());
+            environmentVariables.Add("Inkarr_Volume_Name", volume.Name);
+            environmentVariables.Add("Inkarr_Volume_GoodreadsId", volume.ForeignVolumeId);
+            environmentVariables.Add("Inkarr_Issue_Id", issue.Id.ToString());
+            environmentVariables.Add("Inkarr_Issue_Title", issue.Title);
+            environmentVariables.Add("Inkarr_Issue_GoodreadsId", issue.ForeignIssueId);
+            environmentVariables.Add("Inkarr_IssueFile_Id", issueFile.Id.ToString());
+            environmentVariables.Add("Inkarr_IssueFile_Path", issueFile.Path);
+            environmentVariables.Add("Inkarr_IssueFile_Quality", issueFile.Quality.Quality.Name);
+            environmentVariables.Add("Inkarr_IssueFile_QualityVersion", issueFile.Quality.Revision.Version.ToString());
+            environmentVariables.Add("Inkarr_IssueFile_ReleaseGroup", issueFile.ReleaseGroup ?? string.Empty);
+            environmentVariables.Add("Inkarr_IssueFile_SceneName", issueFile.SceneName ?? string.Empty);
+            environmentVariables.Add("Inkarr_IssueFile_Edition_Id", edition.Id.ToString());
+            environmentVariables.Add("Inkarr_IssueFile_Edition_Name", edition.Title);
+            environmentVariables.Add("Inkarr_IssueFile_Edition_GoodreadsId", edition.ForeignEditionId);
+            environmentVariables.Add("Inkarr_IssueFile_Edition_Isbn13", edition.Isbn13);
+            environmentVariables.Add("Inkarr_IssueFile_Edition_Asin", edition.Asin);
 
             ExecuteScript(environmentVariables);
         }
 
-        public override void OnBookRetag(BookRetagMessage message)
+        public override void OnIssueRetag(IssueRetagMessage message)
         {
-            var author = message.Author;
-            var book = message.Book;
-            var bookFile = message.BookFile;
+            var volume = message.Volume;
+            var issue = message.Issue;
+            var issueFile = message.IssueFile;
             var environmentVariables = new StringDictionary();
 
             environmentVariables.Add("Inkarr_EventType", "TrackRetag");
-            environmentVariables.Add("Inkarr_Author_Id", author.Id.ToString());
-            environmentVariables.Add("Inkarr_Author_Name", author.Metadata.Value.Name);
-            environmentVariables.Add("Inkarr_Author_Path", author.Path);
-            environmentVariables.Add("Inkarr_Author_GRId", author.Metadata.Value.ForeignAuthorId);
-            environmentVariables.Add("Inkarr_Book_Id", book.Id.ToString());
-            environmentVariables.Add("Inkarr_Book_Title", book.Title);
-            environmentVariables.Add("Inkarr_Book_GRId", book.Editions.Value.Single(e => e.Monitored).ForeignEditionId.ToString());
-            environmentVariables.Add("Inkarr_Book_ReleaseDate", book.ReleaseDate.ToString());
-            environmentVariables.Add("Inkarr_BookFile_Id", bookFile.Id.ToString());
-            environmentVariables.Add("Inkarr_BookFile_Path", bookFile.Path);
-            environmentVariables.Add("Inkarr_BookFile_Quality", bookFile.Quality.Quality.Name);
-            environmentVariables.Add("Inkarr_BookFile_QualityVersion", bookFile.Quality.Revision.Version.ToString());
-            environmentVariables.Add("Inkarr_BookFile_ReleaseGroup", bookFile.ReleaseGroup ?? string.Empty);
-            environmentVariables.Add("Inkarr_BookFile_SceneName", bookFile.SceneName ?? string.Empty);
+            environmentVariables.Add("Inkarr_Volume_Id", volume.Id.ToString());
+            environmentVariables.Add("Inkarr_Volume_Name", volume.Metadata.Value.Name);
+            environmentVariables.Add("Inkarr_Volume_Path", volume.Path);
+            environmentVariables.Add("Inkarr_Volume_GRId", volume.Metadata.Value.ForeignVolumeId);
+            environmentVariables.Add("Inkarr_Issue_Id", issue.Id.ToString());
+            environmentVariables.Add("Inkarr_Issue_Title", issue.Title);
+            environmentVariables.Add("Inkarr_Issue_GRId", issue.Editions.Value.Single(e => e.Monitored).ForeignEditionId.ToString());
+            environmentVariables.Add("Inkarr_Issue_ReleaseDate", issue.ReleaseDate.ToString());
+            environmentVariables.Add("Inkarr_IssueFile_Id", issueFile.Id.ToString());
+            environmentVariables.Add("Inkarr_IssueFile_Path", issueFile.Path);
+            environmentVariables.Add("Inkarr_IssueFile_Quality", issueFile.Quality.Quality.Name);
+            environmentVariables.Add("Inkarr_IssueFile_QualityVersion", issueFile.Quality.Revision.Version.ToString());
+            environmentVariables.Add("Inkarr_IssueFile_ReleaseGroup", issueFile.ReleaseGroup ?? string.Empty);
+            environmentVariables.Add("Inkarr_IssueFile_SceneName", issueFile.SceneName ?? string.Empty);
             environmentVariables.Add("Inkarr_Tags_Diff", message.Diff.ToJson());
             environmentVariables.Add("Inkarr_Tags_Scrubbed", message.Scrubbed.ToString());
 

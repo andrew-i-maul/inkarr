@@ -1,7 +1,7 @@
 using NLog;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Configuration;
 using NzbDrone.Core.IndexerSearch;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Messaging;
 using NzbDrone.Core.Messaging.Commands;
 using NzbDrone.Core.Messaging.Events;
@@ -12,17 +12,17 @@ namespace NzbDrone.Core.Download
     public class RedownloadFailedDownloadService : IHandle<DownloadFailedEvent>
     {
         private readonly IConfigService _configService;
-        private readonly IBookService _bookService;
+        private readonly IIssueService _issueService;
         private readonly IManageCommandQueue _commandQueueManager;
         private readonly Logger _logger;
 
         public RedownloadFailedDownloadService(IConfigService configService,
-                                               IBookService bookService,
+                                               IIssueService issueService,
                                                IManageCommandQueue commandQueueManager,
                                                Logger logger)
         {
             _configService = configService;
-            _bookService = bookService;
+            _issueService = issueService;
             _commandQueueManager = commandQueueManager;
             _logger = logger;
         }
@@ -38,42 +38,42 @@ namespace NzbDrone.Core.Download
 
             if (!_configService.AutoRedownloadFailed)
             {
-                _logger.Debug("Auto redownloading failed books is disabled");
+                _logger.Debug("Auto redownloading failed issues is disabled");
                 return;
             }
 
             if (message.ReleaseSource == ReleaseSourceType.InteractiveSearch && !_configService.AutoRedownloadFailedFromInteractiveSearch)
             {
-                _logger.Debug("Auto redownloading failed books from interactive search is disabled");
+                _logger.Debug("Auto redownloading failed issues from interactive search is disabled");
                 return;
             }
 
-            if (message.BookIds.Count == 1)
+            if (message.IssueIds.Count == 1)
             {
-                _logger.Debug("Failed download only contains one book, searching again");
+                _logger.Debug("Failed download only contains one issue, searching again");
 
-                _commandQueueManager.Push(new BookSearchCommand(message.BookIds));
+                _commandQueueManager.Push(new IssueSearchCommand(message.IssueIds));
 
                 return;
             }
 
-            var booksInAuthor = _bookService.GetBooksByAuthor(message.AuthorId);
+            var issuesInVolume = _issueService.GetIssuesByVolume(message.VolumeId);
 
-            if (message.BookIds.Count == booksInAuthor.Count)
+            if (message.IssueIds.Count == issuesInVolume.Count)
             {
-                _logger.Debug("Failed download was entire author, searching again");
+                _logger.Debug("Failed download was entire volume, searching again");
 
-                _commandQueueManager.Push(new AuthorSearchCommand
+                _commandQueueManager.Push(new VolumeSearchCommand
                 {
-                    AuthorId = message.AuthorId
+                    VolumeId = message.VolumeId
                 });
 
                 return;
             }
 
-            _logger.Debug("Failed download contains multiple books, searching again");
+            _logger.Debug("Failed download contains multiple issues, searching again");
 
-            _commandQueueManager.Push(new BookSearchCommand(message.BookIds));
+            _commandQueueManager.Push(new IssueSearchCommand(message.IssueIds));
         }
     }
 }

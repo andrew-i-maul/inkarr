@@ -1,7 +1,7 @@
 using NLog;
 using NzbDrone.Common.Disk;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Extras.Files;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 
 namespace NzbDrone.Core.Extras.Others
@@ -12,8 +12,8 @@ namespace NzbDrone.Core.Extras.Others
 
     public class OtherExtraFileService : ExtraFileService<OtherExtraFile>, IOtherExtraFileService
     {
-        public OtherExtraFileService(IExtraFileRepository<OtherExtraFile> repository, IAuthorService authorService, IDiskProvider diskProvider, IRecycleBinProvider recycleBinProvider, Logger logger)
-            : base(repository, authorService, diskProvider, recycleBinProvider, logger)
+        public OtherExtraFileService(IExtraFileRepository<OtherExtraFile> repository, IVolumeService volumeService, IDiskProvider diskProvider, IRecycleBinProvider recycleBinProvider, Logger logger)
+            : base(repository, volumeService, diskProvider, recycleBinProvider, logger)
         {
         }
     }

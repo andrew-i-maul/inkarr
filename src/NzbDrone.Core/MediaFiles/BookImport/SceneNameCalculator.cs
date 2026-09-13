@@ -3,13 +3,13 @@ using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Parser;
 using NzbDrone.Core.Parser.Model;
 
-namespace NzbDrone.Core.MediaFiles.BookImport
+namespace NzbDrone.Core.MediaFiles.IssueImport
 {
     public static class SceneNameCalculator
     {
-        public static string GetSceneName(LocalBook localEpisode)
+        public static string GetSceneName(LocalIssue localEpisode)
         {
-            var downloadClientInfo = localEpisode.DownloadClientBookInfo;
+            var downloadClientInfo = localEpisode.DownloadClientIssueInfo;
 
             if (downloadClientInfo != null && !downloadClientInfo.Discography)
             {

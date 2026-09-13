@@ -5,10 +5,10 @@ using FizzWare.NBuilder;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Download;
 using NzbDrone.Core.Download.TrackedDownloads;
 using NzbDrone.Core.History;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Queue;
 using NzbDrone.Core.Test.Framework;
@@ -30,25 +30,25 @@ namespace NzbDrone.Core.Test.QueueTests
                 .With(v => v.DownloadClientInfo = downloadClientInfo)
                 .Build();
 
-            var author = Builder<Author>.CreateNew()
+            var volume = Builder<Volume>.CreateNew()
                 .Build();
 
-            var books = Builder<Book>.CreateListOfSize(3)
+            var issues = Builder<Issue>.CreateListOfSize(3)
                 .All()
-                .With(e => e.AuthorId = author.Id)
+                .With(e => e.VolumeId = volume.Id)
                 .Build();
 
-            var remoteBook = Builder<RemoteBook>.CreateNew()
-                .With(r => r.Author = author)
-                .With(r => r.Books = new List<Book>(books))
-                .With(r => r.ParsedBookInfo = new ParsedBookInfo())
+            var remoteIssue = Builder<RemoteIssue>.CreateNew()
+                .With(r => r.Volume = volume)
+                .With(r => r.Issues = new List<Issue>(issues))
+                .With(r => r.ParsedIssueInfo = new ParsedIssueInfo())
                 .Build();
 
             _trackedDownloads = Builder<TrackedDownload>.CreateListOfSize(1)
                 .All()
                 .With(v => v.IsTrackable = true)
                 .With(v => v.DownloadItem = downloadItem)
-                .With(v => v.RemoteBook = remoteBook)
+                .With(v => v.RemoteIssue = remoteIssue)
                 .Build()
                 .ToList();
 

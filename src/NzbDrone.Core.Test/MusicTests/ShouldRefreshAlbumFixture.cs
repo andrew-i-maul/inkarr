@@ -2,101 +2,101 @@ using System;
 using FizzWare.NBuilder;
 using FluentAssertions;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Test.Common;
 
 namespace NzbDrone.Core.Test.MusicTests
 {
     [TestFixture]
-    public class ShouldRefreshBookFixture : TestBase<ShouldRefreshBook>
+    public class ShouldRefreshIssueFixture : TestBase<ShouldRefreshIssue>
     {
-        private Book _book;
+        private Issue _issue;
 
         [SetUp]
         public void Setup()
         {
-            _book = Builder<Book>.CreateNew()
+            _issue = Builder<Issue>.CreateNew()
                                    .With(e => e.ReleaseDate = DateTime.Today.AddDays(-100))
                                    .Build();
         }
 
-        private void GivenBookLastRefreshedMonthsAgo()
+        private void GivenIssueLastRefreshedMonthsAgo()
         {
-            _book.LastInfoSync = DateTime.UtcNow.AddDays(-90);
+            _issue.LastInfoSync = DateTime.UtcNow.AddDays(-90);
         }
 
-        private void GivenBookLastRefreshedYesterday()
+        private void GivenIssueLastRefreshedYesterday()
         {
-            _book.LastInfoSync = DateTime.UtcNow.AddDays(-1);
+            _issue.LastInfoSync = DateTime.UtcNow.AddDays(-1);
         }
 
-        private void GivenBookLastRefreshedRecently()
+        private void GivenIssueLastRefreshedRecently()
         {
-            _book.LastInfoSync = DateTime.UtcNow.AddHours(-7);
+            _issue.LastInfoSync = DateTime.UtcNow.AddHours(-7);
         }
 
         private void GivenRecentlyReleased()
         {
-            _book.ReleaseDate = DateTime.Today.AddDays(-7);
+            _issue.ReleaseDate = DateTime.Today.AddDays(-7);
         }
 
         private void GivenFutureRelease()
         {
-            _book.ReleaseDate = DateTime.Today.AddDays(7);
+            _issue.ReleaseDate = DateTime.Today.AddDays(7);
         }
 
         [Test]
-        public void should_return_false_if_book_last_refreshed_less_than_12_hours_ago()
+        public void should_return_false_if_issue_last_refreshed_less_than_12_hours_ago()
         {
-            GivenBookLastRefreshedRecently();
+            GivenIssueLastRefreshedRecently();
 
-            Subject.ShouldRefresh(_book).Should().BeFalse();
+            Subject.ShouldRefresh(_issue).Should().BeFalse();
         }
 
         [Test]
-        public void should_return_true_if_book_last_refreshed_more_than_30_days_ago()
+        public void should_return_true_if_issue_last_refreshed_more_than_30_days_ago()
         {
-            GivenBookLastRefreshedMonthsAgo();
+            GivenIssueLastRefreshedMonthsAgo();
 
-            Subject.ShouldRefresh(_book).Should().BeTrue();
+            Subject.ShouldRefresh(_issue).Should().BeTrue();
         }
 
         [Test]
-        public void should_return_true_if_book_released_in_last_30_days()
+        public void should_return_true_if_issue_released_in_last_30_days()
         {
-            GivenBookLastRefreshedYesterday();
+            GivenIssueLastRefreshedYesterday();
 
             GivenRecentlyReleased();
 
-            Subject.ShouldRefresh(_book).Should().BeTrue();
+            Subject.ShouldRefresh(_issue).Should().BeTrue();
         }
 
         [Test]
-        public void should_return_true_if_book_releases_in_future()
+        public void should_return_true_if_issue_releases_in_future()
         {
-            GivenBookLastRefreshedYesterday();
+            GivenIssueLastRefreshedYesterday();
 
             GivenFutureRelease();
 
-            Subject.ShouldRefresh(_book).Should().BeTrue();
+            Subject.ShouldRefresh(_issue).Should().BeTrue();
         }
 
         [Test]
-        public void should_return_false_when_recently_refreshed_book_released_over_30_days_ago()
+        public void should_return_false_when_recently_refreshed_issue_released_over_30_days_ago()
         {
-            GivenBookLastRefreshedYesterday();
+            GivenIssueLastRefreshedYesterday();
 
-            Subject.ShouldRefresh(_book).Should().BeFalse();
+            Subject.ShouldRefresh(_issue).Should().BeFalse();
         }
 
         [Test]
-        public void should_return_false_when_recently_refreshed_book_released_in_last_30_days()
+        public void should_return_false_when_recently_refreshed_issue_released_in_last_30_days()
         {
-            GivenBookLastRefreshedRecently();
+            GivenIssueLastRefreshedRecently();
 
             GivenRecentlyReleased();
 
-            Subject.ShouldRefresh(_book).Should().BeFalse();
+            Subject.ShouldRefresh(_issue).Should().BeFalse();
         }
     }
 }

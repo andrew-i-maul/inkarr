@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Inkarr.Api.V1.Author;
-using Inkarr.Api.V1.Books;
 using Inkarr.Api.V1.CustomFormats;
+using Inkarr.Api.V1.Issues;
+using Inkarr.Api.V1.Volume;
 using Inkarr.Http.REST;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Download.TrackedDownloads;
@@ -14,10 +14,10 @@ namespace Inkarr.Api.V1.Queue
 {
     public class QueueResource : RestResource
     {
-        public int? AuthorId { get; set; }
-        public int? BookId { get; set; }
-        public AuthorResource Author { get; set; }
-        public BookResource Book { get; set; }
+        public int? VolumeId { get; set; }
+        public int? IssueId { get; set; }
+        public VolumeResource Volume { get; set; }
+        public IssueResource Issue { get; set; }
         public QualityModel Quality { get; set; }
         public List<CustomFormatResource> CustomFormats { get; set; }
         public int CustomFormatScore { get; set; }
@@ -42,23 +42,23 @@ namespace Inkarr.Api.V1.Queue
 
     public static class QueueResourceMapper
     {
-        public static QueueResource ToResource(this NzbDrone.Core.Queue.Queue model, bool includeAuthor, bool includeBook)
+        public static QueueResource ToResource(this NzbDrone.Core.Queue.Queue model, bool includeVolume, bool includeIssue)
         {
             if (model == null)
             {
                 return null;
             }
 
-            var customFormats = model.RemoteBook?.CustomFormats;
-            var customFormatScore = model.RemoteBook?.Author?.QualityProfile?.Value?.CalculateCustomFormatScore(customFormats) ?? 0;
+            var customFormats = model.RemoteIssue?.CustomFormats;
+            var customFormatScore = model.RemoteIssue?.Volume?.QualityProfile?.Value?.CalculateCustomFormatScore(customFormats) ?? 0;
 
             return new QueueResource
             {
                 Id = model.Id,
-                AuthorId = model.Author?.Id,
-                BookId = model.Book?.Id,
-                Author = includeAuthor && model.Author != null ? model.Author.ToResource() : null,
-                Book = includeBook && model.Book != null ? model.Book.ToResource() : null,
+                VolumeId = model.Volume?.Id,
+                IssueId = model.Issue?.Id,
+                Volume = includeVolume && model.Volume != null ? model.Volume.ToResource() : null,
+                Issue = includeIssue && model.Issue != null ? model.Issue.ToResource() : null,
                 Quality = model.Quality,
                 CustomFormats = customFormats?.ToResource(false),
                 CustomFormatScore = customFormatScore,
@@ -82,9 +82,9 @@ namespace Inkarr.Api.V1.Queue
             };
         }
 
-        public static List<QueueResource> ToResource(this IEnumerable<NzbDrone.Core.Queue.Queue> models, bool includeAuthor, bool includeBook)
+        public static List<QueueResource> ToResource(this IEnumerable<NzbDrone.Core.Queue.Queue> models, bool includeVolume, bool includeIssue)
         {
-            return models.Select((m) => ToResource(m, includeAuthor, includeBook)).ToList();
+            return models.Select((m) => ToResource(m, includeVolume, includeIssue)).ToList();
         }
     }
 }

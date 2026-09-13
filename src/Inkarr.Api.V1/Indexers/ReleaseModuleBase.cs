@@ -39,10 +39,10 @@ namespace Inkarr.Api.V1.Indexers
 
             release.ReleaseWeight = initialWeight;
 
-            if (decision.RemoteBook.Author != null)
+            if (decision.RemoteIssue.Volume != null)
             {
-                release.QualityWeight = decision.RemoteBook
-                                                .Author
+                release.QualityWeight = decision.RemoteIssue
+                                                .Volume
                                                 .QualityProfile.Value.GetIndex(release.Quality.Quality).Index * 100;
             }
 

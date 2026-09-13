@@ -1,45 +1,45 @@
 using FizzWare.NBuilder;
 using FluentAssertions;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.DecisionEngine.Specifications.Search;
 using NzbDrone.Core.IndexerSearch.Definitions;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Test.Common;
 
 namespace NzbDrone.Core.Test.DecisionEngineTests.Search
 {
     [TestFixture]
-    public class AuthorSpecificationFixture : TestBase<AuthorSpecification>
+    public class VolumeSpecificationFixture : TestBase<VolumeSpecification>
     {
-        private Author _author1;
-        private Author _author2;
-        private RemoteBook _remoteBook = new RemoteBook();
-        private SearchCriteriaBase _searchCriteria = new BookSearchCriteria();
+        private Volume _volume1;
+        private Volume _volume2;
+        private RemoteIssue _remoteIssue = new RemoteIssue();
+        private SearchCriteriaBase _searchCriteria = new IssueSearchCriteria();
 
         [SetUp]
         public void Setup()
         {
-            _author1 = Builder<Author>.CreateNew().With(s => s.Id = 1).Build();
-            _author2 = Builder<Author>.CreateNew().With(s => s.Id = 2).Build();
+            _volume1 = Builder<Volume>.CreateNew().With(s => s.Id = 1).Build();
+            _volume2 = Builder<Volume>.CreateNew().With(s => s.Id = 2).Build();
 
-            _remoteBook.Author = _author1;
+            _remoteIssue.Volume = _volume1;
         }
 
         [Test]
-        public void should_return_false_if_author_doesnt_match()
+        public void should_return_false_if_volume_doesnt_match()
         {
-            _searchCriteria.Author = _author2;
+            _searchCriteria.Volume = _volume2;
 
-            Subject.IsSatisfiedBy(_remoteBook, _searchCriteria).Accepted.Should().BeFalse();
+            Subject.IsSatisfiedBy(_remoteIssue, _searchCriteria).Accepted.Should().BeFalse();
         }
 
         [Test]
-        public void should_return_true_when_author_ids_match()
+        public void should_return_true_when_volume_ids_match()
         {
-            _searchCriteria.Author = _author1;
+            _searchCriteria.Volume = _volume1;
 
-            Subject.IsSatisfiedBy(_remoteBook, _searchCriteria).Accepted.Should().BeTrue();
+            Subject.IsSatisfiedBy(_remoteIssue, _searchCriteria).Accepted.Should().BeTrue();
         }
     }
 }

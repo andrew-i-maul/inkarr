@@ -3,8 +3,8 @@ using System.Linq;
 using FizzWare.NBuilder;
 using Moq;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.ImportLists;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Lifecycle;
 using NzbDrone.Core.Profiles.Metadata;
 using NzbDrone.Core.RootFolders;
@@ -98,13 +98,13 @@ namespace NzbDrone.Core.Test.Profiles.Metadata
         }
 
         [Test]
-        public void should_not_be_able_to_delete_profile_if_assigned_to_author()
+        public void should_not_be_able_to_delete_profile_if_assigned_to_volume()
         {
             var profile = Builder<MetadataProfile>.CreateNew()
                 .With(p => p.Id = 2)
                 .Build();
 
-            var authorList = Builder<Author>.CreateListOfSize(3)
+            var volumeList = Builder<Volume>.CreateListOfSize(3)
                                             .Random(1)
                                             .With(c => c.MetadataProfileId = profile.Id)
                                             .Build().ToList();
@@ -119,7 +119,7 @@ namespace NzbDrone.Core.Test.Profiles.Metadata
                 .With(f => f.DefaultMetadataProfileId = 1)
                 .BuildList();
 
-            Mocker.GetMock<IAuthorService>().Setup(c => c.GetAllAuthors()).Returns(authorList);
+            Mocker.GetMock<IVolumeService>().Setup(c => c.GetAllVolumes()).Returns(volumeList);
             Mocker.GetMock<IImportListFactory>().Setup(c => c.All()).Returns(importLists);
             Mocker.GetMock<IRootFolderService>().Setup(c => c.All()).Returns(rootFolders);
             Mocker.GetMock<IMetadataProfileRepository>().Setup(c => c.Get(profile.Id)).Returns(profile);
@@ -136,7 +136,7 @@ namespace NzbDrone.Core.Test.Profiles.Metadata
                 .With(p => p.Id = 2)
                 .Build();
 
-            var authorList = Builder<Author>.CreateListOfSize(3)
+            var volumeList = Builder<Volume>.CreateListOfSize(3)
                 .All()
                 .With(c => c.MetadataProfileId = 1)
                 .Build().ToList();
@@ -151,7 +151,7 @@ namespace NzbDrone.Core.Test.Profiles.Metadata
                 .With(f => f.DefaultMetadataProfileId = 1)
                 .BuildList();
 
-            Mocker.GetMock<IAuthorService>().Setup(c => c.GetAllAuthors()).Returns(authorList);
+            Mocker.GetMock<IVolumeService>().Setup(c => c.GetAllVolumes()).Returns(volumeList);
             Mocker.GetMock<IImportListFactory>().Setup(c => c.All()).Returns(importLists);
             Mocker.GetMock<IRootFolderService>().Setup(c => c.All()).Returns(rootFolders);
             Mocker.GetMock<IMetadataProfileRepository>().Setup(c => c.Get(profile.Id)).Returns(profile);
@@ -168,7 +168,7 @@ namespace NzbDrone.Core.Test.Profiles.Metadata
                 .With(p => p.Id = 2)
                 .Build();
 
-            var authorList = Builder<Author>.CreateListOfSize(3)
+            var volumeList = Builder<Volume>.CreateListOfSize(3)
                 .All()
                 .With(c => c.MetadataProfileId = 1)
                 .Build().ToList();
@@ -183,7 +183,7 @@ namespace NzbDrone.Core.Test.Profiles.Metadata
                 .With(f => f.DefaultMetadataProfileId = profile.Id)
                 .BuildList();
 
-            Mocker.GetMock<IAuthorService>().Setup(c => c.GetAllAuthors()).Returns(authorList);
+            Mocker.GetMock<IVolumeService>().Setup(c => c.GetAllVolumes()).Returns(volumeList);
             Mocker.GetMock<IImportListFactory>().Setup(c => c.All()).Returns(importLists);
             Mocker.GetMock<IRootFolderService>().Setup(c => c.All()).Returns(rootFolders);
             Mocker.GetMock<IMetadataProfileRepository>().Setup(c => c.Get(profile.Id)).Returns(profile);
@@ -194,13 +194,13 @@ namespace NzbDrone.Core.Test.Profiles.Metadata
         }
 
         [Test]
-        public void should_delete_profile_if_not_assigned_to_author_import_list_or_root_folder()
+        public void should_delete_profile_if_not_assigned_to_volume_import_list_or_root_folder()
         {
             var profile = Builder<MetadataProfile>.CreateNew()
                 .With(p => p.Id = 1)
                 .Build();
 
-            var authorList = Builder<Author>.CreateListOfSize(3)
+            var volumeList = Builder<Volume>.CreateListOfSize(3)
                                             .All()
                                             .With(c => c.MetadataProfileId = 2)
                                             .Build().ToList();
@@ -215,7 +215,7 @@ namespace NzbDrone.Core.Test.Profiles.Metadata
                 .With(f => f.DefaultMetadataProfileId = 2)
                 .BuildList();
 
-            Mocker.GetMock<IAuthorService>().Setup(c => c.GetAllAuthors()).Returns(authorList);
+            Mocker.GetMock<IVolumeService>().Setup(c => c.GetAllVolumes()).Returns(volumeList);
             Mocker.GetMock<IImportListFactory>().Setup(c => c.All()).Returns(importLists);
             Mocker.GetMock<IRootFolderService>().Setup(c => c.All()).Returns(rootFolders);
             Mocker.GetMock<IMetadataProfileRepository>().Setup(c => c.Get(profile.Id)).Returns(profile);

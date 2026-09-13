@@ -5,9 +5,9 @@ using NLog;
 using NzbDrone.Common.Disk;
 using NzbDrone.Common.EnvironmentInfo;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books.Calibre;
 using NzbDrone.Core.Datastore.Events;
 using NzbDrone.Core.Download.Clients;
+using NzbDrone.Core.Issues.Calibre;
 using NzbDrone.Core.Localization;
 using NzbDrone.Core.RemotePathMappings;
 using NzbDrone.Core.RootFolders;
@@ -49,15 +49,15 @@ namespace NzbDrone.Core.HealthCheck.Checks
                 {
                     var calibreIsLocal = folder.CalibreSettings.Host == "127.0.0.1" || folder.CalibreSettings.Host == "localhost";
 
-                    var files = _calibreProxy.GetAllBookFilePaths(folder.CalibreSettings);
+                    var files = _calibreProxy.GetAllIssueFilePaths(folder.CalibreSettings);
                     if (files.Any())
                     {
                         var file = files.First();
 
                         // This directory structure is forced by calibre
-                        var bookFolder = Path.GetDirectoryName(file);
-                        var authorFolder = Path.GetDirectoryName(bookFolder);
-                        var libraryFolder = Path.GetDirectoryName(authorFolder);
+                        var issueFolder = Path.GetDirectoryName(file);
+                        var volumeFolder = Path.GetDirectoryName(issueFolder);
+                        var libraryFolder = Path.GetDirectoryName(volumeFolder);
 
                         var osPath = new OsPath(libraryFolder);
 

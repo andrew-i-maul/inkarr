@@ -4,8 +4,8 @@ using FizzWare.NBuilder;
 using Moq;
 using NUnit.Framework;
 using NzbDrone.Common.Crypto;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Download.Pending;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Parser;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Test.Framework;
@@ -16,44 +16,44 @@ namespace NzbDrone.Core.Test.Download.Pending.PendingReleaseServiceTests
     public class RemovePendingFixture : CoreTest<PendingReleaseService>
     {
         private List<PendingRelease> _pending;
-        private Book _book;
+        private Issue _issue;
 
         [SetUp]
         public void Setup()
         {
             _pending = new List<PendingRelease>();
 
-            _book = Builder<Book>.CreateNew()
+            _issue = Builder<Issue>.CreateNew()
                                        .Build();
 
             Mocker.GetMock<IPendingReleaseRepository>()
-                 .Setup(s => s.AllByAuthorId(It.IsAny<int>()))
+                 .Setup(s => s.AllByVolumeId(It.IsAny<int>()))
                  .Returns(_pending);
 
             Mocker.GetMock<IPendingReleaseRepository>()
                   .Setup(s => s.All())
                   .Returns(_pending);
 
-            Mocker.GetMock<IAuthorService>()
-                  .Setup(s => s.GetAuthor(It.IsAny<int>()))
-                  .Returns(new Author());
+            Mocker.GetMock<IVolumeService>()
+                  .Setup(s => s.GetVolume(It.IsAny<int>()))
+                  .Returns(new Volume());
 
-            Mocker.GetMock<IAuthorService>()
-                  .Setup(s => s.GetAuthors(It.IsAny<IEnumerable<int>>()))
-                  .Returns(new List<Author> { new Author() });
+            Mocker.GetMock<IVolumeService>()
+                  .Setup(s => s.GetVolumes(It.IsAny<IEnumerable<int>>()))
+                  .Returns(new List<Volume> { new Volume() });
 
             Mocker.GetMock<IParsingService>()
-                  .Setup(s => s.GetBooks(It.IsAny<ParsedBookInfo>(), It.IsAny<Author>(), null))
-                  .Returns(new List<Book> { _book });
+                  .Setup(s => s.GetIssues(It.IsAny<ParsedIssueInfo>(), It.IsAny<Volume>(), null))
+                  .Returns(new List<Issue> { _issue });
         }
 
-        private void AddPending(int id, string book)
+        private void AddPending(int id, string issue)
         {
             _pending.Add(new PendingRelease
             {
                 Id = id,
-                Title = "Author.Title-Book.Title.abc-Inkarr",
-                ParsedBookInfo = new ParsedBookInfo { BookTitle = book },
+                Title = "Volume.Title-Issue.Title.abc-Inkarr",
+                ParsedIssueInfo = new ParsedIssueInfo { IssueTitle = issue },
                 Release = Builder<ReleaseInfo>.CreateNew().Build()
             });
         }
@@ -61,9 +61,9 @@ namespace NzbDrone.Core.Test.Download.Pending.PendingReleaseServiceTests
         [Test]
         public void should_remove_same_release()
         {
-            AddPending(id: 1, book: "Book");
+            AddPending(id: 1, issue: "Issue");
 
-            var queueId = HashConverter.GetHashInt31(string.Format("pending-{0}-book{1}", 1, _book.Id));
+            var queueId = HashConverter.GetHashInt31(string.Format("pending-{0}-issue{1}", 1, _issue.Id));
 
             Subject.RemovePendingQueueItems(queueId);
 
@@ -73,12 +73,12 @@ namespace NzbDrone.Core.Test.Download.Pending.PendingReleaseServiceTests
         [Test]
         public void should_remove_multiple_releases_release()
         {
-            AddPending(id: 1, book: "Book 1");
-            AddPending(id: 2, book: "Book 2");
-            AddPending(id: 3, book: "Book 3");
-            AddPending(id: 4, book: "Book 3");
+            AddPending(id: 1, issue: "Issue 1");
+            AddPending(id: 2, issue: "Issue 2");
+            AddPending(id: 3, issue: "Issue 3");
+            AddPending(id: 4, issue: "Issue 3");
 
-            var queueId = HashConverter.GetHashInt31(string.Format("pending-{0}-book{1}", 3, _book.Id));
+            var queueId = HashConverter.GetHashInt31(string.Format("pending-{0}-issue{1}", 3, _issue.Id));
 
             Subject.RemovePendingQueueItems(queueId);
 
@@ -86,14 +86,14 @@ namespace NzbDrone.Core.Test.Download.Pending.PendingReleaseServiceTests
         }
 
         [Test]
-        public void should_not_remove_diffrent_books()
+        public void should_not_remove_diffrent_issues()
         {
-            AddPending(id: 1, book: "Book 1");
-            AddPending(id: 2, book: "Book 1");
-            AddPending(id: 3, book: "Book 2");
-            AddPending(id: 4, book: "Book 3");
+            AddPending(id: 1, issue: "Issue 1");
+            AddPending(id: 2, issue: "Issue 1");
+            AddPending(id: 3, issue: "Issue 2");
+            AddPending(id: 4, issue: "Issue 3");
 
-            var queueId = HashConverter.GetHashInt31(string.Format("pending-{0}-book{1}", 1, _book.Id));
+            var queueId = HashConverter.GetHashInt31(string.Format("pending-{0}-issue{1}", 1, _issue.Id));
 
             Subject.RemovePendingQueueItems(queueId);
 

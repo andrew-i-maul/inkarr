@@ -22,9 +22,9 @@ namespace NzbDrone.Core.ImportLists.LazyLibrarianImport
                 return items;
             }
 
-            var jsonResponse = JsonConvert.DeserializeObject<List<LazyLibrarianBook>>(_importListResponse.Content);
+            var jsonResponse = JsonConvert.DeserializeObject<List<LazyLibrarianIssue>>(_importListResponse.Content);
 
-            // no books were return
+            // no issues were return
             if (jsonResponse == null)
             {
                 return items;
@@ -34,9 +34,9 @@ namespace NzbDrone.Core.ImportLists.LazyLibrarianImport
             {
                 items.AddIfNotNull(new ImportListItemInfo
                 {
-                    Author = item.AuthorName,
-                    Book = item.BookName,
-                    EditionGoodreadsId = item.BookId
+                    Volume = item.VolumeName,
+                    Issue = item.IssueName,
+                    EditionGoodreadsId = item.IssueId
                 });
             }
 

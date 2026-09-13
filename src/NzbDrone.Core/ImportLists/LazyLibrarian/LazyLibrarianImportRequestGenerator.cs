@@ -27,7 +27,7 @@ namespace NzbDrone.Core.ImportLists.LazyLibrarianImport
 
         private IEnumerable<ImportListRequest> GetPagedRequests()
         {
-            yield return new ImportListRequest(string.Format("{0}/api?cmd=getAllBooks&apikey={1}", Settings.BaseUrl.TrimEnd('/'), Settings.ApiKey), HttpAccept.Json);
+            yield return new ImportListRequest(string.Format("{0}/api?cmd=getAllIssues&apikey={1}", Settings.BaseUrl.TrimEnd('/'), Settings.ApiKey), HttpAccept.Json);
         }
     }
 }

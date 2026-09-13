@@ -7,11 +7,11 @@ namespace Inkarr.Api.V1.Config
 {
     public class MediaManagementConfigResource : RestResource
     {
-        public bool AutoUnmonitorPreviouslyDownloadedBooks { get; set; }
+        public bool AutoUnmonitorPreviouslyDownloadedIssues { get; set; }
         public string RecycleBin { get; set; }
         public int RecycleBinCleanupDays { get; set; }
         public ProperDownloadTypes DownloadPropersAndRepacks { get; set; }
-        public bool CreateEmptyAuthorFolders { get; set; }
+        public bool CreateEmptyVolumeFolders { get; set; }
         public bool DeleteEmptyFolders { get; set; }
         public FileDateType FileDate { get; set; }
         public bool WatchLibraryForChanges { get; set; }
@@ -35,11 +35,11 @@ namespace Inkarr.Api.V1.Config
         {
             return new MediaManagementConfigResource
             {
-                AutoUnmonitorPreviouslyDownloadedBooks = model.AutoUnmonitorPreviouslyDownloadedBooks,
+                AutoUnmonitorPreviouslyDownloadedIssues = model.AutoUnmonitorPreviouslyDownloadedIssues,
                 RecycleBin = model.RecycleBin,
                 RecycleBinCleanupDays = model.RecycleBinCleanupDays,
                 DownloadPropersAndRepacks = model.DownloadPropersAndRepacks,
-                CreateEmptyAuthorFolders = model.CreateEmptyAuthorFolders,
+                CreateEmptyVolumeFolders = model.CreateEmptyVolumeFolders,
                 DeleteEmptyFolders = model.DeleteEmptyFolders,
                 FileDate = model.FileDate,
                 WatchLibraryForChanges = model.WatchLibraryForChanges,

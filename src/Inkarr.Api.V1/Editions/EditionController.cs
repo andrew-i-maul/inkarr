@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Inkarr.Api.V1.Books;
+using Inkarr.Api.V1.Issues;
 using Inkarr.Http;
 using Microsoft.AspNetCore.Mvc;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 
 namespace NzbDrone.Api.V1.Editions
 {
@@ -17,9 +17,9 @@ namespace NzbDrone.Api.V1.Editions
         }
 
         [HttpGet]
-        public List<EditionResource> GetEditions([FromQuery]List<int> bookId)
+        public List<EditionResource> GetEditions([FromQuery]List<int> issueId)
         {
-            var editions = _editionService.GetEditionsByBook(bookId);
+            var editions = _editionService.GetEditionsByIssue(issueId);
 
             return editions.ToResource();
         }

@@ -2,7 +2,7 @@ using System.Linq;
 using FluentAssertions;
 using Inkarr.Api.V1.RootFolders;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Qualities;
 
 namespace NzbDrone.Integration.Test.ApiTests.WantedTests
@@ -18,7 +18,7 @@ namespace NzbDrone.Integration.Test.ApiTests.WantedTests
             RootFolders.Post(new RootFolderResource
             {
                 Name = "TestLibrary",
-                Path = AuthorRootFolder,
+                Path = VolumeRootFolder,
                 DefaultMetadataProfileId = 1,
                 DefaultQualityProfileId = 1,
                 DefaultMonitorOption = MonitorTypes.All
@@ -30,8 +30,8 @@ namespace NzbDrone.Integration.Test.ApiTests.WantedTests
         public void cutoff_should_have_monitored_items()
         {
             EnsureProfileCutoff(1, Quality.AZW3, true);
-            var author = EnsureAuthor("14586394", "43765115", "Andrew Hunter Murray", true);
-            EnsureBookFile(author, 1, "43765115", Quality.MOBI);
+            var volume = EnsureVolume("14586394", "43765115", "Andrew Hunter Murray", true);
+            EnsureIssueFile(volume, 1, "43765115", Quality.MOBI);
 
             var result = WantedCutoffUnmet.GetPaged(0, 15, "releaseDate", "desc");
 
@@ -43,8 +43,8 @@ namespace NzbDrone.Integration.Test.ApiTests.WantedTests
         public void cutoff_should_not_have_unmonitored_items()
         {
             EnsureProfileCutoff(1, Quality.AZW3, true);
-            var author = EnsureAuthor("14586394", "43765115", "Andrew Hunter Murray", false);
-            EnsureBookFile(author, 1, "43765115", Quality.MOBI);
+            var volume = EnsureVolume("14586394", "43765115", "Andrew Hunter Murray", false);
+            EnsureIssueFile(volume, 1, "43765115", Quality.MOBI);
 
             var result = WantedCutoffUnmet.GetPaged(0, 15, "releaseDate", "desc");
 
@@ -53,29 +53,29 @@ namespace NzbDrone.Integration.Test.ApiTests.WantedTests
 
         [Test]
         [Order(2)]
-        public void cutoff_should_have_author()
+        public void cutoff_should_have_volume()
         {
             EnsureProfileCutoff(1, Quality.AZW3, true);
-            var author = EnsureAuthor("14586394", "43765115", "Andrew Hunter Murray", true);
-            EnsureBookFile(author, 1, "43765115", Quality.MOBI);
+            var volume = EnsureVolume("14586394", "43765115", "Andrew Hunter Murray", true);
+            EnsureIssueFile(volume, 1, "43765115", Quality.MOBI);
 
-            var result = WantedCutoffUnmet.GetPagedIncludeAuthor(0, 15, "releaseDate", "desc", includeAuthor: true);
+            var result = WantedCutoffUnmet.GetPagedIncludeVolume(0, 15, "releaseDate", "desc", includeVolume: true);
 
-            result.Records.First().Author.Should().NotBeNull();
-            result.Records.First().Author.AuthorName.Should().Be("Andrew Hunter Murray");
+            result.Records.First().Volume.Should().NotBeNull();
+            result.Records.First().Volume.VolumeName.Should().Be("Andrew Hunter Murray");
         }
 
         [Test]
         [Order(2)]
-        public void cutoff_should_not_have_author()
+        public void cutoff_should_not_have_volume()
         {
             EnsureProfileCutoff(1, Quality.AZW3, true);
-            var author = EnsureAuthor("14586394", "43765115", "Andrew Hunter Murray", true);
-            EnsureBookFile(author, 1, "43765115", Quality.MOBI);
+            var volume = EnsureVolume("14586394", "43765115", "Andrew Hunter Murray", true);
+            EnsureIssueFile(volume, 1, "43765115", Quality.MOBI);
 
-            var result = WantedCutoffUnmet.GetPagedIncludeAuthor(0, 15, "releaseDate", "desc", includeAuthor: false);
+            var result = WantedCutoffUnmet.GetPagedIncludeVolume(0, 15, "releaseDate", "desc", includeVolume: false);
 
-            result.Records.First().Author.Should().BeNull();
+            result.Records.First().Volume.Should().BeNull();
         }
 
         [Test]
@@ -83,8 +83,8 @@ namespace NzbDrone.Integration.Test.ApiTests.WantedTests
         public void cutoff_should_have_unmonitored_items()
         {
             EnsureProfileCutoff(1, Quality.AZW3, true);
-            var author = EnsureAuthor("14586394", "43765115", "Andrew Hunter Murray", false);
-            EnsureBookFile(author, 1, "43765115", Quality.MOBI);
+            var volume = EnsureVolume("14586394", "43765115", "Andrew Hunter Murray", false);
+            EnsureIssueFile(volume, 1, "43765115", Quality.MOBI);
 
             var result = WantedCutoffUnmet.GetPaged(0, 15, "releaseDate", "desc", "monitored", false);
 

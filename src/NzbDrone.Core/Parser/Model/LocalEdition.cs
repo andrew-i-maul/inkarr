@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using NzbDrone.Core.Books;
-using NzbDrone.Core.MediaFiles.BookImport.Identification;
+using NzbDrone.Core.Issues;
+using NzbDrone.Core.MediaFiles.IssueImport.Identification;
 
 namespace NzbDrone.Core.Parser.Model
 {
@@ -10,62 +10,62 @@ namespace NzbDrone.Core.Parser.Model
     {
         public LocalEdition()
         {
-            LocalBooks = new List<LocalBook>();
+            LocalIssues = new List<LocalIssue>();
 
             // A dummy distance, will be replaced
             Distance = new Distance();
-            Distance.Add("book_id", 1.0);
+            Distance.Add("issue_id", 1.0);
         }
 
-        public LocalEdition(List<LocalBook> tracks)
+        public LocalEdition(List<LocalIssue> tracks)
         {
-            LocalBooks = tracks;
+            LocalIssues = tracks;
 
             // A dummy distance, will be replaced
             Distance = new Distance();
-            Distance.Add("book_id", 1.0);
+            Distance.Add("issue_id", 1.0);
         }
 
-        public List<LocalBook> LocalBooks { get; set; }
-        public int TrackCount => LocalBooks.Count;
+        public List<LocalIssue> LocalIssues { get; set; }
+        public int TrackCount => LocalIssues.Count;
 
         public Distance Distance { get; set; }
         public Edition Edition { get; set; }
-        public List<LocalBook> ExistingTracks { get; set; }
+        public List<LocalIssue> ExistingTracks { get; set; }
         public bool NewDownload { get; set; }
 
         public void PopulateMatch(bool keepAllEditions)
         {
             if (Edition != null)
             {
-                LocalBooks = LocalBooks.Concat(ExistingTracks).DistinctBy(x => x.Path).ToList();
+                LocalIssues = LocalIssues.Concat(ExistingTracks).DistinctBy(x => x.Path).ToList();
 
                 if (!keepAllEditions)
                 {
-                    // Manually clone the edition / book to avoid holding references to *every* edition we have
+                    // Manually clone the edition / issue to avoid holding references to *every* edition we have
                     // seen during the matching process
                     var edition = new Edition();
                     edition.UseMetadataFrom(Edition);
                     edition.UseDbFieldsFrom(Edition);
-                    edition.BookFiles = Edition.BookFiles;
+                    edition.IssueFiles = Edition.IssueFiles;
 
-                    var fullBook = Edition.Book.Value;
+                    var fullIssue = Edition.Issue.Value;
 
-                    var book = new Book();
-                    book.UseMetadataFrom(fullBook);
-                    book.UseDbFieldsFrom(fullBook);
-                    book.Author.Value.UseMetadataFrom(fullBook.Author.Value);
-                    book.Author.Value.UseDbFieldsFrom(fullBook.Author.Value);
-                    book.Author.Value.Metadata = fullBook.AuthorMetadata.Value;
-                    book.AuthorMetadata = fullBook.AuthorMetadata.Value;
-                    book.BookFiles = fullBook.BookFiles;
-                    book.Editions = new List<Edition> { edition };
+                    var issue = new Issue();
+                    issue.UseMetadataFrom(fullIssue);
+                    issue.UseDbFieldsFrom(fullIssue);
+                    issue.Volume.Value.UseMetadataFrom(fullIssue.Volume.Value);
+                    issue.Volume.Value.UseDbFieldsFrom(fullIssue.Volume.Value);
+                    issue.Volume.Value.Metadata = fullIssue.VolumeMetadata.Value;
+                    issue.VolumeMetadata = fullIssue.VolumeMetadata.Value;
+                    issue.IssueFiles = fullIssue.IssueFiles;
+                    issue.Editions = new List<Edition> { edition };
 
-                    if (fullBook.SeriesLinks.IsLoaded)
+                    if (fullIssue.SeriesLinks.IsLoaded)
                     {
-                        book.SeriesLinks = fullBook.SeriesLinks.Value.Select(l => new SeriesBookLink
+                        issue.SeriesLinks = fullIssue.SeriesLinks.Value.Select(l => new SeriesIssueLink
                         {
-                            Book = book,
+                            Issue = issue,
                             Series = new Series
                             {
                                 ForeignSeriesId = l.Series.Value.ForeignSeriesId,
@@ -82,29 +82,29 @@ namespace NzbDrone.Core.Parser.Model
                     }
                     else
                     {
-                        book.SeriesLinks = fullBook.SeriesLinks;
+                        issue.SeriesLinks = fullIssue.SeriesLinks;
                     }
 
-                    edition.Book = book;
+                    edition.Issue = issue;
 
                     Edition = edition;
 
-                    foreach (var localTrack in LocalBooks)
+                    foreach (var localTrack in LocalIssues)
                     {
                         localTrack.Edition = edition;
-                        localTrack.Book = book;
-                        localTrack.Author = book.Author.Value;
-                        localTrack.PartCount = LocalBooks.Count;
+                        localTrack.Issue = issue;
+                        localTrack.Volume = issue.Volume.Value;
+                        localTrack.PartCount = LocalIssues.Count;
                     }
                 }
                 else
                 {
-                    foreach (var localTrack in LocalBooks)
+                    foreach (var localTrack in LocalIssues)
                     {
                         localTrack.Edition = Edition;
-                        localTrack.Book = Edition.Book.Value;
-                        localTrack.Author = Edition.Book.Value.Author.Value;
-                        localTrack.PartCount = LocalBooks.Count;
+                        localTrack.Issue = Edition.Issue.Value;
+                        localTrack.Volume = Edition.Issue.Value.Volume.Value;
+                        localTrack.PartCount = LocalIssues.Count;
                     }
                 }
             }
@@ -112,7 +112,7 @@ namespace NzbDrone.Core.Parser.Model
 
         public override string ToString()
         {
-            return "[" + string.Join(", ", LocalBooks.Select(x => Path.GetDirectoryName(x.Path)).Distinct()) + "]";
+            return "[" + string.Join(", ", LocalIssues.Select(x => Path.GetDirectoryName(x.Path)).Distinct()) + "]";
         }
     }
 }

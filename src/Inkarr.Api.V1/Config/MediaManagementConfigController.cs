@@ -14,7 +14,7 @@ namespace Inkarr.Api.V1.Config
                                            PathExistsValidator pathExistsValidator,
                                            FolderChmodValidator folderChmodValidator,
                                            FolderWritableValidator folderWritableValidator,
-                                           AuthorPathValidator authorPathValidator,
+                                           VolumePathValidator volumePathValidator,
                                            StartupFolderValidator startupFolderValidator,
                                            SystemFolderValidator systemFolderValidator,
                                            RootFolderAncestorValidator rootFolderAncestorValidator,
@@ -25,7 +25,7 @@ namespace Inkarr.Api.V1.Config
                                                       .SetValidator(folderWritableValidator)
                                                       .SetValidator(rootFolderValidator)
                                                       .SetValidator(pathExistsValidator)
-                                                      .SetValidator(authorPathValidator)
+                                                      .SetValidator(volumePathValidator)
                                                       .SetValidator(rootFolderAncestorValidator)
                                                       .SetValidator(startupFolderValidator)
                                                       .SetValidator(systemFolderValidator)

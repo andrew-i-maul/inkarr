@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FluentValidation.Results;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.ThingiProvider;
 
@@ -10,28 +10,28 @@ namespace NzbDrone.Core.Notifications
     public abstract class NotificationBase<TSettings> : INotification
         where TSettings : IProviderConfig, new()
     {
-        protected const string BOOK_GRABBED_TITLE = "Book Grabbed";
-        protected const string BOOK_DOWNLOADED_TITLE = "Book Downloaded";
-        protected const string AUTHOR_ADDED_TITLE = "Author Added";
-        protected const string AUTHOR_DELETED_TITLE = "Author Deleted";
-        protected const string BOOK_DELETED_TITLE = "Book Deleted";
-        protected const string BOOK_FILE_DELETED_TITLE = "Book File Deleted";
+        protected const string ISSUE_GRABBED_TITLE = "Issue Grabbed";
+        protected const string ISSUE_DOWNLOADED_TITLE = "Issue Downloaded";
+        protected const string VOLUME_ADDED_TITLE = "Volume Added";
+        protected const string VOLUME_DELETED_TITLE = "Volume Deleted";
+        protected const string ISSUE_DELETED_TITLE = "Issue Deleted";
+        protected const string ISSUE_FILE_DELETED_TITLE = "Issue File Deleted";
         protected const string HEALTH_ISSUE_TITLE = "Health Check Failure";
         protected const string DOWNLOAD_FAILURE_TITLE = "Download Failed";
         protected const string IMPORT_FAILURE_TITLE = "Import Failed";
-        protected const string BOOK_RETAGGED_TITLE = "Book File Tags Updated";
+        protected const string ISSUE_RETAGGED_TITLE = "Issue File Tags Updated";
         protected const string APPLICATION_UPDATE_TITLE = "Application Updated";
 
-        protected const string BOOK_GRABBED_TITLE_BRANDED = "Inkarr - " + BOOK_GRABBED_TITLE;
-        protected const string BOOK_DOWNLOADED_TITLE_BRANDED = "Inkarr - " + BOOK_DOWNLOADED_TITLE;
-        protected const string AUTHOR_ADDED_TITLE_BRANDED = "Inkarr - " + AUTHOR_ADDED_TITLE;
-        protected const string AUTHOR_DELETED_TITlE_BRANDED = "Inkarr - " + AUTHOR_DELETED_TITLE;
-        protected const string BOOK_DELETED_TITLE_BRANDED = "Inkarr - " + BOOK_DELETED_TITLE;
-        protected const string BOOK_FILE_DELETED_TITLE_BRANDED = "Inkarr - " + BOOK_FILE_DELETED_TITLE;
+        protected const string ISSUE_GRABBED_TITLE_BRANDED = "Inkarr - " + ISSUE_GRABBED_TITLE;
+        protected const string ISSUE_DOWNLOADED_TITLE_BRANDED = "Inkarr - " + ISSUE_DOWNLOADED_TITLE;
+        protected const string VOLUME_ADDED_TITLE_BRANDED = "Inkarr - " + VOLUME_ADDED_TITLE;
+        protected const string VOLUME_DELETED_TITlE_BRANDED = "Inkarr - " + VOLUME_DELETED_TITLE;
+        protected const string ISSUE_DELETED_TITLE_BRANDED = "Inkarr - " + ISSUE_DELETED_TITLE;
+        protected const string ISSUE_FILE_DELETED_TITLE_BRANDED = "Inkarr - " + ISSUE_FILE_DELETED_TITLE;
         protected const string HEALTH_ISSUE_TITLE_BRANDED = "Inkarr - " + HEALTH_ISSUE_TITLE;
         protected const string DOWNLOAD_FAILURE_TITLE_BRANDED = "Inkarr - " + DOWNLOAD_FAILURE_TITLE;
         protected const string IMPORT_FAILURE_TITLE_BRANDED = "Inkarr - " + IMPORT_FAILURE_TITLE;
-        protected const string BOOK_RETAGGED_TITLE_BRANDED = "Inkarr - " + BOOK_RETAGGED_TITLE;
+        protected const string ISSUE_RETAGGED_TITLE_BRANDED = "Inkarr - " + ISSUE_RETAGGED_TITLE;
         protected const string APPLICATION_UPDATE_TITLE_BRANDED = "Inkarr - " + APPLICATION_UPDATE_TITLE;
 
         public abstract string Name { get; }
@@ -51,27 +51,27 @@ namespace NzbDrone.Core.Notifications
         {
         }
 
-        public virtual void OnReleaseImport(BookDownloadMessage message)
+        public virtual void OnReleaseImport(IssueDownloadMessage message)
         {
         }
 
-        public virtual void OnRename(Author author, List<RenamedBookFile> renamedFiles)
+        public virtual void OnRename(Volume volume, List<RenamedIssueFile> renamedFiles)
         {
         }
 
-        public virtual void OnAuthorAdded(Author author)
+        public virtual void OnVolumeAdded(Volume volume)
         {
         }
 
-        public virtual void OnAuthorDelete(AuthorDeleteMessage deleteMessage)
+        public virtual void OnVolumeDelete(VolumeDeleteMessage deleteMessage)
         {
         }
 
-        public virtual void OnBookDelete(BookDeleteMessage deleteMessage)
+        public virtual void OnIssueDelete(IssueDeleteMessage deleteMessage)
         {
         }
 
-        public virtual void OnBookFileDelete(BookFileDeleteMessage deleteMessage)
+        public virtual void OnIssueFileDelete(IssueFileDeleteMessage deleteMessage)
         {
         }
 
@@ -83,11 +83,11 @@ namespace NzbDrone.Core.Notifications
         {
         }
 
-        public virtual void OnImportFailure(BookDownloadMessage message)
+        public virtual void OnImportFailure(IssueDownloadMessage message)
         {
         }
 
-        public virtual void OnBookRetag(BookRetagMessage message)
+        public virtual void OnIssueRetag(IssueRetagMessage message)
         {
         }
 
@@ -101,17 +101,17 @@ namespace NzbDrone.Core.Notifications
 
         public bool SupportsOnGrab => HasConcreteImplementation("OnGrab");
         public bool SupportsOnRename => HasConcreteImplementation("OnRename");
-        public bool SupportsOnAuthorAdded => HasConcreteImplementation("OnAuthorAdded");
-        public bool SupportsOnAuthorDelete => HasConcreteImplementation("OnAuthorDelete");
-        public bool SupportsOnBookDelete => HasConcreteImplementation("OnBookDelete");
-        public bool SupportsOnBookFileDelete => HasConcreteImplementation("OnBookFileDelete");
-        public bool SupportsOnBookFileDeleteForUpgrade => SupportsOnBookFileDelete;
+        public bool SupportsOnVolumeAdded => HasConcreteImplementation("OnVolumeAdded");
+        public bool SupportsOnVolumeDelete => HasConcreteImplementation("OnVolumeDelete");
+        public bool SupportsOnIssueDelete => HasConcreteImplementation("OnIssueDelete");
+        public bool SupportsOnIssueFileDelete => HasConcreteImplementation("OnIssueFileDelete");
+        public bool SupportsOnIssueFileDeleteForUpgrade => SupportsOnIssueFileDelete;
         public bool SupportsOnReleaseImport => HasConcreteImplementation("OnReleaseImport");
         public bool SupportsOnUpgrade => SupportsOnReleaseImport;
         public bool SupportsOnHealthIssue => HasConcreteImplementation("OnHealthIssue");
         public bool SupportsOnDownloadFailure => HasConcreteImplementation("OnDownloadFailure");
         public bool SupportsOnImportFailure => HasConcreteImplementation("OnImportFailure");
-        public bool SupportsOnBookRetag => HasConcreteImplementation("OnBookRetag");
+        public bool SupportsOnIssueRetag => HasConcreteImplementation("OnIssueRetag");
         public bool SupportsOnApplicationUpdate => HasConcreteImplementation("OnApplicationUpdate");
 
         protected TSettings Settings => (TSettings)Definition.Settings;

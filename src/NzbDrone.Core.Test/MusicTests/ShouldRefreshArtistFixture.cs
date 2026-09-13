@@ -3,62 +3,62 @@ using System.Linq;
 using FizzWare.NBuilder;
 using FluentAssertions;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Test.Common;
 
 namespace NzbDrone.Core.Test.MusicTests
 {
     [TestFixture]
-    public class ShouldRefreshAuthorFixture : TestBase<ShouldRefreshAuthor>
+    public class ShouldRefreshVolumeFixture : TestBase<ShouldRefreshVolume>
     {
-        private Author _author;
+        private Volume _volume;
 
         [SetUp]
         public void Setup()
         {
-            _author = Builder<Author>.CreateNew()
-                                     .With(v => v.Metadata.Value.Status == AuthorStatusType.Continuing)
+            _volume = Builder<Volume>.CreateNew()
+                                     .With(v => v.Metadata.Value.Status == VolumeStatusType.Continuing)
                                      .Build();
 
-            Mocker.GetMock<IBookService>()
-                  .Setup(s => s.GetBooksByAuthor(_author.Id))
-                  .Returns(Builder<Book>.CreateListOfSize(2)
+            Mocker.GetMock<IIssueService>()
+                  .Setup(s => s.GetIssuesByVolume(_volume.Id))
+                  .Returns(Builder<Issue>.CreateListOfSize(2)
                                            .All()
                                            .With(e => e.ReleaseDate = DateTime.Today.AddDays(-100))
                                            .Build()
                                            .ToList());
         }
 
-        private void GivenAuthorIsEnded()
+        private void GivenVolumeIsEnded()
         {
-            _author.Metadata.Value.Status = AuthorStatusType.Ended;
+            _volume.Metadata.Value.Status = VolumeStatusType.Ended;
         }
 
-        private void GivenAuthorLastRefreshedMonthsAgo()
+        private void GivenVolumeLastRefreshedMonthsAgo()
         {
-            _author.LastInfoSync = DateTime.UtcNow.AddDays(-90);
+            _volume.LastInfoSync = DateTime.UtcNow.AddDays(-90);
         }
 
-        private void GivenAuthorLastRefreshedYesterday()
+        private void GivenVolumeLastRefreshedYesterday()
         {
-            _author.LastInfoSync = DateTime.UtcNow.AddDays(-1);
+            _volume.LastInfoSync = DateTime.UtcNow.AddDays(-1);
         }
 
-        private void GivenAuthorLastRefreshedThreeDaysAgo()
+        private void GivenVolumeLastRefreshedThreeDaysAgo()
         {
-            _author.LastInfoSync = DateTime.UtcNow.AddDays(-3);
+            _volume.LastInfoSync = DateTime.UtcNow.AddDays(-3);
         }
 
-        private void GivenAuthorLastRefreshedRecently()
+        private void GivenVolumeLastRefreshedRecently()
         {
-            _author.LastInfoSync = DateTime.UtcNow.AddHours(-7);
+            _volume.LastInfoSync = DateTime.UtcNow.AddHours(-7);
         }
 
         private void GivenRecentlyAired()
         {
-            Mocker.GetMock<IBookService>()
-                              .Setup(s => s.GetBooksByAuthor(_author.Id))
-                              .Returns(Builder<Book>.CreateListOfSize(2)
+            Mocker.GetMock<IIssueService>()
+                              .Setup(s => s.GetIssuesByVolume(_volume.Id))
+                              .Returns(Builder<Issue>.CreateListOfSize(2)
                                                        .TheFirst(1)
                                                        .With(e => e.ReleaseDate = DateTime.Today.AddDays(-7))
                                                        .TheLast(1)
@@ -68,68 +68,68 @@ namespace NzbDrone.Core.Test.MusicTests
         }
 
         [Test]
-        public void should_return_true_if_running_author_last_refreshed_more_than_24_hours_ago()
+        public void should_return_true_if_running_volume_last_refreshed_more_than_24_hours_ago()
         {
-            GivenAuthorLastRefreshedThreeDaysAgo();
+            GivenVolumeLastRefreshedThreeDaysAgo();
 
-            Subject.ShouldRefresh(_author).Should().BeTrue();
+            Subject.ShouldRefresh(_volume).Should().BeTrue();
         }
 
         [Test]
-        public void should_return_false_if_running_author_last_refreshed_less_than_12_hours_ago()
+        public void should_return_false_if_running_volume_last_refreshed_less_than_12_hours_ago()
         {
-            GivenAuthorLastRefreshedRecently();
+            GivenVolumeLastRefreshedRecently();
 
-            Subject.ShouldRefresh(_author).Should().BeFalse();
+            Subject.ShouldRefresh(_volume).Should().BeFalse();
         }
 
         [Test]
-        public void should_return_false_if_ended_author_last_refreshed_yesterday()
+        public void should_return_false_if_ended_volume_last_refreshed_yesterday()
         {
-            GivenAuthorIsEnded();
-            GivenAuthorLastRefreshedYesterday();
+            GivenVolumeIsEnded();
+            GivenVolumeLastRefreshedYesterday();
 
-            Subject.ShouldRefresh(_author).Should().BeFalse();
+            Subject.ShouldRefresh(_volume).Should().BeFalse();
         }
 
         [Test]
-        public void should_return_true_if_author_last_refreshed_more_than_30_days_ago()
+        public void should_return_true_if_volume_last_refreshed_more_than_30_days_ago()
         {
-            GivenAuthorIsEnded();
-            GivenAuthorLastRefreshedMonthsAgo();
+            GivenVolumeIsEnded();
+            GivenVolumeLastRefreshedMonthsAgo();
 
-            Subject.ShouldRefresh(_author).Should().BeTrue();
+            Subject.ShouldRefresh(_volume).Should().BeTrue();
         }
 
         [Test]
-        public void should_return_true_if_book_released_in_last_30_days()
+        public void should_return_true_if_issue_released_in_last_30_days()
         {
-            GivenAuthorIsEnded();
-            GivenAuthorLastRefreshedYesterday();
+            GivenVolumeIsEnded();
+            GivenVolumeLastRefreshedYesterday();
 
             GivenRecentlyAired();
 
-            Subject.ShouldRefresh(_author).Should().BeTrue();
+            Subject.ShouldRefresh(_volume).Should().BeTrue();
         }
 
         [Test]
         public void should_return_false_when_recently_refreshed_ended_show_has_not_aired_for_30_days()
         {
-            GivenAuthorIsEnded();
-            GivenAuthorLastRefreshedYesterday();
+            GivenVolumeIsEnded();
+            GivenVolumeLastRefreshedYesterday();
 
-            Subject.ShouldRefresh(_author).Should().BeFalse();
+            Subject.ShouldRefresh(_volume).Should().BeFalse();
         }
 
         [Test]
         public void should_return_false_when_recently_refreshed_ended_show_aired_in_last_30_days()
         {
-            GivenAuthorIsEnded();
-            GivenAuthorLastRefreshedRecently();
+            GivenVolumeIsEnded();
+            GivenVolumeLastRefreshedRecently();
 
             GivenRecentlyAired();
 
-            Subject.ShouldRefresh(_author).Should().BeFalse();
+            Subject.ShouldRefresh(_volume).Should().BeFalse();
         }
     }
 }

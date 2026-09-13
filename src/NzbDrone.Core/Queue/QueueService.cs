@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NzbDrone.Common.Crypto;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Download.TrackedDownloads;
 using NzbDrone.Core.History;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Messaging.Events;
 using NzbDrone.Core.Qualities;
 
@@ -47,11 +47,11 @@ namespace NzbDrone.Core.Queue
 
         private IEnumerable<Queue> MapQueue(TrackedDownload trackedDownload)
         {
-            if (trackedDownload.RemoteBook?.Books != null && trackedDownload.RemoteBook.Books.Any())
+            if (trackedDownload.RemoteIssue?.Issues != null && trackedDownload.RemoteIssue.Issues.Any())
             {
-                foreach (var book in trackedDownload.RemoteBook.Books)
+                foreach (var issue in trackedDownload.RemoteIssue.Issues)
                 {
-                    yield return MapQueueItem(trackedDownload, book);
+                    yield return MapQueueItem(trackedDownload, issue);
                 }
             }
             else
@@ -60,7 +60,7 @@ namespace NzbDrone.Core.Queue
             }
         }
 
-        private Queue MapQueueItem(TrackedDownload trackedDownload, Book book)
+        private Queue MapQueueItem(TrackedDownload trackedDownload, Issue issue)
         {
             var downloadForced = false;
             var history = _historyService.Find(trackedDownload.DownloadItem.DownloadId, EntityHistoryEventType.Grabbed).FirstOrDefault();
@@ -71,9 +71,9 @@ namespace NzbDrone.Core.Queue
 
             var queue = new Queue
             {
-                Author = trackedDownload.RemoteBook?.Author,
-                Book = book,
-                Quality = trackedDownload.RemoteBook?.ParsedBookInfo.Quality ?? new QualityModel(Quality.Unknown),
+                Volume = trackedDownload.RemoteIssue?.Volume,
+                Issue = issue,
+                Quality = trackedDownload.RemoteIssue?.ParsedIssueInfo.Quality ?? new QualityModel(Quality.Unknown),
                 Title = Parser.Parser.RemoveFileExtension(trackedDownload.DownloadItem.Title),
                 Size = trackedDownload.DownloadItem.TotalSize,
                 Sizeleft = trackedDownload.DownloadItem.RemainingSize,
@@ -83,7 +83,7 @@ namespace NzbDrone.Core.Queue
                 TrackedDownloadState = trackedDownload.State,
                 StatusMessages = trackedDownload.StatusMessages.ToList(),
                 ErrorMessage = trackedDownload.DownloadItem.Message,
-                RemoteBook = trackedDownload.RemoteBook,
+                RemoteIssue = trackedDownload.RemoteIssue,
                 DownloadId = trackedDownload.DownloadItem.DownloadId,
                 Protocol = trackedDownload.Protocol,
                 DownloadClient = trackedDownload.DownloadItem.DownloadClientInfo.Name,
@@ -93,7 +93,7 @@ namespace NzbDrone.Core.Queue
                 DownloadClientHasPostImportCategory = trackedDownload.DownloadItem.DownloadClientInfo.HasPostImportCategory
             };
 
-            queue.Id = HashConverter.GetHashInt31($"trackedDownload-{trackedDownload.DownloadClient}-{trackedDownload.DownloadItem.DownloadId}-book{book?.Id ?? 0}");
+            queue.Id = HashConverter.GetHashInt31($"trackedDownload-{trackedDownload.DownloadClient}-{trackedDownload.DownloadItem.DownloadId}-issue{issue?.Id ?? 0}");
 
             if (queue.Timeleft.HasValue)
             {

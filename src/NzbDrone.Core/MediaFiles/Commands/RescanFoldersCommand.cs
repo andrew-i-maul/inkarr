@@ -9,21 +9,21 @@ namespace NzbDrone.Core.MediaFiles.Commands
         {
             // These are the settings used in the scheduled task
             Filter = FilterFilesType.Known;
-            AddNewAuthors = true;
+            AddNewVolumes = true;
         }
 
-        public RescanFoldersCommand(List<string> folders, FilterFilesType filter, bool addNewAuthors, List<int> authorIds)
+        public RescanFoldersCommand(List<string> folders, FilterFilesType filter, bool addNewVolumes, List<int> volumeIds)
         {
             Folders = folders;
             Filter = filter;
-            AddNewAuthors = addNewAuthors;
-            AuthorIds = authorIds;
+            AddNewVolumes = addNewVolumes;
+            VolumeIds = volumeIds;
         }
 
         public List<string> Folders { get; set; }
         public FilterFilesType Filter { get; set; }
-        public bool AddNewAuthors { get; set; }
-        public List<int> AuthorIds { get; set; }
+        public bool AddNewVolumes { get; set; }
+        public List<int> VolumeIds { get; set; }
 
         public override bool SendUpdatesToClient => true;
         public override bool RequiresDiskAccess => true;

@@ -173,30 +173,30 @@ namespace NzbDrone.Core.Test.HealthCheck.Checks
         }
 
         [Test]
-        public void should_return_ok_on_book_imported_event()
+        public void should_return_ok_on_issue_imported_event()
         {
             GivenFolderExists(_downloadRootPath);
-            var importEvent = new TrackImportedEvent(new LocalBook(), new BookFile(), new List<BookFile>(), true, new DownloadClientItem());
+            var importEvent = new TrackImportedEvent(new LocalIssue(), new IssueFile(), new List<IssueFile>(), true, new DownloadClientItem());
 
             Subject.Check(importEvent).ShouldBeOk();
         }
 
         [Test]
-        public void should_return_permissions_error_on_book_import_failed_event_if_file_exists()
+        public void should_return_permissions_error_on_issue_import_failed_event_if_file_exists()
         {
-            var localBook = new LocalBook
+            var localIssue = new LocalIssue
             {
                 Path = Path.Combine(_downloadItemPath, "file.mp3")
             };
-            GivenFileExists(localBook.Path);
+            GivenFileExists(localIssue.Path);
 
-            var importEvent = new TrackImportFailedEvent(new Exception(), localBook, true, new DownloadClientItem());
+            var importEvent = new TrackImportFailedEvent(new Exception(), localIssue, true, new DownloadClientItem());
 
             Subject.Check(importEvent).ShouldBeError(wikiFragment: "permissions-error");
         }
 
         [Test]
-        public void should_return_permissions_error_on_book_import_failed_event_if_folder_exists()
+        public void should_return_permissions_error_on_issue_import_failed_event_if_folder_exists()
         {
             GivenFolderExists(_downloadItemPath);
 
@@ -206,7 +206,7 @@ namespace NzbDrone.Core.Test.HealthCheck.Checks
         }
 
         [Test]
-        public void should_return_permissions_error_on_book_import_failed_event_for_local_client_if_folder_does_not_exist()
+        public void should_return_permissions_error_on_issue_import_failed_event_for_local_client_if_folder_does_not_exist()
         {
             var importEvent = new TrackImportFailedEvent(null, null, true, _downloadItem);
 
@@ -214,7 +214,7 @@ namespace NzbDrone.Core.Test.HealthCheck.Checks
         }
 
         [Test]
-        public void should_return_mapping_error_on_book_import_failed_event_for_remote_client_if_folder_does_not_exist()
+        public void should_return_mapping_error_on_issue_import_failed_event_for_remote_client_if_folder_does_not_exist()
         {
             _clientStatus.IsLocalhost = false;
             var importEvent = new TrackImportFailedEvent(null, null, true, _downloadItem);
@@ -223,7 +223,7 @@ namespace NzbDrone.Core.Test.HealthCheck.Checks
         }
 
         [Test]
-        public void should_return_mapping_error_on_book_import_failed_event_for_remote_client_if_path_invalid()
+        public void should_return_mapping_error_on_issue_import_failed_event_for_remote_client_if_path_invalid()
         {
             _clientStatus.IsLocalhost = false;
             _downloadItem.OutputPath = new OsPath("an invalid path");
@@ -233,7 +233,7 @@ namespace NzbDrone.Core.Test.HealthCheck.Checks
         }
 
         [Test]
-        public void should_return_download_client_error_on_book_import_failed_event_for_remote_client_if_path_invalid()
+        public void should_return_download_client_error_on_issue_import_failed_event_for_remote_client_if_path_invalid()
         {
             _clientStatus.IsLocalhost = true;
             _downloadItem.OutputPath = new OsPath("an invalid path");
@@ -243,7 +243,7 @@ namespace NzbDrone.Core.Test.HealthCheck.Checks
         }
 
         [Test]
-        public void should_return_docker_mapping_error_on_book_import_failed_event_inside_docker_if_folder_does_not_exist()
+        public void should_return_docker_mapping_error_on_issue_import_failed_event_inside_docker_if_folder_does_not_exist()
         {
             GivenDocker();
 

@@ -9,21 +9,21 @@ namespace VersOne.Epub
     public static class EpubReader
     {
         /// <summary>
-        /// Opens the book synchronously without reading its whole content. Holds the handle to the EPUB file.
+        /// Opens the issue synchronously without reading its whole content. Holds the handle to the EPUB file.
         /// </summary>
         /// <param name="filePath">path to the EPUB file</param>
         /// <returns></returns>
-        public static EpubBookRef OpenBook(string filePath)
+        public static EpubIssueRef OpenIssue(string filePath)
         {
-            return OpenBookAsync(filePath).Result;
+            return OpenIssueAsync(filePath).Result;
         }
 
         /// <summary>
-        /// Opens the book asynchronously without reading its whole content. Holds the handle to the EPUB file.
+        /// Opens the issue asynchronously without reading its whole content. Holds the handle to the EPUB file.
         /// </summary>
         /// <param name="filePath">path to the EPUB file</param>
         /// <returns></returns>
-        public static Task<EpubBookRef> OpenBookAsync(string filePath)
+        public static Task<EpubIssueRef> OpenIssueAsync(string filePath)
         {
             if (!File.Exists(filePath))
             {
@@ -38,20 +38,20 @@ namespace VersOne.Epub
                 }
             }
 
-            return OpenBookAsync(GetZipArchive(filePath));
+            return OpenIssueAsync(GetZipArchive(filePath));
         }
 
-        private static async Task<EpubBookRef> OpenBookAsync(ZipArchive zipArchive, string filePath = null)
+        private static async Task<EpubIssueRef> OpenIssueAsync(ZipArchive zipArchive, string filePath = null)
         {
-            EpubBookRef result = null;
+            EpubIssueRef result = null;
             try
             {
-                result = new EpubBookRef(zipArchive);
+                result = new EpubIssueRef(zipArchive);
                 result.FilePath = filePath;
                 result.Schema = await SchemaReader.ReadSchemaAsync(zipArchive).ConfigureAwait(false);
                 result.Title = result.Schema.Package.Metadata.Titles.FirstOrDefault() ?? string.Empty;
-                result.AuthorList = result.Schema.Package.Metadata.Creators.Select(creator => creator.Creator).ToList();
-                result.Author = string.Join(", ", result.AuthorList);
+                result.VolumeList = result.Schema.Package.Metadata.Creators.Select(creator => creator.Creator).ToList();
+                result.Volume = string.Join(", ", result.VolumeList);
                 return result;
             }
             catch

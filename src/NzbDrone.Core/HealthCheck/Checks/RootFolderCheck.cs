@@ -1,30 +1,30 @@
 using System.Linq;
 using NzbDrone.Common.Disk;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
-using NzbDrone.Core.Books.Events;
 using NzbDrone.Core.ImportLists;
+using NzbDrone.Core.Issues;
+using NzbDrone.Core.Issues.Events;
 using NzbDrone.Core.Localization;
 using NzbDrone.Core.MediaFiles.Events;
 using NzbDrone.Core.RootFolders;
 
 namespace NzbDrone.Core.HealthCheck.Checks
 {
-    [CheckOn(typeof(AuthorDeletedEvent))]
-    [CheckOn(typeof(AuthorMovedEvent))]
+    [CheckOn(typeof(VolumeDeletedEvent))]
+    [CheckOn(typeof(VolumeMovedEvent))]
     [CheckOn(typeof(TrackImportedEvent), CheckOnCondition.FailedOnly)]
     [CheckOn(typeof(TrackImportFailedEvent), CheckOnCondition.SuccessfulOnly)]
     public class RootFolderCheck : HealthCheckBase
     {
-        private readonly IAuthorService _authorService;
+        private readonly IVolumeService _volumeService;
         private readonly IImportListFactory _importListFactory;
         private readonly IDiskProvider _diskProvider;
         private readonly IRootFolderService _rootFolderService;
 
-        public RootFolderCheck(IAuthorService authorService, IImportListFactory importListFactory, IDiskProvider diskProvider, IRootFolderService rootFolderService, ILocalizationService localizationService)
+        public RootFolderCheck(IVolumeService volumeService, IImportListFactory importListFactory, IDiskProvider diskProvider, IRootFolderService rootFolderService, ILocalizationService localizationService)
             : base(localizationService)
         {
-            _authorService = authorService;
+            _volumeService = volumeService;
             _importListFactory = importListFactory;
             _diskProvider = diskProvider;
             _rootFolderService = rootFolderService;
@@ -32,7 +32,7 @@ namespace NzbDrone.Core.HealthCheck.Checks
 
         public override HealthCheck Check()
         {
-            var rootFolders = _authorService.AllAuthorPaths()
+            var rootFolders = _volumeService.AllVolumePaths()
                                                            .Select(s => _rootFolderService.GetBestRootFolderPath(s.Value))
                                                            .Distinct();
 

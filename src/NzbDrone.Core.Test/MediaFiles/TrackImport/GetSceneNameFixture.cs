@@ -2,38 +2,38 @@ using System.IO;
 using FizzWare.NBuilder;
 using FluentAssertions;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
-using NzbDrone.Core.MediaFiles.BookImport;
+using NzbDrone.Core.Issues;
+using NzbDrone.Core.MediaFiles.IssueImport;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Profiles.Qualities;
 using NzbDrone.Core.Qualities;
 using NzbDrone.Core.Test.Framework;
 using NzbDrone.Test.Common;
 
-namespace NzbDrone.Core.Test.MediaFiles.BookImport
+namespace NzbDrone.Core.Test.MediaFiles.IssueImport
 {
     [TestFixture]
     public class GetSceneNameFixture : CoreTest
     {
-        private LocalBook _localEpisode;
+        private LocalIssue _localEpisode;
         private string _seasonName = "artist.title-album.title.FLAC-ingot";
         private string _episodeName = "artist.title-album.title.FLAC-ingot";
 
         [SetUp]
         public void Setup()
         {
-            var series = Builder<Author>.CreateNew()
+            var series = Builder<Volume>.CreateNew()
                                         .With(e => e.QualityProfile = new QualityProfile { Items = Qualities.QualityFixture.GetDefaultQualities() })
                                         .With(s => s.Path = @"C:\Test\Music\Artist Title".AsOsAgnostic())
                                         .Build();
 
-            var episode = Builder<Book>.CreateNew()
+            var episode = Builder<Issue>.CreateNew()
                                           .Build();
 
-            _localEpisode = new LocalBook
+            _localEpisode = new LocalIssue
             {
-                Author = series,
-                Book = episode,
+                Volume = series,
+                Issue = episode,
                 Path = Path.Combine(series.Path, "01 Some Body Loves.mkv"),
                 Quality = new QualityModel(Quality.FLAC),
                 ReleaseGroup = "DRONE"
@@ -43,7 +43,7 @@ namespace NzbDrone.Core.Test.MediaFiles.BookImport
         [Test]
         public void should_use_download_client_item_title_as_scene_name()
         {
-            _localEpisode.DownloadClientBookInfo = new ParsedBookInfo
+            _localEpisode.DownloadClientIssueInfo = new ParsedIssueInfo
             {
                 ReleaseTitle = _episodeName
             };
@@ -55,7 +55,7 @@ namespace NzbDrone.Core.Test.MediaFiles.BookImport
         [Test]
         public void should_not_use_download_client_item_title_as_scene_name_if_full_season()
         {
-            _localEpisode.DownloadClientBookInfo = new ParsedBookInfo
+            _localEpisode.DownloadClientIssueInfo = new ParsedIssueInfo
             {
                 ReleaseTitle = _seasonName,
                 Discography = true
@@ -84,7 +84,7 @@ namespace NzbDrone.Core.Test.MediaFiles.BookImport
             _localEpisode.Path = Path.Combine(@"C:\Test\Unsorted TV", _episodeName, "aaaaa.mkv")
                                      .AsOsAgnostic();
 
-            _localEpisode.FolderTrackInfo = new ParsedBookInfo
+            _localEpisode.FolderTrackInfo = new ParsedIssueInfo
             {
                 ReleaseTitle = "aaaaa"
             };
@@ -99,7 +99,7 @@ namespace NzbDrone.Core.Test.MediaFiles.BookImport
             _localEpisode.Path = Path.Combine(@"C:\Test\Unsorted TV", _episodeName, "aaaaa.mkv")
                                      .AsOsAgnostic();
 
-            _localEpisode.FolderTrackInfo = new ParsedBookInfo
+            _localEpisode.FolderTrackInfo = new ParsedIssueInfo
             {
                 ReleaseTitle = _seasonName,
                 Discography = true
@@ -115,7 +115,7 @@ namespace NzbDrone.Core.Test.MediaFiles.BookImport
             _localEpisode.Path = Path.Combine(@"C:\Test\Unsorted TV", _episodeName, "aaaaa.mkv")
                                      .AsOsAgnostic();
 
-            _localEpisode.FolderTrackInfo = new ParsedBookInfo
+            _localEpisode.FolderTrackInfo = new ParsedIssueInfo
             {
                 ReleaseTitle = _seasonName,
                 Discography = false
@@ -130,7 +130,7 @@ namespace NzbDrone.Core.Test.MediaFiles.BookImport
         [TestCase(".nzb")]
         public void should_remove_extension_from_nzb_title_for_scene_name(string extension)
         {
-            _localEpisode.DownloadClientBookInfo = new ParsedBookInfo
+            _localEpisode.DownloadClientIssueInfo = new ParsedIssueInfo
             {
                 ReleaseTitle = _episodeName + extension
             };

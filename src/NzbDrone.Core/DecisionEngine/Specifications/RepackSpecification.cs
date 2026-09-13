@@ -27,9 +27,9 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
         public SpecificationPriority Priority => SpecificationPriority.Database;
         public RejectionType Type => RejectionType.Permanent;
 
-        public Decision IsSatisfiedBy(RemoteBook subject, SearchCriteriaBase searchCriteria)
+        public Decision IsSatisfiedBy(RemoteIssue subject, SearchCriteriaBase searchCriteria)
         {
-            if (!subject.ParsedBookInfo.Quality.Revision.IsRepack)
+            if (!subject.ParsedIssueInfo.Quality.Revision.IsRepack)
             {
                 return Decision.Accept();
             }
@@ -42,14 +42,14 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
                 return Decision.Accept();
             }
 
-            foreach (var book in subject.Books)
+            foreach (var issue in subject.Issues)
             {
-                var releaseGroup = subject.ParsedBookInfo.ReleaseGroup;
-                var bookFiles = _mediaFileService.GetFilesByBook(book.Id);
+                var releaseGroup = subject.ParsedIssueInfo.ReleaseGroup;
+                var issueFiles = _mediaFileService.GetFilesByIssue(issue.Id);
 
-                foreach (var file in bookFiles)
+                foreach (var file in issueFiles)
                 {
-                    if (_upgradableSpecification.IsRevisionUpgrade(file.Quality, subject.ParsedBookInfo.Quality))
+                    if (_upgradableSpecification.IsRevisionUpgrade(file.Quality, subject.ParsedIssueInfo.Quality))
                     {
                         if (downloadPropersAndRepacks == ProperDownloadTypes.DoNotUpgrade)
                         {

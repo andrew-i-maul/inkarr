@@ -1,4 +1,4 @@
-namespace Inkarr.Api.V1.Author
+namespace Inkarr.Api.V1.Volume
 {
     public class AlternateTitleResource
     {

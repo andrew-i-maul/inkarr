@@ -1,6 +1,6 @@
 using System.Linq;
 using NzbDrone.Common.Disk;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Localization;
 
 namespace NzbDrone.Core.HealthCheck.Checks
@@ -8,19 +8,19 @@ namespace NzbDrone.Core.HealthCheck.Checks
     public class MountCheck : HealthCheckBase
     {
         private readonly IDiskProvider _diskProvider;
-        private readonly IAuthorService _authorService;
+        private readonly IVolumeService _volumeService;
 
-        public MountCheck(IDiskProvider diskProvider, IAuthorService authorService, ILocalizationService localizationService)
+        public MountCheck(IDiskProvider diskProvider, IVolumeService volumeService, ILocalizationService localizationService)
             : base(localizationService)
         {
             _diskProvider = diskProvider;
-            _authorService = authorService;
+            _volumeService = volumeService;
         }
 
         public override HealthCheck Check()
         {
             // Not best for optimization but due to possible symlinks and junctions, we get mounts based on series path so internals can handle mount resolution.
-            var mounts = _authorService.AllAuthorPaths()
+            var mounts = _volumeService.AllVolumePaths()
                                       .Select(p => _diskProvider.GetMount(p.Value))
                                       .Where(m => m != null && m.MountOptions != null && m.MountOptions.IsReadOnly)
                                       .DistinctBy(m => m.RootDirectory)
@@ -28,7 +28,7 @@ namespace NzbDrone.Core.HealthCheck.Checks
 
             if (mounts.Any())
             {
-                return new HealthCheck(GetType(), HealthCheckResult.Error, _localizationService.GetLocalizedString("MountCheckMessage") + string.Join(", ", mounts.Select(m => m.Name)), "#author-mount-ro");
+                return new HealthCheck(GetType(), HealthCheckResult.Error, _localizationService.GetLocalizedString("MountCheckMessage") + string.Join(", ", mounts.Select(m => m.Name)), "#volume-mount-ro");
             }
 
             return new HealthCheck(GetType());

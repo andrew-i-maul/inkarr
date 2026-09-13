@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using Moq;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Notifications;
 using NzbDrone.Core.Notifications.Synology;
@@ -14,37 +14,37 @@ namespace NzbDrone.Core.Test.NotificationTests
     [TestFixture]
     public class SynologyIndexerFixture : CoreTest<SynologyIndexer>
     {
-        private Author _author;
-        private BookDownloadMessage _upgrade;
+        private Volume _volume;
+        private IssueDownloadMessage _upgrade;
         private string _rootPath = @"C:\Test\".AsOsAgnostic();
 
         [SetUp]
         public void SetUp()
         {
-            _author = new Author()
+            _volume = new Volume()
             {
                 Path = _rootPath,
             };
 
-            _upgrade = new BookDownloadMessage()
+            _upgrade = new IssueDownloadMessage()
             {
-                Author = _author,
+                Volume = _volume,
 
-                BookFiles = new List<BookFile>
+                IssueFiles = new List<IssueFile>
                 {
-                    new BookFile
+                    new IssueFile
                     {
                         Path = Path.Combine(_rootPath, "file1.S01E01E02.mkv")
                     }
                 },
 
-                OldFiles = new List<BookFile>
+                OldFiles = new List<IssueFile>
                 {
-                    new BookFile
+                    new IssueFile
                     {
                         Path = Path.Combine(_rootPath, "file1.S01E01.mkv")
                     },
-                    new BookFile
+                    new IssueFile
                     {
                         Path = Path.Combine(_rootPath, "file1.S01E02.mkv")
                     }
@@ -65,10 +65,10 @@ namespace NzbDrone.Core.Test.NotificationTests
         {
             (Subject.Definition.Settings as SynologyIndexerSettings).UpdateLibrary = false;
 
-            Subject.OnRename(_author, new List<RenamedBookFile>());
+            Subject.OnRename(_volume, new List<RenamedIssueFile>());
 
             Mocker.GetMock<ISynologyIndexerProxy>()
-                .Verify(v => v.UpdateFolder(_author.Path), Times.Never());
+                .Verify(v => v.UpdateFolder(_volume.Path), Times.Never());
         }
 
         [Test]
@@ -95,7 +95,7 @@ namespace NzbDrone.Core.Test.NotificationTests
         [Test]
         public void should_update_entire_series_folder_on_rename()
         {
-            Subject.OnRename(_author, new List<RenamedBookFile>());
+            Subject.OnRename(_volume, new List<RenamedIssueFile>());
 
             Mocker.GetMock<ISynologyIndexerProxy>()
                 .Verify(v => v.UpdateFolder(@"C:\Test\".AsOsAgnostic()), Times.Once());

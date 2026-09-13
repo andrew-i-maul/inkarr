@@ -38,23 +38,23 @@ namespace Inkarr.Api.V1.Queue
         }
 
         [HttpGet]
-        public List<QueueResource> GetQueue(int? authorId, [FromQuery]List<int> bookIds, bool includeAuthor = false, bool includeBook = true)
+        public List<QueueResource> GetQueue(int? volumeId, [FromQuery]List<int> issueIds, bool includeVolume = false, bool includeIssue = true)
         {
             var queue = _queueService.GetQueue();
             var pending = _pendingReleaseService.GetPendingQueue();
             var fullQueue = queue.Concat(pending);
 
-            if (authorId.HasValue)
+            if (volumeId.HasValue)
             {
-                return fullQueue.Where(q => q.Author?.Id == authorId.Value).ToResource(includeAuthor, includeBook);
+                return fullQueue.Where(q => q.Volume?.Id == volumeId.Value).ToResource(includeVolume, includeIssue);
             }
 
-            if (bookIds.Any())
+            if (issueIds.Any())
             {
-                return fullQueue.Where(q => q.Book != null && bookIds.Contains(q.Book.Id)).ToResource(includeAuthor, includeBook);
+                return fullQueue.Where(q => q.Issue != null && issueIds.Contains(q.Issue.Id)).ToResource(includeVolume, includeIssue);
             }
 
-            return fullQueue.ToResource(includeAuthor, includeBook);
+            return fullQueue.ToResource(includeVolume, includeIssue);
         }
 
         [NonAction]

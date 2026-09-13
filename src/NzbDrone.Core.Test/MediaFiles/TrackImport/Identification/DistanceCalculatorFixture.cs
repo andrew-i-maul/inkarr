@@ -1,25 +1,25 @@
 using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
-using NzbDrone.Core.MediaFiles.BookImport.Identification;
+using NzbDrone.Core.MediaFiles.IssueImport.Identification;
 using NzbDrone.Test.Common;
 
-namespace NzbDrone.Core.Test.MediaFiles.BookImport.Identification
+namespace NzbDrone.Core.Test.MediaFiles.IssueImport.Identification
 {
     [TestFixture]
     public class DistanceCalculatorFixture : TestBase
     {
         [Test]
-        public void should_reverse_single_reversed_author()
+        public void should_reverse_single_reversed_volume()
         {
             var input = new List<string> { "Last, First" };
-            var authors = DistanceCalculator.GetAuthorVariants(input);
+            var volumes = DistanceCalculator.GetVolumeVariants(input);
 
-            authors.Should().Contain("First Last");
+            volumes.Should().Contain("First Last");
         }
 
         [Test]
-        public void should_reverse_two_reversed_author()
+        public void should_reverse_two_reversed_volume()
         {
             var input = new List<string>
             {
@@ -27,23 +27,23 @@ namespace NzbDrone.Core.Test.MediaFiles.BookImport.Identification
                 "Last2, First2"
             };
 
-            var authors = DistanceCalculator.GetAuthorVariants(input);
+            var volumes = DistanceCalculator.GetVolumeVariants(input);
 
-            authors.Should().HaveCount(4);
-            authors.Should().Contain("First Last");
-            authors.Should().Contain("First2 Last2");
-            authors.Should().Contain("Last, First");
-            authors.Should().Contain("Last2, First2");
+            volumes.Should().HaveCount(4);
+            volumes.Should().Contain("First Last");
+            volumes.Should().Contain("First2 Last2");
+            volumes.Should().Contain("Last, First");
+            volumes.Should().Contain("Last2, First2");
         }
 
         [Test]
-        public void should_not_reverse_single_author()
+        public void should_not_reverse_single_volume()
         {
             var input = new List<string> { "First Last" };
-            var authors = DistanceCalculator.GetAuthorVariants(input);
+            var volumes = DistanceCalculator.GetVolumeVariants(input);
 
-            authors.Should().HaveCount(1);
-            authors.Should().Contain("First Last");
+            volumes.Should().HaveCount(1);
+            volumes.Should().Contain("First Last");
         }
 
         [TestCase("First1 Last1, First2 Last2", "First1 Last1", "First2 Last2")]
@@ -51,15 +51,15 @@ namespace NzbDrone.Core.Test.MediaFiles.BookImport.Identification
         [TestCase("First1 Last1 & First2 Last2", "First1 Last1", "First2 Last2")]
         [TestCase("First1 Last1 / First2 Last2", "First1 Last1", "First2 Last2")]
         [TestCase("First1 Last1 and First2 Last2", "First1 Last1", "First2 Last2")]
-        public void should_split_concatenated_author(string inputString, string first, string second)
+        public void should_split_concatenated_volume(string inputString, string first, string second)
         {
             var input = new List<string> { inputString };
-            var authors = DistanceCalculator.GetAuthorVariants(input);
+            var volumes = DistanceCalculator.GetVolumeVariants(input);
 
-            authors.Should().Contain(inputString);
-            authors.Should().Contain(first);
-            authors.Should().Contain(second);
-            authors.Should().HaveCount(3);
+            volumes.Should().Contain(inputString);
+            volumes.Should().Contain(first);
+            volumes.Should().Contain(second);
+            volumes.Should().HaveCount(3);
         }
 
         [Test]
@@ -67,13 +67,13 @@ namespace NzbDrone.Core.Test.MediaFiles.BookImport.Identification
         {
             var inputString = "First Last, First2 Last2 & First3 Last3";
             var input = new List<string> { inputString };
-            var authors = DistanceCalculator.GetAuthorVariants(input);
+            var volumes = DistanceCalculator.GetVolumeVariants(input);
 
-            authors.Should().Contain(inputString);
-            authors.Should().Contain("First Last");
-            authors.Should().Contain("First2 Last2");
-            authors.Should().Contain("First3 Last3");
-            authors.Should().HaveCount(4);
+            volumes.Should().Contain(inputString);
+            volumes.Should().Contain("First Last");
+            volumes.Should().Contain("First2 Last2");
+            volumes.Should().Contain("First3 Last3");
+            volumes.Should().HaveCount(4);
         }
 
         [Test]
@@ -85,11 +85,11 @@ namespace NzbDrone.Core.Test.MediaFiles.BookImport.Identification
                 "Second Third, Fourth Fifth"
             };
 
-            var authors = DistanceCalculator.GetAuthorVariants(input);
+            var volumes = DistanceCalculator.GetVolumeVariants(input);
 
-            authors.Should().HaveCount(2);
-            authors.Should().Contain("First Last");
-            authors.Should().Contain("Second Third, Fourth Fifth");
+            volumes.Should().HaveCount(2);
+            volumes.Should().Contain("First Last");
+            volumes.Should().Contain("Second Third, Fourth Fifth");
         }
     }
 }

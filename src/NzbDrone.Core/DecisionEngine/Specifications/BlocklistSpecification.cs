@@ -19,9 +19,9 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
         public SpecificationPriority Priority => SpecificationPriority.Database;
         public RejectionType Type => RejectionType.Permanent;
 
-        public Decision IsSatisfiedBy(RemoteBook subject, SearchCriteriaBase searchCriteria)
+        public Decision IsSatisfiedBy(RemoteIssue subject, SearchCriteriaBase searchCriteria)
         {
-            if (_blocklistService.Blocklisted(subject.Author.Id, subject.Release))
+            if (_blocklistService.Blocklisted(subject.Volume.Id, subject.Release))
             {
                 _logger.Debug("{0} is blocklisted, rejecting.", subject.Release.Title);
                 return Decision.Reject("Release is blocklisted");

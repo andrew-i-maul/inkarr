@@ -112,48 +112,48 @@ namespace NzbDrone.Core.Test.MetadataSource.ComicVine
         {
             GivenHttpResponse("search/", RealBatmanSearchResponse);
 
-            var authors = Subject.SearchForNewAuthor("Batman");
+            var volumes = Subject.SearchForNewVolume("Batman");
 
-            authors.Should().HaveCount(3);
+            volumes.Should().HaveCount(3);
 
-            var dcBatman = authors.Single(a => a.Metadata.Value.ForeignAuthorId == "796");
+            var dcBatman = volumes.Single(a => a.Metadata.Value.ForeignVolumeId == "796");
             dcBatman.Name.Should().Be("Batman");
             dcBatman.CleanName.Should().Be("Batman");
         }
 
         [Test]
-        public void should_get_author_info_with_books_and_publisher_on_edition()
+        public void should_get_volume_info_with_issues_and_publisher_on_edition()
         {
             GivenHttpResponse("volume/4050-796", VolumeDetailResponse);
             GivenHttpResponse("issues/", IssuesListResponse);
 
-            var author = Subject.GetAuthorInfo("796");
+            var volume = Subject.GetVolumeInfo("796");
 
-            author.Name.Should().Be("Batman");
-            author.Metadata.Value.Overview.Should().Be("Batman is a costumed vigilante who protects Gotham City.");
-            author.Books.Value.Should().HaveCount(2);
+            volume.Name.Should().Be("Batman");
+            volume.Metadata.Value.Overview.Should().Be("Batman is a costumed vigilante who protects Gotham City.");
+            volume.Issues.Value.Should().HaveCount(2);
 
-            var issue1 = author.Books.Value.Single(b => b.ForeignBookId == "111");
+            var issue1 = volume.Issues.Value.Single(b => b.ForeignIssueId == "111");
             issue1.Title.Should().Be("#1");
             issue1.Editions.Value.Should().HaveCount(1);
             issue1.Editions.Value.Single().Publisher.Should().Be("DC Comics");
 
-            var annual = author.Books.Value.Single(b => b.ForeignBookId == "112");
+            var annual = volume.Issues.Value.Single(b => b.ForeignIssueId == "112");
             annual.Title.Should().Be("#Annual 1 - The Case of the Chemical Syndicate");
         }
 
         [Test]
-        public void should_get_book_info_and_synthesize_exactly_one_edition()
+        public void should_get_issue_info_and_synthesize_exactly_one_edition()
         {
             GivenHttpResponse("issue/4000-111", IssueDetailResponse);
             GivenHttpResponse("volume/4050-796", VolumeDetailResponse);
 
-            var result = Subject.GetBookInfo("111");
+            var result = Subject.GetIssueInfo("111");
 
             result.Item1.Should().Be("796");
             result.Item2.Editions.Value.Should().HaveCount(1);
             result.Item2.Editions.Value.Single().Publisher.Should().Be("DC Comics");
-            result.Item3.Should().ContainSingle(m => m.ForeignAuthorId == "796");
+            result.Item3.Should().ContainSingle(m => m.ForeignVolumeId == "796");
         }
 
         [Test]
@@ -161,7 +161,7 @@ namespace NzbDrone.Core.Test.MetadataSource.ComicVine
         {
             GivenHttpResponse("volume/", ObjectNotFoundResponse);
 
-            Assert.Throws<ComicVineException>(() => Subject.GetAuthorInfo("999999"));
+            Assert.Throws<ComicVineException>(() => Subject.GetVolumeInfo("999999"));
         }
 
         [Test]
@@ -171,7 +171,7 @@ namespace NzbDrone.Core.Test.MetadataSource.ComicVine
                   .SetupGet(s => s.ComicVineApiKey)
                   .Returns(string.Empty);
 
-            Assert.Throws<ComicVineException>(() => Subject.GetAuthorInfo("796"));
+            Assert.Throws<ComicVineException>(() => Subject.GetVolumeInfo("796"));
 
             Mocker.GetMock<IHttpClient>().Verify(x => x.Get(It.IsAny<HttpRequest>()), Times.Never());
         }

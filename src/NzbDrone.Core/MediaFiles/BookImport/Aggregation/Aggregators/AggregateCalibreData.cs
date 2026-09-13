@@ -2,40 +2,40 @@ using System.Collections.Generic;
 using NLog;
 using NzbDrone.Common.Cache;
 using NzbDrone.Common.Serializer;
-using NzbDrone.Core.Books.Calibre;
+using NzbDrone.Core.Issues.Calibre;
 using NzbDrone.Core.Parser.Model;
 
-namespace NzbDrone.Core.MediaFiles.BookImport.Aggregation.Aggregators
+namespace NzbDrone.Core.MediaFiles.IssueImport.Aggregation.Aggregators
 {
-    public class AggregateCalibreData : IAggregate<LocalBook>
+    public class AggregateCalibreData : IAggregate<LocalIssue>
     {
         private readonly Logger _logger;
-        private readonly ICached<CalibreBook> _bookCache;
+        private readonly ICached<CalibreIssue> _issueCache;
 
         public AggregateCalibreData(Logger logger,
                                     ICacheManager cacheManager)
         {
             _logger = logger;
-            _bookCache = cacheManager.GetCache<CalibreBook>(typeof(CalibreProxy));
+            _issueCache = cacheManager.GetCache<CalibreIssue>(typeof(CalibreProxy));
         }
 
-        public LocalBook Aggregate(LocalBook localTrack, bool others)
+        public LocalIssue Aggregate(LocalIssue localTrack, bool others)
         {
-            var book = _bookCache.Find(localTrack.Path);
+            var issue = _issueCache.Find(localTrack.Path);
             _logger.Trace($"Searching calibre data for {localTrack.Path}");
 
-            if (book != null)
+            if (issue != null)
             {
-                _logger.Trace($"Using calibre data for {localTrack.Path}:\n{book.ToJson()}");
+                _logger.Trace($"Using calibre data for {localTrack.Path}:\n{issue.ToJson()}");
 
-                localTrack.CalibreId = book.Id;
+                localTrack.CalibreId = issue.Id;
 
                 var parsed = localTrack.FileTrackInfo;
-                parsed.Asin = book.Identifiers.GetValueOrDefault("mobi-asin") ?? book.Identifiers.GetValueOrDefault("asin");
-                parsed.Isbn = book.Identifiers.GetValueOrDefault("isbn");
-                parsed.GoodreadsId = book.Identifiers.GetValueOrDefault("goodreads");
-                parsed.Authors = book.Authors;
-                parsed.BookTitle = book.Title;
+                parsed.Asin = issue.Identifiers.GetValueOrDefault("mobi-asin") ?? issue.Identifiers.GetValueOrDefault("asin");
+                parsed.Isbn = issue.Identifiers.GetValueOrDefault("isbn");
+                parsed.GoodreadsId = issue.Identifiers.GetValueOrDefault("goodreads");
+                parsed.Volumes = issue.Volumes;
+                parsed.IssueTitle = issue.Title;
             }
 
             return localTrack;

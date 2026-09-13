@@ -28,17 +28,17 @@ namespace NzbDrone.Core.Indexers.Gazelle
             return pageableRequests;
         }
 
-        public IndexerPageableRequestChain GetSearchRequests(BookSearchCriteria searchCriteria)
+        public IndexerPageableRequestChain GetSearchRequests(IssueSearchCriteria searchCriteria)
         {
             var pageableRequests = new IndexerPageableRequestChain();
-            pageableRequests.Add(GetRequest(string.Format("&authorname={0}&groupname={1}", searchCriteria.AuthorQuery, searchCriteria.BookQuery)));
+            pageableRequests.Add(GetRequest(string.Format("&volumename={0}&groupname={1}", searchCriteria.VolumeQuery, searchCriteria.IssueQuery)));
             return pageableRequests;
         }
 
-        public IndexerPageableRequestChain GetSearchRequests(AuthorSearchCriteria searchCriteria)
+        public IndexerPageableRequestChain GetSearchRequests(VolumeSearchCriteria searchCriteria)
         {
             var pageableRequests = new IndexerPageableRequestChain();
-            pageableRequests.Add(GetRequest(string.Format("&authorname={0}", searchCriteria.AuthorQuery)));
+            pageableRequests.Add(GetRequest(string.Format("&volumename={0}", searchCriteria.VolumeQuery)));
             return pageableRequests;
         }
 

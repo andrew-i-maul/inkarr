@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using NLog;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.IndexerSearch.Definitions;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Parser.Model;
 
@@ -13,262 +13,262 @@ namespace NzbDrone.Core.Parser
 {
     public interface IParsingService
     {
-        Author GetAuthor(string title);
-        RemoteBook Map(ParsedBookInfo parsedBookInfo, SearchCriteriaBase searchCriteria = null);
-        RemoteBook Map(ParsedBookInfo parsedBookInfo, int authorId, IEnumerable<int> bookIds);
-        List<Book> GetBooks(ParsedBookInfo parsedBookInfo, Author author, SearchCriteriaBase searchCriteria = null);
+        Volume GetVolume(string title);
+        RemoteIssue Map(ParsedIssueInfo parsedIssueInfo, SearchCriteriaBase searchCriteria = null);
+        RemoteIssue Map(ParsedIssueInfo parsedIssueInfo, int volumeId, IEnumerable<int> issueIds);
+        List<Issue> GetIssues(ParsedIssueInfo parsedIssueInfo, Volume volume, SearchCriteriaBase searchCriteria = null);
 
-        ParsedBookInfo ParseBookTitleFuzzy(string title);
+        ParsedIssueInfo ParseIssueTitleFuzzy(string title);
 
         // Music stuff here
-        Book GetLocalBook(string filename, Author author);
+        Issue GetLocalIssue(string filename, Volume volume);
     }
 
     public class ParsingService : IParsingService
     {
-        private readonly IAuthorService _authorService;
-        private readonly IBookService _bookService;
+        private readonly IVolumeService _volumeService;
+        private readonly IIssueService _issueService;
         private readonly IEditionService _editionService;
         private readonly IMediaFileService _mediaFileService;
         private readonly Logger _logger;
 
-        public ParsingService(IAuthorService authorService,
-                              IBookService bookService,
+        public ParsingService(IVolumeService volumeService,
+                              IIssueService issueService,
                               IEditionService editionService,
                               IMediaFileService mediaFileService,
                               Logger logger)
         {
-            _bookService = bookService;
+            _issueService = issueService;
             _editionService = editionService;
-            _authorService = authorService;
+            _volumeService = volumeService;
             _mediaFileService = mediaFileService;
             _logger = logger;
         }
 
-        public Author GetAuthor(string title)
+        public Volume GetVolume(string title)
         {
-            var parsedBookInfo = Parser.ParseBookTitle(title);
+            var parsedIssueInfo = Parser.ParseIssueTitle(title);
 
-            if (parsedBookInfo != null && !parsedBookInfo.AuthorName.IsNullOrWhiteSpace())
+            if (parsedIssueInfo != null && !parsedIssueInfo.VolumeName.IsNullOrWhiteSpace())
             {
-                title = parsedBookInfo.AuthorName;
+                title = parsedIssueInfo.VolumeName;
             }
 
-            var authorInfo = _authorService.FindByName(title);
+            var volumeInfo = _volumeService.FindByName(title);
 
-            if (authorInfo == null)
+            if (volumeInfo == null)
             {
-                _logger.Debug("Trying inexact author match for {0}", title);
-                authorInfo = _authorService.FindByNameInexact(title);
+                _logger.Debug("Trying inexact volume match for {0}", title);
+                volumeInfo = _volumeService.FindByNameInexact(title);
             }
 
-            return authorInfo;
+            return volumeInfo;
         }
 
-        public RemoteBook Map(ParsedBookInfo parsedBookInfo, SearchCriteriaBase searchCriteria = null)
+        public RemoteIssue Map(ParsedIssueInfo parsedIssueInfo, SearchCriteriaBase searchCriteria = null)
         {
-            var remoteBook = new RemoteBook
+            var remoteIssue = new RemoteIssue
             {
-                ParsedBookInfo = parsedBookInfo,
+                ParsedIssueInfo = parsedIssueInfo,
             };
 
-            var author = GetAuthor(parsedBookInfo, searchCriteria);
+            var volume = GetVolume(parsedIssueInfo, searchCriteria);
 
-            if (author == null)
+            if (volume == null)
             {
-                return remoteBook;
+                return remoteIssue;
             }
 
-            remoteBook.Author = author;
-            remoteBook.Books = GetBooks(parsedBookInfo, author, searchCriteria);
+            remoteIssue.Volume = volume;
+            remoteIssue.Issues = GetIssues(parsedIssueInfo, volume, searchCriteria);
 
-            return remoteBook;
+            return remoteIssue;
         }
 
-        public List<Book> GetBooks(ParsedBookInfo parsedBookInfo, Author author, SearchCriteriaBase searchCriteria = null)
+        public List<Issue> GetIssues(ParsedIssueInfo parsedIssueInfo, Volume volume, SearchCriteriaBase searchCriteria = null)
         {
-            var bookTitle = parsedBookInfo.BookTitle;
-            var result = new List<Book>();
+            var issueTitle = parsedIssueInfo.IssueTitle;
+            var result = new List<Issue>();
 
-            if (parsedBookInfo.BookTitle == null)
+            if (parsedIssueInfo.IssueTitle == null)
             {
-                return new List<Book>();
+                return new List<Issue>();
             }
 
-            Book bookInfo = null;
+            Issue issueInfo = null;
 
-            if (parsedBookInfo.Discography)
+            if (parsedIssueInfo.Discography)
             {
-                if (parsedBookInfo.DiscographyStart > 0)
+                if (parsedIssueInfo.DiscographyStart > 0)
                 {
-                    return _bookService.AuthorBooksBetweenDates(author,
-                        new DateTime(parsedBookInfo.DiscographyStart, 1, 1),
-                        new DateTime(parsedBookInfo.DiscographyEnd, 12, 31),
+                    return _issueService.VolumeIssuesBetweenDates(volume,
+                        new DateTime(parsedIssueInfo.DiscographyStart, 1, 1),
+                        new DateTime(parsedIssueInfo.DiscographyEnd, 12, 31),
                         false);
                 }
 
-                if (parsedBookInfo.DiscographyEnd > 0)
+                if (parsedIssueInfo.DiscographyEnd > 0)
                 {
-                    return _bookService.AuthorBooksBetweenDates(author,
+                    return _issueService.VolumeIssuesBetweenDates(volume,
                         new DateTime(1800, 1, 1),
-                        new DateTime(parsedBookInfo.DiscographyEnd, 12, 31),
+                        new DateTime(parsedIssueInfo.DiscographyEnd, 12, 31),
                         false);
                 }
 
-                return _bookService.GetBooksByAuthor(author.Id);
+                return _issueService.GetIssuesByVolume(volume.Id);
             }
 
             if (searchCriteria != null)
             {
-                var cleanTitle = Parser.CleanAuthorName(parsedBookInfo.BookTitle);
-                bookInfo = searchCriteria.Books.ExclusiveOrDefault(e => e.Title == bookTitle || e.CleanTitle == cleanTitle);
+                var cleanTitle = Parser.CleanVolumeName(parsedIssueInfo.IssueTitle);
+                issueInfo = searchCriteria.Issues.ExclusiveOrDefault(e => e.Title == issueTitle || e.CleanTitle == cleanTitle);
             }
 
-            if (bookInfo == null)
+            if (issueInfo == null)
             {
                 // TODO: Search by Title and Year instead of just Title when matching
-                bookInfo = _bookService.FindByTitle(author.AuthorMetadataId, parsedBookInfo.BookTitle);
+                issueInfo = _issueService.FindByTitle(volume.VolumeMetadataId, parsedIssueInfo.IssueTitle);
             }
 
-            if (bookInfo == null)
+            if (issueInfo == null)
             {
-                var edition = _editionService.FindByTitle(author.AuthorMetadataId, parsedBookInfo.BookTitle);
-                bookInfo = edition?.Book.Value;
+                var edition = _editionService.FindByTitle(volume.VolumeMetadataId, parsedIssueInfo.IssueTitle);
+                issueInfo = edition?.Issue.Value;
             }
 
-            if (bookInfo == null)
+            if (issueInfo == null)
             {
-                _logger.Debug("Trying inexact book match for {0}", parsedBookInfo.BookTitle);
-                bookInfo = _bookService.FindByTitleInexact(author.AuthorMetadataId, parsedBookInfo.BookTitle);
+                _logger.Debug("Trying inexact issue match for {0}", parsedIssueInfo.IssueTitle);
+                issueInfo = _issueService.FindByTitleInexact(volume.VolumeMetadataId, parsedIssueInfo.IssueTitle);
             }
 
-            if (bookInfo == null)
+            if (issueInfo == null)
             {
-                _logger.Debug("Trying inexact edition match for {0}", parsedBookInfo.BookTitle);
-                var edition = _editionService.FindByTitleInexact(author.AuthorMetadataId, parsedBookInfo.BookTitle);
-                bookInfo = edition?.Book.Value;
+                _logger.Debug("Trying inexact edition match for {0}", parsedIssueInfo.IssueTitle);
+                var edition = _editionService.FindByTitleInexact(volume.VolumeMetadataId, parsedIssueInfo.IssueTitle);
+                issueInfo = edition?.Issue.Value;
             }
 
-            if (bookInfo != null)
+            if (issueInfo != null)
             {
-                result.Add(bookInfo);
+                result.Add(issueInfo);
             }
             else
             {
-                _logger.Debug("Unable to find {0}", parsedBookInfo);
+                _logger.Debug("Unable to find {0}", parsedIssueInfo);
             }
 
             return result;
         }
 
-        public RemoteBook Map(ParsedBookInfo parsedBookInfo, int authorId, IEnumerable<int> bookIds)
+        public RemoteIssue Map(ParsedIssueInfo parsedIssueInfo, int volumeId, IEnumerable<int> issueIds)
         {
-            return new RemoteBook
+            return new RemoteIssue
             {
-                ParsedBookInfo = parsedBookInfo,
-                Author = _authorService.GetAuthor(authorId),
-                Books = _bookService.GetBooks(bookIds)
+                ParsedIssueInfo = parsedIssueInfo,
+                Volume = _volumeService.GetVolume(volumeId),
+                Issues = _issueService.GetIssues(issueIds)
             };
         }
 
-        private Author GetAuthor(ParsedBookInfo parsedBookInfo, SearchCriteriaBase searchCriteria)
+        private Volume GetVolume(ParsedIssueInfo parsedIssueInfo, SearchCriteriaBase searchCriteria)
         {
-            Author author = null;
+            Volume volume = null;
 
             if (searchCriteria != null)
             {
-                if (searchCriteria.Author.CleanName == parsedBookInfo.AuthorName.CleanAuthorName())
+                if (searchCriteria.Volume.CleanName == parsedIssueInfo.VolumeName.CleanVolumeName())
                 {
-                    return searchCriteria.Author;
+                    return searchCriteria.Volume;
                 }
             }
 
-            author = _authorService.FindByName(parsedBookInfo.AuthorName);
+            volume = _volumeService.FindByName(parsedIssueInfo.VolumeName);
 
-            if (author == null)
+            if (volume == null)
             {
-                _logger.Debug("Trying inexact author match for {0}", parsedBookInfo.AuthorName);
-                author = _authorService.FindByNameInexact(parsedBookInfo.AuthorName);
+                _logger.Debug("Trying inexact volume match for {0}", parsedIssueInfo.VolumeName);
+                volume = _volumeService.FindByNameInexact(parsedIssueInfo.VolumeName);
             }
 
-            if (author == null)
+            if (volume == null)
             {
-                _logger.Debug("No matching author {0}", parsedBookInfo.AuthorName);
+                _logger.Debug("No matching volume {0}", parsedIssueInfo.VolumeName);
                 return null;
             }
 
-            return author;
+            return volume;
         }
 
-        public ParsedBookInfo ParseBookTitleFuzzy(string title)
+        public ParsedIssueInfo ParseIssueTitleFuzzy(string title)
         {
             var bestScore = 0.0;
 
-            Author bestAuthor = null;
-            Book bestBook = null;
+            Volume bestVolume = null;
+            Issue bestIssue = null;
 
-            var possibleAuthors = _authorService.GetReportCandidates(title);
+            var possibleVolumes = _volumeService.GetReportCandidates(title);
 
-            foreach (var author in possibleAuthors)
+            foreach (var volume in possibleVolumes)
             {
-                _logger.Trace($"Trying possible author {author}");
+                _logger.Trace($"Trying possible volume {volume}");
 
-                var authorMatch = title.FuzzyMatch(author.Metadata.Value.Name, 0.5);
-                var possibleBooks = _bookService.GetCandidates(author.AuthorMetadataId, title);
+                var volumeMatch = title.FuzzyMatch(volume.Metadata.Value.Name, 0.5);
+                var possibleIssues = _issueService.GetCandidates(volume.VolumeMetadataId, title);
 
-                foreach (var book in possibleBooks)
+                foreach (var issue in possibleIssues)
                 {
-                    var bookMatch = title.FuzzyMatch(book.Title, 0.5);
-                    var score = (authorMatch.Item3 + bookMatch.Item3) / 2;
+                    var issueMatch = title.FuzzyMatch(issue.Title, 0.5);
+                    var score = (volumeMatch.Item3 + issueMatch.Item3) / 2;
 
-                    _logger.Trace($"Book {book} has score {score}");
+                    _logger.Trace($"Issue {issue} has score {score}");
 
                     if (score > bestScore)
                     {
-                        bestAuthor = author;
-                        bestBook = book;
+                        bestVolume = volume;
+                        bestIssue = issue;
                     }
                 }
 
-                var possibleEditions = _editionService.GetCandidates(author.AuthorMetadataId, title);
+                var possibleEditions = _editionService.GetCandidates(volume.VolumeMetadataId, title);
                 foreach (var edition in possibleEditions)
                 {
                     var editionMatch = title.FuzzyMatch(edition.Title, 0.5);
-                    var score = (authorMatch.Item3 + editionMatch.Item3) / 2;
+                    var score = (volumeMatch.Item3 + editionMatch.Item3) / 2;
 
                     _logger.Trace($"Edition {edition} has score {score}");
 
                     if (score > bestScore)
                     {
-                        bestAuthor = author;
-                        bestBook = edition.Book.Value;
+                        bestVolume = volume;
+                        bestIssue = edition.Issue.Value;
                     }
                 }
             }
 
-            _logger.Trace($"Best match: {bestAuthor} {bestBook}");
+            _logger.Trace($"Best match: {bestVolume} {bestIssue}");
 
-            if (bestAuthor != null)
+            if (bestVolume != null)
             {
-                return Parser.ParseBookTitleWithSearchCriteria(title, bestAuthor, new List<Book> { bestBook });
+                return Parser.ParseIssueTitleWithSearchCriteria(title, bestVolume, new List<Issue> { bestIssue });
             }
 
             return null;
         }
 
-        public Book GetLocalBook(string filename, Author author)
+        public Issue GetLocalIssue(string filename, Volume volume)
         {
             if (Path.HasExtension(filename))
             {
                 filename = Path.GetDirectoryName(filename);
             }
 
-            var tracksInBook = _mediaFileService.GetFilesByAuthor(author.Id)
+            var tracksInIssue = _mediaFileService.GetFilesByVolume(volume.Id)
                 .FindAll(s => Path.GetDirectoryName(s.Path) == filename)
                 .DistinctBy(s => s.EditionId)
                 .ToList();
 
-            return tracksInBook.Count == 1 ? _bookService.GetBook(tracksInBook.First().EditionId) : null;
+            return tracksInIssue.Count == 1 ? _issueService.GetIssue(tracksInIssue.First().EditionId) : null;
         }
     }
 }

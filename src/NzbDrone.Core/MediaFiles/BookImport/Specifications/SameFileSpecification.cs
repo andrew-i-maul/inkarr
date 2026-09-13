@@ -4,9 +4,9 @@ using NzbDrone.Core.DecisionEngine;
 using NzbDrone.Core.Download;
 using NzbDrone.Core.Parser.Model;
 
-namespace NzbDrone.Core.MediaFiles.BookImport.Specifications
+namespace NzbDrone.Core.MediaFiles.IssueImport.Specifications
 {
-    public class SameFileSpecification : IImportDecisionEngineSpecification<LocalBook>
+    public class SameFileSpecification : IImportDecisionEngineSpecification<LocalIssue>
     {
         private readonly Logger _logger;
 
@@ -15,29 +15,29 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Specifications
             _logger = logger;
         }
 
-        public Decision IsSatisfiedBy(LocalBook localBook, DownloadClientItem downloadClientItem)
+        public Decision IsSatisfiedBy(LocalIssue localIssue, DownloadClientItem downloadClientItem)
         {
-            var bookFiles = localBook.Book?.BookFiles?.Value;
+            var issueFiles = localIssue.Issue?.IssueFiles?.Value;
 
-            if (bookFiles == null || !bookFiles.Any())
+            if (issueFiles == null || !issueFiles.Any())
             {
-                _logger.Debug("No existing book file, skipping");
+                _logger.Debug("No existing issue file, skipping");
                 return Decision.Accept();
             }
 
-            foreach (var bookFile in bookFiles)
+            foreach (var issueFile in issueFiles)
             {
-                if (bookFile == null)
+                if (issueFile == null)
                 {
-                    var book = localBook.Book;
-                    _logger.Trace("Unable to get book file details from the DB. BookId: {0}", book.Id);
+                    var issue = localIssue.Issue;
+                    _logger.Trace("Unable to get issue file details from the DB. IssueId: {0}", issue.Id);
 
                     return Decision.Accept();
                 }
 
-                if (bookFile.Size == localBook.Size)
+                if (issueFile.Size == localIssue.Size)
                 {
-                    _logger.Debug("'{0}' Has the same filesize as existing file", localBook.Path);
+                    _logger.Debug("'{0}' Has the same filesize as existing file", localIssue.Path);
                     return Decision.Reject("Has the same filesize as existing file");
                 }
             }

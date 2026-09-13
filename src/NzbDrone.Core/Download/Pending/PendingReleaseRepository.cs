@@ -6,8 +6,8 @@ namespace NzbDrone.Core.Download.Pending
 {
     public interface IPendingReleaseRepository : IBasicRepository<PendingRelease>
     {
-        void DeleteByAuthorId(int authorId);
-        List<PendingRelease> AllByAuthorId(int authorId);
+        void DeleteByVolumeId(int volumeId);
+        List<PendingRelease> AllByVolumeId(int volumeId);
         List<PendingRelease> WithoutFallback();
     }
 
@@ -18,14 +18,14 @@ namespace NzbDrone.Core.Download.Pending
         {
         }
 
-        public void DeleteByAuthorId(int authorId)
+        public void DeleteByVolumeId(int volumeId)
         {
-            Delete(x => x.AuthorId == authorId);
+            Delete(x => x.VolumeId == volumeId);
         }
 
-        public List<PendingRelease> AllByAuthorId(int authorId)
+        public List<PendingRelease> AllByVolumeId(int volumeId)
         {
-            return Query(p => p.AuthorId == authorId);
+            return Query(p => p.VolumeId == volumeId);
         }
 
         public List<PendingRelease> WithoutFallback()

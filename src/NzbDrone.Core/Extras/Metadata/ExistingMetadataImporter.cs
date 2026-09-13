@@ -2,10 +2,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NLog;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Extras.Files;
 using NzbDrone.Core.Extras.Metadata.Files;
-using NzbDrone.Core.MediaFiles.BookImport.Aggregation;
+using NzbDrone.Core.Issues;
+using NzbDrone.Core.MediaFiles.IssueImport.Aggregation;
 using NzbDrone.Core.Parser;
 using NzbDrone.Core.Parser.Model;
 
@@ -35,43 +35,43 @@ namespace NzbDrone.Core.Extras.Metadata
 
         public override int Order => 0;
 
-        public override IEnumerable<ExtraFile> ProcessFiles(Author author, List<string> filesOnDisk, List<string> importedFiles)
+        public override IEnumerable<ExtraFile> ProcessFiles(Volume volume, List<string> filesOnDisk, List<string> importedFiles)
         {
-            _logger.Debug("Looking for existing metadata in {0}", author.Path);
+            _logger.Debug("Looking for existing metadata in {0}", volume.Path);
 
             var metadataFiles = new List<MetadataFile>();
-            var filterResult = FilterAndClean(author, filesOnDisk, importedFiles);
+            var filterResult = FilterAndClean(volume, filesOnDisk, importedFiles);
 
             foreach (var possibleMetadataFile in filterResult.FilesOnDisk)
             {
                 foreach (var consumer in _consumers)
                 {
-                    var metadata = consumer.FindMetadataFile(author, possibleMetadataFile);
+                    var metadata = consumer.FindMetadataFile(volume, possibleMetadataFile);
 
                     if (metadata == null)
                     {
                         continue;
                     }
 
-                    if (metadata.Type == MetadataType.BookImage || metadata.Type == MetadataType.BookMetadata)
+                    if (metadata.Type == MetadataType.IssueImage || metadata.Type == MetadataType.IssueMetadata)
                     {
-                        var localBook = _parsingService.GetLocalBook(possibleMetadataFile, author);
+                        var localIssue = _parsingService.GetLocalIssue(possibleMetadataFile, volume);
 
-                        if (localBook == null)
+                        if (localIssue == null)
                         {
-                            _logger.Debug("Extra file folder has multiple Books: {0}", possibleMetadataFile);
+                            _logger.Debug("Extra file folder has multiple Issues: {0}", possibleMetadataFile);
                             continue;
                         }
 
-                        metadata.BookId = localBook.Id;
+                        metadata.IssueId = localIssue.Id;
                     }
 
-                    if (metadata.Type == MetadataType.BookMetadata)
+                    if (metadata.Type == MetadataType.IssueMetadata)
                     {
-                        var localTrack = new LocalBook
+                        var localTrack = new LocalIssue
                         {
                             FileTrackInfo = Parser.Parser.ParseMusicPath(possibleMetadataFile),
-                            Author = author,
+                            Volume = volume,
                             Path = possibleMetadataFile
                         };
 
@@ -85,9 +85,9 @@ namespace NzbDrone.Core.Extras.Metadata
                             continue;
                         }
 
-                        if (localTrack.Book == null)
+                        if (localTrack.Issue == null)
                         {
-                            _logger.Debug("Cannot find related book for: {0}", possibleMetadataFile);
+                            _logger.Debug("Cannot find related issue for: {0}", possibleMetadataFile);
                             continue;
                         }
                     }

@@ -1,21 +1,21 @@
 using NzbDrone.Common.Messaging;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 
 namespace NzbDrone.Core.MediaCover
 {
     public class MediaCoversUpdatedEvent : IEvent
     {
-        public Author Author { get; set; }
-        public Book Book { get; set; }
+        public Volume Volume { get; set; }
+        public Issue Issue { get; set; }
 
-        public MediaCoversUpdatedEvent(Author author)
+        public MediaCoversUpdatedEvent(Volume volume)
         {
-            Author = author;
+            Volume = volume;
         }
 
-        public MediaCoversUpdatedEvent(Book book)
+        public MediaCoversUpdatedEvent(Issue issue)
         {
-            Book = book;
+            Issue = issue;
         }
     }
 }

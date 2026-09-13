@@ -7,7 +7,7 @@ namespace Inkarr.Api.V1.Config
     {
         public WriteAudioTagsType WriteAudioTags { get; set; }
         public bool ScrubAudioTags { get; set; }
-        public WriteBookTagsType WriteBookTags { get; set; }
+        public WriteIssueTagsType WriteIssueTags { get; set; }
         public bool UpdateCovers { get; set; }
         public bool EmbedMetadata { get; set; }
     }
@@ -20,7 +20,7 @@ namespace Inkarr.Api.V1.Config
             {
                 WriteAudioTags = model.WriteAudioTags,
                 ScrubAudioTags = model.ScrubAudioTags,
-                WriteBookTags = model.WriteBookTags,
+                WriteIssueTags = model.WriteIssueTags,
                 UpdateCovers = model.UpdateCovers,
                 EmbedMetadata = model.EmbedMetadata
             };

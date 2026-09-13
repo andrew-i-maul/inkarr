@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace NzbDrone.Core.Books.Calibre
+namespace NzbDrone.Core.Issues.Calibre
 {
     public class CalibreCategory
     {
@@ -14,7 +14,7 @@ namespace NzbDrone.Core.Books.Calibre
         public string Sort { get; set; }
         [JsonProperty("base_url")]
         public string BaseUrl { get; set; }
-        [JsonProperty("book_ids")]
-        public List<int> BookIds { get; set; }
+        [JsonProperty("issue_ids")]
+        public List<int> IssueIds { get; set; }
     }
 }

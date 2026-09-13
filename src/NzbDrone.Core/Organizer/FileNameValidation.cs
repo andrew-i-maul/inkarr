@@ -12,7 +12,7 @@ namespace NzbDrone.Core.Organizer
         internal static readonly Regex OriginalTokenRegex = new Regex(@"(\{original[- ._](?:title|filename)\})",
                                                                             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        public static IRuleBuilderOptions<T, string> ValidBookFormat<T>(this IRuleBuilder<T, string> ruleBuilder)
+        public static IRuleBuilderOptions<T, string> ValidIssueFormat<T>(this IRuleBuilder<T, string> ruleBuilder)
         {
             ruleBuilder.SetValidator(new NotEmptyValidator(null));
             ruleBuilder.SetValidator(new IllegalCharactersValidator());
@@ -20,18 +20,18 @@ namespace NzbDrone.Core.Organizer
             return ruleBuilder.SetValidator(new ValidStandardTrackFormatValidator());
         }
 
-        public static IRuleBuilderOptions<T, string> ValidAuthorFolderFormat<T>(this IRuleBuilder<T, string> ruleBuilder)
+        public static IRuleBuilderOptions<T, string> ValidVolumeFolderFormat<T>(this IRuleBuilder<T, string> ruleBuilder)
         {
             ruleBuilder.SetValidator(new NotEmptyValidator(null));
             ruleBuilder.SetValidator(new IllegalCharactersValidator());
 
-            return ruleBuilder.SetValidator(new RegularExpressionValidator(FileNameBuilder.AuthorNameRegex)).WithMessage("Must contain Author name");
+            return ruleBuilder.SetValidator(new RegularExpressionValidator(FileNameBuilder.VolumeNameRegex)).WithMessage("Must contain Volume name");
         }
     }
 
     public class ValidStandardTrackFormatValidator : PropertyValidator
     {
-        protected override string GetDefaultMessageTemplate() => "Must contain Book Title AND PartNumber, OR Original Title";
+        protected override string GetDefaultMessageTemplate() => "Must contain Issue Title AND PartNumber, OR Original Title";
 
         protected override bool IsValid(PropertyValidatorContext context)
         {
@@ -40,7 +40,7 @@ namespace NzbDrone.Core.Organizer
                 return false;
             }
 
-            return (FileNameBuilder.BookTitleRegex.IsMatch(value) && FileNameBuilder.PartRegex.IsMatch(value)) ||
+            return (FileNameBuilder.IssueTitleRegex.IsMatch(value) && FileNameBuilder.PartRegex.IsMatch(value)) ||
                    FileNameValidation.OriginalTokenRegex.IsMatch(value);
         }
     }

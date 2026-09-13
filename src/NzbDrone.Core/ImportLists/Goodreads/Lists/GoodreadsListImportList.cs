@@ -73,17 +73,17 @@ namespace NzbDrone.Core.ImportLists.Goodreads
             var list = _listInfo.GetListInfo(Settings.ListId, page);
             var result = new List<ImportListItemInfo>();
 
-            foreach (var book in list.Books)
+            foreach (var issue in list.Issues)
             {
-                var author = book.Authors.FirstOrDefault();
+                var volume = issue.Volumes.FirstOrDefault();
 
                 result.Add(new ImportListItemInfo
                 {
-                    BookGoodreadsId = book.Work.Id.ToString(),
-                    Book = book.Work.OriginalTitle,
-                    EditionGoodreadsId = book.Id.ToString(),
-                    Author = author?.Name,
-                    AuthorGoodreadsId = author?.Id.ToString()
+                    IssueGoodreadsId = issue.Work.Id.ToString(),
+                    Issue = issue.Work.OriginalTitle,
+                    EditionGoodreadsId = issue.Id.ToString(),
+                    Volume = volume?.Name,
+                    VolumeGoodreadsId = volume?.Id.ToString()
                 });
             }
 

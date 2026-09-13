@@ -26,17 +26,17 @@ namespace NzbDrone.Core.Indexers.Newznab
                     Name = "Audio",
                     Subcategories = new List<NewznabCategory>
                     {
-                        new NewznabCategory { Id = 3030, Name = "Audiobook" }
+                        new NewznabCategory { Id = 3030, Name = "Audioissue" }
                     }
                 });
                 categories.Add(new NewznabCategory
                 {
                     Id = 7000,
-                    Name = "Books",
+                    Name = "Issues",
                     Subcategories = new List<NewznabCategory>
                     {
-                        new NewznabCategory { Id = 7010, Name = "Misc books" },
-                        new NewznabCategory { Id = 7020, Name = "Ebook" },
+                        new NewznabCategory { Id = 7010, Name = "Misc issues" },
+                        new NewznabCategory { Id = 7020, Name = "Eissue" },
                         new NewznabCategory { Id = 7030, Name = "Comics" },
                         new NewznabCategory { Id = 7040, Name = "Magazines" }
                     }

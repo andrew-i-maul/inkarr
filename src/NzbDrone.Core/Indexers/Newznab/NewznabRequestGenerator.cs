@@ -33,7 +33,7 @@ namespace NzbDrone.Core.Indexers.Newznab
             }
         }
 
-        protected virtual bool SupportsBookSearch => false;
+        protected virtual bool SupportsIssueSearch => false;
 
         public virtual IndexerPageableRequestChain GetRecentRequests()
         {
@@ -41,9 +41,9 @@ namespace NzbDrone.Core.Indexers.Newznab
 
             var capabilities = _capabilitiesProvider.GetCapabilities(Settings);
 
-            if (capabilities.SupportedBookSearchParameters != null)
+            if (capabilities.SupportedIssueSearchParameters != null)
             {
-                pageableRequests.Add(GetPagedRequests(MaxPages, Settings.Categories, "book", ""));
+                pageableRequests.Add(GetPagedRequests(MaxPages, Settings.Categories, "issue", ""));
             }
             else if (capabilities.SupportedSearchParameters != null)
             {
@@ -53,19 +53,19 @@ namespace NzbDrone.Core.Indexers.Newznab
             return pageableRequests;
         }
 
-        public virtual IndexerPageableRequestChain GetSearchRequests(BookSearchCriteria searchCriteria)
+        public virtual IndexerPageableRequestChain GetSearchRequests(IssueSearchCriteria searchCriteria)
         {
             var pageableRequests = new IndexerPageableRequestChain();
 
-            if (SupportsBookSearch)
+            if (SupportsIssueSearch)
             {
-                AddBookPageableRequests(pageableRequests,
+                AddIssuePageableRequests(pageableRequests,
                     searchCriteria,
-                    $"&author={NewsnabifyTitle(searchCriteria.AuthorQuery)}&title={NewsnabifyTitle(searchCriteria.BookQuery)}");
+                    $"&volume={NewsnabifyTitle(searchCriteria.VolumeQuery)}&title={NewsnabifyTitle(searchCriteria.IssueQuery)}");
 
-                AddBookPageableRequests(pageableRequests,
+                AddIssuePageableRequests(pageableRequests,
                     searchCriteria,
-                    $"&title={NewsnabifyTitle(searchCriteria.BookQuery)}");
+                    $"&title={NewsnabifyTitle(searchCriteria.IssueQuery)}");
             }
 
             if (SupportsSearch)
@@ -75,33 +75,33 @@ namespace NzbDrone.Core.Indexers.Newznab
                 pageableRequests.Add(GetPagedRequests(MaxPages,
                     Settings.Categories,
                     "search",
-                    $"&q={NewsnabifyTitle(searchCriteria.BookQuery)}+{NewsnabifyTitle(searchCriteria.AuthorQuery)}"));
+                    $"&q={NewsnabifyTitle(searchCriteria.IssueQuery)}+{NewsnabifyTitle(searchCriteria.VolumeQuery)}"));
 
                 pageableRequests.Add(GetPagedRequests(MaxPages,
                     Settings.Categories,
                     "search",
-                    $"&q={NewsnabifyTitle(searchCriteria.AuthorQuery)}+{NewsnabifyTitle(searchCriteria.BookQuery)}"));
+                    $"&q={NewsnabifyTitle(searchCriteria.VolumeQuery)}+{NewsnabifyTitle(searchCriteria.IssueQuery)}"));
 
                 pageableRequests.AddTier();
 
                 pageableRequests.Add(GetPagedRequests(MaxPages,
                     Settings.Categories,
                     "search",
-                    $"&q={NewsnabifyTitle(searchCriteria.BookQuery)}"));
+                    $"&q={NewsnabifyTitle(searchCriteria.IssueQuery)}"));
             }
 
             return pageableRequests;
         }
 
-        public virtual IndexerPageableRequestChain GetSearchRequests(AuthorSearchCriteria searchCriteria)
+        public virtual IndexerPageableRequestChain GetSearchRequests(VolumeSearchCriteria searchCriteria)
         {
             var pageableRequests = new IndexerPageableRequestChain();
 
-            if (SupportsBookSearch)
+            if (SupportsIssueSearch)
             {
-                AddBookPageableRequests(pageableRequests,
+                AddIssuePageableRequests(pageableRequests,
                     searchCriteria,
-                    $"&author={NewsnabifyTitle(searchCriteria.AuthorQuery)}");
+                    $"&volume={NewsnabifyTitle(searchCriteria.VolumeQuery)}");
             }
 
             if (SupportsSearch)
@@ -111,17 +111,17 @@ namespace NzbDrone.Core.Indexers.Newznab
                 pageableRequests.Add(GetPagedRequests(MaxPages,
                     Settings.Categories,
                     "search",
-                    $"&q={NewsnabifyTitle(searchCriteria.AuthorQuery)}"));
+                    $"&q={NewsnabifyTitle(searchCriteria.VolumeQuery)}"));
             }
 
             return pageableRequests;
         }
 
-        private void AddBookPageableRequests(IndexerPageableRequestChain chain, SearchCriteriaBase searchCriteria, string parameters)
+        private void AddIssuePageableRequests(IndexerPageableRequestChain chain, SearchCriteriaBase searchCriteria, string parameters)
         {
             chain.AddTier();
 
-            chain.Add(GetPagedRequests(MaxPages, Settings.Categories, "book", $"{parameters}"));
+            chain.Add(GetPagedRequests(MaxPages, Settings.Categories, "issue", $"{parameters}"));
         }
 
         private IEnumerable<IndexerRequest> GetPagedRequests(int maxPages, IEnumerable<int> categories, string searchType, string parameters)

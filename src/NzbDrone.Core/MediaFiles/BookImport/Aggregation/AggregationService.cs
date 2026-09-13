@@ -3,44 +3,44 @@ using System.Collections.Generic;
 using System.IO;
 using NLog;
 using NzbDrone.Common.Disk;
-using NzbDrone.Core.MediaFiles.BookImport.Aggregation.Aggregators;
+using NzbDrone.Core.MediaFiles.IssueImport.Aggregation.Aggregators;
 using NzbDrone.Core.Parser.Model;
 
-namespace NzbDrone.Core.MediaFiles.BookImport.Aggregation
+namespace NzbDrone.Core.MediaFiles.IssueImport.Aggregation
 {
     public interface IAugmentingService
     {
-        LocalBook Augment(LocalBook localTrack, bool otherFiles);
-        LocalEdition Augment(LocalEdition localBook);
+        LocalIssue Augment(LocalIssue localTrack, bool otherFiles);
+        LocalEdition Augment(LocalEdition localIssue);
     }
 
     public class AugmentingService : IAugmentingService
     {
-        private readonly IEnumerable<IAggregate<LocalBook>> _trackAugmenters;
-        private readonly IEnumerable<IAggregate<LocalEdition>> _bookAugmenters;
+        private readonly IEnumerable<IAggregate<LocalIssue>> _trackAugmenters;
+        private readonly IEnumerable<IAggregate<LocalEdition>> _issueAugmenters;
         private readonly IDiskProvider _diskProvider;
         private readonly Logger _logger;
 
-        public AugmentingService(IEnumerable<IAggregate<LocalBook>> trackAugmenters,
-                                 IEnumerable<IAggregate<LocalEdition>> bookAugmenters,
+        public AugmentingService(IEnumerable<IAggregate<LocalIssue>> trackAugmenters,
+                                 IEnumerable<IAggregate<LocalEdition>> issueAugmenters,
                                  IDiskProvider diskProvider,
                                  Logger logger)
         {
             _trackAugmenters = trackAugmenters;
-            _bookAugmenters = bookAugmenters;
+            _issueAugmenters = issueAugmenters;
             _diskProvider = diskProvider;
             _logger = logger;
         }
 
-        public LocalBook Augment(LocalBook localTrack, bool otherFiles)
+        public LocalIssue Augment(LocalIssue localTrack, bool otherFiles)
         {
-            if (localTrack.DownloadClientBookInfo == null &&
+            if (localTrack.DownloadClientIssueInfo == null &&
                 localTrack.FolderTrackInfo == null &&
                 localTrack.FileTrackInfo == null)
             {
                 if (MediaFileExtensions.AllExtensions.Contains(Path.GetExtension(localTrack.Path)))
                 {
-                    throw new AugmentingFailedException("Unable to parse book info from path: {0}", localTrack.Path);
+                    throw new AugmentingFailedException("Unable to parse issue info from path: {0}", localTrack.Path);
                 }
             }
 
@@ -55,7 +55,7 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Aggregation
                 }
                 catch (Exception ex)
                 {
-                    var message = $"Unable to augment information for file: '{localTrack.Path}'. Author: {localTrack.Author} Error: {ex.Message}";
+                    var message = $"Unable to augment information for file: '{localTrack.Path}'. Volume: {localTrack.Volume} Error: {ex.Message}";
 
                     _logger.Warn(ex, ex.Message);
                 }
@@ -64,13 +64,13 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Aggregation
             return localTrack;
         }
 
-        public LocalEdition Augment(LocalEdition localBook)
+        public LocalEdition Augment(LocalEdition localIssue)
         {
-            foreach (var augmenter in _bookAugmenters)
+            foreach (var augmenter in _issueAugmenters)
             {
                 try
                 {
-                    augmenter.Aggregate(localBook, false);
+                    augmenter.Aggregate(localIssue, false);
                 }
                 catch (Exception ex)
                 {
@@ -78,7 +78,7 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Aggregation
                 }
             }
 
-            return localBook;
+            return localIssue;
         }
     }
 }

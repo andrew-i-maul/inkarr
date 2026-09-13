@@ -2,7 +2,7 @@ using System;
 using Equ;
 using NzbDrone.Core.Datastore;
 
-namespace NzbDrone.Core.Books
+namespace NzbDrone.Core.Issues
 {
     public abstract class Entity<T> : ModelBase, IEquatable<T>
         where T : Entity<T>

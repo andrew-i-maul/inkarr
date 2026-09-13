@@ -2,10 +2,10 @@ using System.Collections.Generic;
 using FizzWare.NBuilder;
 using Moq;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Configuration;
 using NzbDrone.Core.Download;
 using NzbDrone.Core.IndexerSearch;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Messaging.Commands;
 using NzbDrone.Core.Test.Framework;
 
@@ -21,9 +21,9 @@ namespace NzbDrone.Core.Test.Download
                 .Setup(x => x.AutoRedownloadFailed)
                 .Returns(true);
 
-            Mocker.GetMock<IBookService>()
-                .Setup(x => x.GetBooksByAuthor(It.IsAny<int>()))
-                .Returns(Builder<Book>.CreateListOfSize(3).Build() as List<Book>);
+            Mocker.GetMock<IIssueService>()
+                .Setup(x => x.GetIssuesByVolume(It.IsAny<int>()))
+                .Returns(Builder<Issue>.CreateListOfSize(3).Build() as List<Issue>);
         }
 
         [Test]
@@ -31,8 +31,8 @@ namespace NzbDrone.Core.Test.Download
         {
             var failedEvent = new DownloadFailedEvent
             {
-                AuthorId = 1,
-                BookIds = new List<int> { 1 },
+                VolumeId = 1,
+                IssueIds = new List<int> { 1 },
                 SkipRedownload = true
             };
 
@@ -48,8 +48,8 @@ namespace NzbDrone.Core.Test.Download
         {
             var failedEvent = new DownloadFailedEvent
             {
-                AuthorId = 1,
-                BookIds = new List<int> { 1 }
+                VolumeId = 1,
+                IssueIds = new List<int> { 1 }
             };
 
             Mocker.GetMock<IConfigService>()
@@ -64,72 +64,72 @@ namespace NzbDrone.Core.Test.Download
         }
 
         [Test]
-        public void should_redownload_book_on_failure()
+        public void should_redownload_issue_on_failure()
         {
             var failedEvent = new DownloadFailedEvent
             {
-                AuthorId = 1,
-                BookIds = new List<int> { 2 }
+                VolumeId = 1,
+                IssueIds = new List<int> { 2 }
             };
 
             Subject.Handle(failedEvent);
 
             Mocker.GetMock<IManageCommandQueue>()
-                .Verify(x => x.Push(It.Is<BookSearchCommand>(c => c.BookIds.Count == 1 &&
-                                                              c.BookIds[0] == 2),
+                .Verify(x => x.Push(It.Is<IssueSearchCommand>(c => c.IssueIds.Count == 1 &&
+                                                              c.IssueIds[0] == 2),
                                     It.IsAny<CommandPriority>(),
                                     It.IsAny<CommandTrigger>()),
                         Times.Once());
 
             Mocker.GetMock<IManageCommandQueue>()
-                .Verify(x => x.Push(It.IsAny<AuthorSearchCommand>(), It.IsAny<CommandPriority>(), It.IsAny<CommandTrigger>()),
+                .Verify(x => x.Push(It.IsAny<VolumeSearchCommand>(), It.IsAny<CommandPriority>(), It.IsAny<CommandTrigger>()),
                         Times.Never());
         }
 
         [Test]
-        public void should_redownload_multiple_books_on_failure()
+        public void should_redownload_multiple_issues_on_failure()
         {
             var failedEvent = new DownloadFailedEvent
             {
-                AuthorId = 1,
-                BookIds = new List<int> { 2, 3 }
+                VolumeId = 1,
+                IssueIds = new List<int> { 2, 3 }
             };
 
             Subject.Handle(failedEvent);
 
             Mocker.GetMock<IManageCommandQueue>()
-                .Verify(x => x.Push(It.Is<BookSearchCommand>(c => c.BookIds.Count == 2 &&
-                                                              c.BookIds[0] == 2 &&
-                                                              c.BookIds[1] == 3),
+                .Verify(x => x.Push(It.Is<IssueSearchCommand>(c => c.IssueIds.Count == 2 &&
+                                                              c.IssueIds[0] == 2 &&
+                                                              c.IssueIds[1] == 3),
                                     It.IsAny<CommandPriority>(),
                                     It.IsAny<CommandTrigger>()),
                         Times.Once());
 
             Mocker.GetMock<IManageCommandQueue>()
-                .Verify(x => x.Push(It.IsAny<AuthorSearchCommand>(), It.IsAny<CommandPriority>(), It.IsAny<CommandTrigger>()),
+                .Verify(x => x.Push(It.IsAny<VolumeSearchCommand>(), It.IsAny<CommandPriority>(), It.IsAny<CommandTrigger>()),
                         Times.Never());
         }
 
         [Test]
-        public void should_redownload_author_on_failure()
+        public void should_redownload_volume_on_failure()
         {
-            // note that author is set to have 3 books in setup
+            // note that volume is set to have 3 issues in setup
             var failedEvent = new DownloadFailedEvent
             {
-                AuthorId = 2,
-                BookIds = new List<int> { 1, 2, 3 }
+                VolumeId = 2,
+                IssueIds = new List<int> { 1, 2, 3 }
             };
 
             Subject.Handle(failedEvent);
 
             Mocker.GetMock<IManageCommandQueue>()
-                .Verify(x => x.Push(It.Is<AuthorSearchCommand>(c => c.AuthorId == failedEvent.AuthorId),
+                .Verify(x => x.Push(It.Is<VolumeSearchCommand>(c => c.VolumeId == failedEvent.VolumeId),
                                     It.IsAny<CommandPriority>(),
                                     It.IsAny<CommandTrigger>()),
                         Times.Once());
 
             Mocker.GetMock<IManageCommandQueue>()
-                .Verify(x => x.Push(It.IsAny<BookSearchCommand>(), It.IsAny<CommandPriority>(), It.IsAny<CommandTrigger>()),
+                .Verify(x => x.Push(It.IsAny<IssueSearchCommand>(), It.IsAny<CommandPriority>(), It.IsAny<CommandTrigger>()),
                         Times.Never());
         }
     }

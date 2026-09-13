@@ -9,14 +9,14 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
         public SpecificationPriority Priority => SpecificationPriority.Default;
         public RejectionType Type => RejectionType.Permanent;
 
-        public virtual Decision IsSatisfiedBy(RemoteBook subject, SearchCriteriaBase searchCriteria)
+        public virtual Decision IsSatisfiedBy(RemoteIssue subject, SearchCriteriaBase searchCriteria)
         {
-            var minScore = subject.Author.QualityProfile.Value.MinFormatScore;
+            var minScore = subject.Volume.QualityProfile.Value.MinFormatScore;
             var score = subject.CustomFormatScore;
 
             if (score < minScore)
             {
-                return Decision.Reject("Custom Formats {0} have score {1} below Author profile minimum {2}", subject.CustomFormats.ConcatToString(), score, minScore);
+                return Decision.Reject("Custom Formats {0} have score {1} below Volume profile minimum {2}", subject.CustomFormats.ConcatToString(), score, minScore);
             }
 
             return Decision.Accept();

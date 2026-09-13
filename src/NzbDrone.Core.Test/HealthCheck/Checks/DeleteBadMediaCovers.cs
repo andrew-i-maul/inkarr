@@ -6,11 +6,11 @@ using FizzWare.NBuilder;
 using Moq;
 using NUnit.Framework;
 using NzbDrone.Common.Disk;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Configuration;
 using NzbDrone.Core.Extras.Metadata;
 using NzbDrone.Core.Extras.Metadata.Files;
 using NzbDrone.Core.Housekeeping.Housekeepers;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Test.Framework;
 using NzbDrone.Test.Common;
 
@@ -20,12 +20,12 @@ namespace NzbDrone.Core.Test.HealthCheck.Checks
     public class DeleteBadMediaCoversFixture : CoreTest<DeleteBadMediaCovers>
     {
         private List<MetadataFile> _metadata;
-        private List<Author> _author;
+        private List<Volume> _volume;
 
         [SetUp]
         public void Setup()
         {
-            _author = Builder<Author>.CreateListOfSize(1)
+            _volume = Builder<Volume>.CreateListOfSize(1)
                 .All()
                 .With(c => c.Path = "C:\\Music\\".AsOsAgnostic())
                 .Build().ToList();
@@ -33,12 +33,12 @@ namespace NzbDrone.Core.Test.HealthCheck.Checks
             _metadata = Builder<MetadataFile>.CreateListOfSize(1)
                .Build().ToList();
 
-            Mocker.GetMock<IAuthorService>()
-                .Setup(c => c.AllAuthorPaths())
-                .Returns(_author.ToDictionary(x => x.Id, x => x.Path));
+            Mocker.GetMock<IVolumeService>()
+                .Setup(c => c.AllVolumePaths())
+                .Returns(_volume.ToDictionary(x => x.Id, x => x.Path));
 
             Mocker.GetMock<IMetadataFileService>()
-                .Setup(c => c.GetFilesByAuthor(_author.First().Id))
+                .Setup(c => c.GetFilesByVolume(_volume.First().Id))
                 .Returns(_metadata);
 
             Mocker.GetMock<IConfigService>().SetupGet(c => c.CleanupMetadataImages).Returns(true);
@@ -47,8 +47,8 @@ namespace NzbDrone.Core.Test.HealthCheck.Checks
         [Test]
         public void should_not_process_non_image_files()
         {
-            _metadata.First().RelativePath = "book\\file.xml".AsOsAgnostic();
-            _metadata.First().Type = MetadataType.BookMetadata;
+            _metadata.First().RelativePath = "issue\\file.xml".AsOsAgnostic();
+            _metadata.First().Type = MetadataType.IssueMetadata;
 
             Subject.Clean();
 
@@ -73,7 +73,7 @@ namespace NzbDrone.Core.Test.HealthCheck.Checks
             Subject.Clean();
 
             Mocker.GetMock<IConfigService>().VerifySet(c => c.CleanupMetadataImages = true, Times.Never());
-            Mocker.GetMock<IAuthorService>().Verify(c => c.GetAllAuthors(), Times.Never());
+            Mocker.GetMock<IVolumeService>().Verify(c => c.GetAllVolumes(), Times.Never());
 
             AssertImageWasNotRemoved();
         }
@@ -91,10 +91,10 @@ namespace NzbDrone.Core.Test.HealthCheck.Checks
         [Test]
         public void should_delete_html_images()
         {
-            var imagePath = "C:\\Music\\Book\\image.jpg".AsOsAgnostic();
+            var imagePath = "C:\\Music\\Issue\\image.jpg".AsOsAgnostic();
             _metadata.First().LastUpdated = new DateTime(2014, 12, 29);
-            _metadata.First().RelativePath = "Book\\image.jpg".AsOsAgnostic();
-            _metadata.First().Type = MetadataType.AuthorImage;
+            _metadata.First().RelativePath = "Issue\\image.jpg".AsOsAgnostic();
+            _metadata.First().Type = MetadataType.VolumeImage;
 
             Mocker.GetMock<IDiskProvider>()
                 .Setup(c => c.OpenReadStream(imagePath))
@@ -109,10 +109,10 @@ namespace NzbDrone.Core.Test.HealthCheck.Checks
         [Test]
         public void should_delete_empty_images()
         {
-            var imagePath = "C:\\Music\\Book\\image.jpg".AsOsAgnostic();
+            var imagePath = "C:\\Music\\Issue\\image.jpg".AsOsAgnostic();
             _metadata.First().LastUpdated = new DateTime(2014, 12, 29);
-            _metadata.First().Type = MetadataType.BookImage;
-            _metadata.First().RelativePath = "Book\\image.jpg".AsOsAgnostic();
+            _metadata.First().Type = MetadataType.IssueImage;
+            _metadata.First().RelativePath = "Issue\\image.jpg".AsOsAgnostic();
 
             Mocker.GetMock<IDiskProvider>()
                 .Setup(c => c.OpenReadStream(imagePath))
@@ -127,9 +127,9 @@ namespace NzbDrone.Core.Test.HealthCheck.Checks
         [Test]
         public void should_not_delete_non_html_files()
         {
-            var imagePath = "C:\\Music\\Book\\image.jpg".AsOsAgnostic();
+            var imagePath = "C:\\Music\\Issue\\image.jpg".AsOsAgnostic();
             _metadata.First().LastUpdated = new DateTime(2014, 12, 29);
-            _metadata.First().RelativePath = "Book\\image.jpg".AsOsAgnostic();
+            _metadata.First().RelativePath = "Issue\\image.jpg".AsOsAgnostic();
 
             Mocker.GetMock<IDiskProvider>()
                 .Setup(c => c.OpenReadStream(imagePath))

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NzbDrone.Common.Extensions;
 
-namespace NzbDrone.Core.MediaFiles.BookImport.Identification
+namespace NzbDrone.Core.MediaFiles.IssueImport.Identification
 {
     public class Distance
     {
@@ -11,14 +11,14 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
         private static readonly Dictionary<string, double> Weights = new Dictionary<string, double>
         {
             { "source", 2.0 },
-            { "author", 3.0 },
-            { "book", 3.0 },
+            { "volume", 3.0 },
+            { "issue", 3.0 },
             { "isbn", 10.0 },
             { "isbn_missing", 0.1 },
             { "asin", 10.0 },
             { "asin_missing", 0.1 },
             { "media_count", 1.0 },
-            { "ebook_format", 0.1 },
+            { "eissue_format", 0.1 },
             { "audio_format", 0.1 },
             { "wrong_format", 5.0 },
             { "year", 1.0 },
@@ -26,13 +26,13 @@ namespace NzbDrone.Core.MediaFiles.BookImport.Identification
             { "language", 5.0 },
             { "publisher", 0.5 },
             { "catalog_number", 0.5 },
-            { "book_disambiguation", 0.5 },
-            { "book_id", 5.0 },
+            { "issue_disambiguation", 0.5 },
+            { "issue_id", 5.0 },
             { "tracks", 2.0 },
             { "missing_tracks", 0.6 },
             { "unmatched_tracks", 0.9 },
             { "track_title", 3.0 },
-            { "track_author", 2.0 },
+            { "track_volume", 2.0 },
             { "track_index", 1.0 },
             { "track_length", 2.0 },
             { "recording_id", 10.0 },

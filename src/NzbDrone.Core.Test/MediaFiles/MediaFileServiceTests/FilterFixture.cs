@@ -7,8 +7,8 @@ using FizzWare.NBuilder;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Datastore;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Test.Framework;
 using NzbDrone.Test.Common;
@@ -43,7 +43,7 @@ namespace NzbDrone.Core.Test.MediaFiles.MediaFileServiceTests
 
             Mocker.GetMock<IMediaFileRepository>()
                 .Setup(c => c.GetFileWithPath(It.IsAny<List<string>>()))
-                .Returns(new List<BookFile>());
+                .Returns(new List<IssueFile>());
 
             Subject.FilterUnchangedFiles(files, filter).Should().BeEquivalentTo(files);
         }
@@ -61,7 +61,7 @@ namespace NzbDrone.Core.Test.MediaFiles.MediaFileServiceTests
 
             Mocker.GetMock<IMediaFileRepository>()
                 .Setup(c => c.GetFileWithPath(It.IsAny<List<string>>()))
-                .Returns(files.Select(f => new BookFile
+                .Returns(files.Select(f => new IssueFile
                 {
                     Path = f.FullName,
                     Modified = _lastWrite
@@ -83,9 +83,9 @@ namespace NzbDrone.Core.Test.MediaFiles.MediaFileServiceTests
 
             Mocker.GetMock<IMediaFileRepository>()
                 .Setup(c => c.GetFileWithPath(It.IsAny<List<string>>()))
-                .Returns(new List<BookFile>
+                .Returns(new List<IssueFile>
                 {
-                    new BookFile
+                    new IssueFile
                     {
                         Path = "C:\\file2.avi".AsOsAgnostic(),
                         Modified = _lastWrite
@@ -111,9 +111,9 @@ namespace NzbDrone.Core.Test.MediaFiles.MediaFileServiceTests
 
             Mocker.GetMock<IMediaFileRepository>()
                 .Setup(c => c.GetFileWithPath(It.IsAny<List<string>>()))
-                .Returns(new List<BookFile>
+                .Returns(new List<IssueFile>
                 {
-                    new BookFile
+                    new IssueFile
                     {
                         Path = "C:\\file2.avi".AsOsAgnostic(),
                         Modified = _lastWrite
@@ -139,9 +139,9 @@ namespace NzbDrone.Core.Test.MediaFiles.MediaFileServiceTests
 
             Mocker.GetMock<IMediaFileRepository>()
                 .Setup(c => c.GetFileWithPath(It.IsAny<List<string>>()))
-                .Returns(new List<BookFile>
+                .Returns(new List<IssueFile>
                 {
-                    new BookFile
+                    new IssueFile
                     {
                         Path = "C:\\file2.avi".AsOsAgnostic(),
                         Modified = _lastWrite
@@ -162,7 +162,7 @@ namespace NzbDrone.Core.Test.MediaFiles.MediaFileServiceTests
 
             Mocker.GetMock<IMediaFileRepository>()
                 .Setup(c => c.GetFileWithPath(It.IsAny<List<string>>()))
-                .Returns(new List<BookFile>());
+                .Returns(new List<IssueFile>());
 
             Subject.FilterUnchangedFiles(files, filter).Should().HaveCount(1);
             Subject.FilterUnchangedFiles(files, filter).Select(x => x.FullName).Should().NotContain(files.First().FullName.ToLower());
@@ -181,9 +181,9 @@ namespace NzbDrone.Core.Test.MediaFiles.MediaFileServiceTests
 
             Mocker.GetMock<IMediaFileRepository>()
                 .Setup(c => c.GetFileWithPath(It.IsAny<List<string>>()))
-                .Returns(new List<BookFile>
+                .Returns(new List<IssueFile>
                 {
-                    new BookFile
+                    new IssueFile
                     {
                         Path = "C:\\file2.avi".AsOsAgnostic(),
                         Size = 10,
@@ -206,9 +206,9 @@ namespace NzbDrone.Core.Test.MediaFiles.MediaFileServiceTests
 
             Mocker.GetMock<IMediaFileRepository>()
                 .Setup(c => c.GetFileWithPath(It.IsAny<List<string>>()))
-                .Returns(new List<BookFile>
+                .Returns(new List<IssueFile>
                 {
-                    new BookFile
+                    new IssueFile
                     {
                         Path = "C:\\file2.avi".AsOsAgnostic(),
                         Size = 10,
@@ -232,9 +232,9 @@ namespace NzbDrone.Core.Test.MediaFiles.MediaFileServiceTests
 
             Mocker.GetMock<IMediaFileRepository>()
                 .Setup(c => c.GetFileWithPath(It.IsAny<List<string>>()))
-                .Returns(new List<BookFile>
+                .Returns(new List<IssueFile>
                 {
-                    new BookFile
+                    new IssueFile
                     {
                         Path = "C:\\file2.avi".AsOsAgnostic(),
                         Size = 10,
@@ -259,9 +259,9 @@ namespace NzbDrone.Core.Test.MediaFiles.MediaFileServiceTests
 
             Mocker.GetMock<IMediaFileRepository>()
                 .Setup(c => c.GetFileWithPath(It.IsAny<List<string>>()))
-                .Returns(new List<BookFile>
+                .Returns(new List<IssueFile>
                 {
-                    new BookFile
+                    new IssueFile
                     {
                         Path = "C:\\file2.avi".AsOsAgnostic(),
                         Size = 10,

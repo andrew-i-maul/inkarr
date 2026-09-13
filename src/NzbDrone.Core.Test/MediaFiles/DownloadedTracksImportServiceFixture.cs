@@ -8,11 +8,11 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using NzbDrone.Common.Disk;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Download;
 using NzbDrone.Core.Download.TrackedDownloads;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.MediaFiles;
-using NzbDrone.Core.MediaFiles.BookImport;
+using NzbDrone.Core.MediaFiles.IssueImport;
 using NzbDrone.Core.Parser;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Test.Framework;
@@ -21,7 +21,7 @@ using NzbDrone.Test.Common;
 namespace NzbDrone.Core.Test.MediaFiles
 {
     [TestFixture]
-    public class DownloadedTracksImportServiceFixture : FileSystemTest<DownloadedBooksImportService>
+    public class DownloadedTracksImportServiceFixture : FileSystemTest<DownloadedIssuesImportService>
     {
         private string _droneFactory = "c:\\drop\\".AsOsAgnostic();
         private string[] _subFolders = new[] { "c:\\drop\\foldername".AsOsAgnostic() };
@@ -34,14 +34,14 @@ namespace NzbDrone.Core.Test.MediaFiles
         {
             GivenAudioFiles(_audioFiles, 10);
 
-            Mocker.GetMock<IDiskScanService>().Setup(c => c.GetBookFiles(It.IsAny<string>(), It.IsAny<bool>()))
+            Mocker.GetMock<IDiskScanService>().Setup(c => c.GetIssueFiles(It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(_audioFiles.Select(x => DiskProvider.GetFileInfo(x)).ToArray());
 
             Mocker.GetMock<IDiskScanService>().Setup(c => c.FilterFiles(It.IsAny<string>(), It.IsAny<IEnumerable<IFileInfo>>()))
                   .Returns<string, IEnumerable<IFileInfo>>((b, s) => s.ToList());
 
-            Mocker.GetMock<IImportApprovedBooks>()
-                  .Setup(s => s.Import(It.IsAny<List<ImportDecision<LocalBook>>>(), true, null, ImportMode.Auto))
+            Mocker.GetMock<IImportApprovedIssues>()
+                  .Setup(s => s.Import(It.IsAny<List<ImportDecision<LocalIssue>>>(), true, null, ImportMode.Auto))
                   .Returns(new List<ImportResult>());
 
             var downloadItem = Builder<DownloadClientItem>.CreateNew()
@@ -49,14 +49,14 @@ namespace NzbDrone.Core.Test.MediaFiles
                 .With(v => v.Status = DownloadItemStatus.Downloading)
                 .Build();
 
-            var remoteBook = Builder<RemoteBook>.CreateNew()
-                .With(v => v.Author = new Author())
+            var remoteIssue = Builder<RemoteIssue>.CreateNew()
+                .With(v => v.Volume = new Volume())
                 .Build();
 
             _trackedDownload = new TrackedDownload
             {
                 DownloadItem = downloadItem,
-                RemoteBook = remoteBook,
+                RemoteIssue = remoteIssue,
                 State = TrackedDownloadState.Downloading
             };
         }
@@ -69,48 +69,48 @@ namespace NzbDrone.Core.Test.MediaFiles
             }
         }
 
-        private void GivenValidAuthor()
+        private void GivenValidVolume()
         {
             Mocker.GetMock<IParsingService>()
-                  .Setup(s => s.GetAuthor(It.IsAny<string>()))
-                  .Returns(Builder<Author>.CreateNew().Build());
+                  .Setup(s => s.GetVolume(It.IsAny<string>()))
+                  .Returns(Builder<Volume>.CreateNew().Build());
         }
 
         private void GivenSuccessfulImport()
         {
-            var localTrack = new LocalBook();
+            var localTrack = new LocalIssue();
 
-            var imported = new List<ImportDecision<LocalBook>>();
-            imported.Add(new ImportDecision<LocalBook>(localTrack));
+            var imported = new List<ImportDecision<LocalIssue>>();
+            imported.Add(new ImportDecision<LocalIssue>(localTrack));
 
             Mocker.GetMock<IMakeImportDecision>()
                   .Setup(v => v.GetImportDecisions(It.IsAny<List<IFileInfo>>(), It.IsAny<IdentificationOverrides>(), It.IsAny<ImportDecisionMakerInfo>(), It.IsAny<ImportDecisionMakerConfig>()))
                   .Returns(imported);
 
-            Mocker.GetMock<IImportApprovedBooks>()
-                  .Setup(s => s.Import(It.IsAny<List<ImportDecision<LocalBook>>>(), It.IsAny<bool>(), It.IsAny<DownloadClientItem>(), It.IsAny<ImportMode>()))
+            Mocker.GetMock<IImportApprovedIssues>()
+                  .Setup(s => s.Import(It.IsAny<List<ImportDecision<LocalIssue>>>(), It.IsAny<bool>(), It.IsAny<DownloadClientItem>(), It.IsAny<ImportMode>()))
                   .Returns(imported.Select(i => new ImportResult(i)).ToList())
                   .Callback(() => WasImportedResponse());
         }
 
         private void WasImportedResponse()
         {
-            Mocker.GetMock<IDiskScanService>().Setup(c => c.GetBookFiles(It.IsAny<string>(), It.IsAny<bool>()))
+            Mocker.GetMock<IDiskScanService>().Setup(c => c.GetIssueFiles(It.IsAny<string>(), It.IsAny<bool>()))
                   .Returns(new IFileInfo[0]);
         }
 
         [Test]
-        public void should_search_for_author_using_folder_name()
+        public void should_search_for_volume_using_folder_name()
         {
             Subject.ProcessRootFolder(DiskProvider.GetDirectoryInfo(_droneFactory));
 
-            Mocker.GetMock<IParsingService>().Verify(c => c.GetAuthor("foldername"), Times.Once());
+            Mocker.GetMock<IParsingService>().Verify(c => c.GetVolume("foldername"), Times.Once());
         }
 
         [Test]
         public void should_skip_if_file_is_in_use_by_another_process()
         {
-            GivenValidAuthor();
+            GivenValidVolume();
 
             foreach (var file in _audioFiles)
             {
@@ -123,9 +123,9 @@ namespace NzbDrone.Core.Test.MediaFiles
         }
 
         [Test]
-        public void should_not_skip_if_no_author_found()
+        public void should_not_skip_if_no_volume_found()
         {
-            Mocker.GetMock<IParsingService>().Setup(c => c.GetAuthor("foldername")).Returns((Author)null);
+            Mocker.GetMock<IParsingService>().Setup(c => c.GetVolume("foldername")).Returns((Volume)null);
 
             Subject.ProcessRootFolder(DiskProvider.GetDirectoryInfo(_droneFactory));
 
@@ -137,22 +137,22 @@ namespace NzbDrone.Core.Test.MediaFiles
         }
 
         [Test]
-        public void should_not_import_if_folder_is_a_author_path()
+        public void should_not_import_if_folder_is_a_volume_path()
         {
-            GivenValidAuthor();
+            GivenValidVolume();
 
-            Mocker.GetMock<IAuthorService>()
-                  .Setup(s => s.AuthorPathExists(It.IsAny<string>()))
+            Mocker.GetMock<IVolumeService>()
+                  .Setup(s => s.VolumePathExists(It.IsAny<string>()))
                   .Returns(true);
 
             Mocker.GetMock<IDiskScanService>()
-                  .Setup(c => c.GetBookFiles(It.IsAny<string>(), It.IsAny<bool>()))
+                  .Setup(c => c.GetIssueFiles(It.IsAny<string>(), It.IsAny<bool>()))
                   .Returns(new IFileInfo[0]);
 
             Subject.ProcessRootFolder(DiskProvider.GetDirectoryInfo(_droneFactory));
 
             Mocker.GetMock<IDiskScanService>()
-                  .Verify(v => v.GetBookFiles(It.IsAny<string>(), true), Times.Never());
+                  .Verify(v => v.GetIssueFiles(It.IsAny<string>(), true), Times.Never());
 
             ExceptionVerification.ExpectedWarns(1);
         }
@@ -160,8 +160,8 @@ namespace NzbDrone.Core.Test.MediaFiles
         [Test]
         public void should_not_delete_folder_if_no_files_were_imported()
         {
-            Mocker.GetMock<IImportApprovedBooks>()
-                  .Setup(s => s.Import(It.IsAny<List<ImportDecision<LocalBook>>>(), false, null, ImportMode.Auto))
+            Mocker.GetMock<IImportApprovedIssues>()
+                  .Setup(s => s.Import(It.IsAny<List<ImportDecision<LocalIssue>>>(), false, null, ImportMode.Auto))
                   .Returns(new List<ImportResult>());
 
             Subject.ProcessRootFolder(DiskProvider.GetDirectoryInfo(_droneFactory));
@@ -173,19 +173,19 @@ namespace NzbDrone.Core.Test.MediaFiles
         [Test]
         public void should_not_delete_folder_if_files_were_imported_and_audio_files_remain()
         {
-            GivenValidAuthor();
+            GivenValidVolume();
 
-            var localTrack = new LocalBook();
+            var localTrack = new LocalIssue();
 
-            var imported = new List<ImportDecision<LocalBook>>();
-            imported.Add(new ImportDecision<LocalBook>(localTrack));
+            var imported = new List<ImportDecision<LocalIssue>>();
+            imported.Add(new ImportDecision<LocalIssue>(localTrack));
 
             Mocker.GetMock<IMakeImportDecision>()
                   .Setup(v => v.GetImportDecisions(It.IsAny<List<IFileInfo>>(), It.IsAny<IdentificationOverrides>(), It.IsAny<ImportDecisionMakerInfo>(), It.IsAny<ImportDecisionMakerConfig>()))
                   .Returns(imported);
 
-            Mocker.GetMock<IImportApprovedBooks>()
-                  .Setup(s => s.Import(It.IsAny<List<ImportDecision<LocalBook>>>(), true, null, ImportMode.Auto))
+            Mocker.GetMock<IImportApprovedIssues>()
+                  .Setup(s => s.Import(It.IsAny<List<ImportDecision<LocalIssue>>>(), true, null, ImportMode.Auto))
                   .Returns(imported.Select(i => new ImportResult(i)).ToList());
 
             Subject.ProcessRootFolder(DiskProvider.GetDirectoryInfo(_droneFactory));
@@ -206,14 +206,14 @@ namespace NzbDrone.Core.Test.MediaFiles
             Subject.ProcessRootFolder(DiskProvider.GetDirectoryInfo(_droneFactory));
 
             Mocker.GetMock<IParsingService>()
-                .Verify(v => v.GetAuthor(folderName), Times.Once());
+                .Verify(v => v.GetVolume(folderName), Times.Once());
 
             Mocker.GetMock<IParsingService>()
-                .Verify(v => v.GetAuthor(It.Is<string>(s => s.StartsWith(prefix))), Times.Never());
+                .Verify(v => v.GetVolume(It.Is<string>(s => s.StartsWith(prefix))), Times.Never());
         }
 
         [Test]
-        public void should_return_importresult_on_unknown_author()
+        public void should_return_importresult_on_unknown_volume()
         {
             var fileName = @"C:\folder\file.mkv".AsOsAgnostic();
             FileSystem.AddFile(fileName, new MockFileData(string.Empty));
@@ -230,19 +230,19 @@ namespace NzbDrone.Core.Test.MediaFiles
         [Test]
         public void should_not_delete_if_there_is_large_rar_file()
         {
-            GivenValidAuthor();
+            GivenValidVolume();
 
-            var localTrack = new LocalBook();
+            var localTrack = new LocalIssue();
 
-            var imported = new List<ImportDecision<LocalBook>>();
-            imported.Add(new ImportDecision<LocalBook>(localTrack));
+            var imported = new List<ImportDecision<LocalIssue>>();
+            imported.Add(new ImportDecision<LocalIssue>(localTrack));
 
             Mocker.GetMock<IMakeImportDecision>()
                   .Setup(v => v.GetImportDecisions(It.IsAny<List<IFileInfo>>(), It.IsAny<IdentificationOverrides>(), It.IsAny<ImportDecisionMakerInfo>(), It.IsAny<ImportDecisionMakerConfig>()))
                   .Returns(imported);
 
-            Mocker.GetMock<IImportApprovedBooks>()
-                  .Setup(s => s.Import(It.IsAny<List<ImportDecision<LocalBook>>>(), true, null, ImportMode.Auto))
+            Mocker.GetMock<IImportApprovedIssues>()
+                  .Setup(s => s.Import(It.IsAny<List<ImportDecision<LocalIssue>>>(), true, null, ImportMode.Auto))
                   .Returns(imported.Select(i => new ImportResult(i)).ToList());
 
             GivenAudioFiles(new[] { _audioFiles.First().Replace(".ext", ".rar") }, 15.Megabytes());
@@ -262,7 +262,7 @@ namespace NzbDrone.Core.Test.MediaFiles
             Subject.ProcessPath(folderName).Should().BeEmpty();
 
             Mocker.GetMock<IParsingService>()
-                .Verify(v => v.GetAuthor(It.IsAny<string>()), Times.Never());
+                .Verify(v => v.GetVolume(It.IsAny<string>()), Times.Never());
 
             ExceptionVerification.ExpectedErrors(1);
         }
@@ -270,19 +270,19 @@ namespace NzbDrone.Core.Test.MediaFiles
         [Test]
         public void should_not_delete_if_no_files_were_imported()
         {
-            GivenValidAuthor();
+            GivenValidVolume();
 
-            var localTrack = new LocalBook();
+            var localTrack = new LocalIssue();
 
-            var imported = new List<ImportDecision<LocalBook>>();
-            imported.Add(new ImportDecision<LocalBook>(localTrack));
+            var imported = new List<ImportDecision<LocalIssue>>();
+            imported.Add(new ImportDecision<LocalIssue>(localTrack));
 
             Mocker.GetMock<IMakeImportDecision>()
                   .Setup(v => v.GetImportDecisions(It.IsAny<List<IFileInfo>>(), It.IsAny<IdentificationOverrides>(), It.IsAny<ImportDecisionMakerInfo>(), It.IsAny<ImportDecisionMakerConfig>()))
                   .Returns(imported);
 
-            Mocker.GetMock<IImportApprovedBooks>()
-                  .Setup(s => s.Import(It.IsAny<List<ImportDecision<LocalBook>>>(), true, null, ImportMode.Auto))
+            Mocker.GetMock<IImportApprovedIssues>()
+                  .Setup(s => s.Import(It.IsAny<List<ImportDecision<LocalIssue>>>(), true, null, ImportMode.Auto))
                   .Returns(new List<ImportResult>());
 
             Subject.ProcessRootFolder(DiskProvider.GetDirectoryInfo(_droneFactory));
@@ -296,13 +296,13 @@ namespace NzbDrone.Core.Test.MediaFiles
         [Test]
         public void should_not_delete_folder_after_import()
         {
-            GivenValidAuthor();
+            GivenValidVolume();
 
             GivenSuccessfulImport();
 
             _trackedDownload.DownloadItem.CanMoveFiles = false;
 
-            Subject.ProcessPath(_droneFactory, ImportMode.Auto, _trackedDownload.RemoteBook.Author, _trackedDownload.DownloadItem);
+            Subject.ProcessPath(_droneFactory, ImportMode.Auto, _trackedDownload.RemoteIssue.Volume, _trackedDownload.DownloadItem);
 
             DiskProvider.FolderExists(_subFolders[0]).Should().BeTrue();
         }
@@ -310,13 +310,13 @@ namespace NzbDrone.Core.Test.MediaFiles
         [Test]
         public void should_delete_folder_if_importmode_move()
         {
-            GivenValidAuthor();
+            GivenValidVolume();
 
             GivenSuccessfulImport();
 
             _trackedDownload.DownloadItem.CanMoveFiles = false;
 
-            Subject.ProcessPath(_droneFactory, ImportMode.Move, _trackedDownload.RemoteBook.Author, _trackedDownload.DownloadItem);
+            Subject.ProcessPath(_droneFactory, ImportMode.Move, _trackedDownload.RemoteIssue.Volume, _trackedDownload.DownloadItem);
 
             DiskProvider.FolderExists(_subFolders[0]).Should().BeFalse();
         }
@@ -324,26 +324,26 @@ namespace NzbDrone.Core.Test.MediaFiles
         [Test]
         public void should_not_delete_folder_if_importmode_copy()
         {
-            GivenValidAuthor();
+            GivenValidVolume();
 
             GivenSuccessfulImport();
 
             _trackedDownload.DownloadItem.CanMoveFiles = true;
 
-            Subject.ProcessPath(_droneFactory, ImportMode.Copy, _trackedDownload.RemoteBook.Author, _trackedDownload.DownloadItem);
+            Subject.ProcessPath(_droneFactory, ImportMode.Copy, _trackedDownload.RemoteIssue.Volume, _trackedDownload.DownloadItem);
 
             DiskProvider.FolderExists(_subFolders[0]).Should().BeTrue();
         }
 
         private void VerifyNoImport()
         {
-            Mocker.GetMock<IImportApprovedBooks>().Verify(c => c.Import(It.IsAny<List<ImportDecision<LocalBook>>>(), true, null, ImportMode.Auto),
+            Mocker.GetMock<IImportApprovedIssues>().Verify(c => c.Import(It.IsAny<List<ImportDecision<LocalIssue>>>(), true, null, ImportMode.Auto),
                 Times.Never());
         }
 
         private void VerifyImport()
         {
-            Mocker.GetMock<IImportApprovedBooks>().Verify(c => c.Import(It.IsAny<List<ImportDecision<LocalBook>>>(), true, null, ImportMode.Auto),
+            Mocker.GetMock<IImportApprovedIssues>().Verify(c => c.Import(It.IsAny<List<ImportDecision<LocalIssue>>>(), true, null, ImportMode.Auto),
                 Times.Once());
         }
     }

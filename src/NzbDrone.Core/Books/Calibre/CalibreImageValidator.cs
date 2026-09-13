@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Text;
 
-namespace NzbDrone.Core.Books.Calibre
+namespace NzbDrone.Core.Issues.Calibre
 {
     // see https://github.com/kovidgoyal/calibre/blob/876290c600b26d6ce915c5449c641d98053b9037/src/calibre/utils/imghdr.py#L16
     public static class CalibreImageValidator

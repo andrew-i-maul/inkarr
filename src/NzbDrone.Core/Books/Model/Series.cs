@@ -4,7 +4,7 @@ using Equ;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Datastore;
 
-namespace NzbDrone.Core.Books
+namespace NzbDrone.Core.Issues
 {
     [DebuggerDisplay("{GetType().FullName} ID = {Id} [{ForeignSeriesId}][{Title}]")]
     public class Series : Entity<Series>
@@ -17,13 +17,13 @@ namespace NzbDrone.Core.Books
         public int PrimaryWorkCount { get; set; }
 
         [MemberwiseEqualityIgnore]
-        public LazyLoaded<List<SeriesBookLink>> LinkItems { get; set; }
+        public LazyLoaded<List<SeriesIssueLink>> LinkItems { get; set; }
 
         [MemberwiseEqualityIgnore]
-        public LazyLoaded<List<Book>> Books { get; set; }
+        public LazyLoaded<List<Issue>> Issues { get; set; }
 
         // A placeholder used in refresh only
-        public string ForeignAuthorId { get; set; }
+        public string ForeignVolumeId { get; set; }
 
         public override string ToString()
         {

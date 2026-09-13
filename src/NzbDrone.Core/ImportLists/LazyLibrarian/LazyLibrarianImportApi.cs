@@ -1,11 +1,11 @@
 namespace NzbDrone.Core.ImportLists.LazyLibrarianImport
 {
-    public class LazyLibrarianBook
+    public class LazyLibrarianIssue
     {
-        public string BookName { get; set; }
-        public string BookId { get; set; }
-        public string BookIsbn { get; set; }
-        public string AuthorName { get; set; }
-        public string AuthorId { get; set; }
+        public string IssueName { get; set; }
+        public string IssueId { get; set; }
+        public string IssueIsbn { get; set; }
+        public string VolumeName { get; set; }
+        public string VolumeId { get; set; }
     }
 }

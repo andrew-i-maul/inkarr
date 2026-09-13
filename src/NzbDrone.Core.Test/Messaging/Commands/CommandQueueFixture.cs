@@ -1,10 +1,10 @@
 using FizzWare.NBuilder;
 using FluentAssertions;
 using NUnit.Framework;
-using NzbDrone.Core.Books.Commands;
 using NzbDrone.Core.Download;
 using NzbDrone.Core.ImportLists;
 using NzbDrone.Core.Indexers;
+using NzbDrone.Core.Issues.Commands;
 using NzbDrone.Core.Messaging.Commands;
 using NzbDrone.Core.Test.Framework;
 using NzbDrone.Core.Update.Commands;
@@ -161,8 +161,8 @@ namespace NzbDrone.Core.Test.Messaging.Commands
 
             var newCommandModel = Builder<CommandModel>
                 .CreateNew()
-                .With(c => c.Name = "RefreshAuthor")
-                .With(c => c.Body = new RefreshAuthorCommand())
+                .With(c => c.Name = "RefreshVolume")
+                .With(c => c.Body = new RefreshVolumeCommand())
                 .Build();
 
             Subject.Add(newCommandModel);
@@ -198,8 +198,8 @@ namespace NzbDrone.Core.Test.Messaging.Commands
 
             var newCommandModel = Builder<CommandModel>
                 .CreateNew()
-                .With(c => c.Name = "RefreshAuthor")
-                .With(c => c.Body = new RefreshAuthorCommand())
+                .With(c => c.Name = "RefreshVolume")
+                .With(c => c.Body = new RefreshVolumeCommand())
                 .Build();
 
             Subject.Add(newCommandModel);

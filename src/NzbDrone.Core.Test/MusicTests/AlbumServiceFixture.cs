@@ -2,54 +2,54 @@ using System.Collections.Generic;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Test.Framework;
 
-namespace NzbDrone.Core.Test.MusicTests.BookRepositoryTests
+namespace NzbDrone.Core.Test.MusicTests.IssueRepositoryTests
 {
     [TestFixture]
-    public class BookServiceFixture : CoreTest<BookService>
+    public class IssueServiceFixture : CoreTest<IssueService>
     {
-        private List<Book> _books;
+        private List<Issue> _issues;
 
         [SetUp]
         public void Setup()
         {
-            _books = new List<Book>();
-            _books.Add(new Book
+            _issues = new List<Issue>();
+            _issues.Add(new Issue
             {
                 Title = "ANThology",
                 CleanTitle = "anthology",
-                AuthorMetadata = new AuthorMetadata
+                VolumeMetadata = new VolumeMetadata
                 {
-                    Name = "Author"
+                    Name = "Volume"
                 }
             });
 
-            _books.Add(new Book
+            _issues.Add(new Issue
             {
                 Title = "+",
                 CleanTitle = "",
-                AuthorMetadata = new AuthorMetadata
+                VolumeMetadata = new VolumeMetadata
                 {
-                    Name = "Author"
+                    Name = "Volume"
                 }
             });
 
-            Mocker.GetMock<IBookRepository>()
-                .Setup(s => s.GetBooksByAuthorMetadataId(It.IsAny<int>()))
-                .Returns(_books);
+            Mocker.GetMock<IIssueRepository>()
+                .Setup(s => s.GetIssuesByVolumeMetadataId(It.IsAny<int>()))
+                .Returns(_issues);
         }
 
-        private void GivenSimilarBook()
+        private void GivenSimilarIssue()
         {
-            _books.Add(new Book
+            _issues.Add(new Issue
             {
                 Title = "ANThology2",
                 CleanTitle = "anthology2",
-                AuthorMetadata = new AuthorMetadata
+                VolumeMetadata = new VolumeMetadata
                 {
-                    Name = "Author"
+                    Name = "Volume"
                 }
             });
         }
@@ -59,12 +59,12 @@ namespace NzbDrone.Core.Test.MusicTests.BookRepositoryTests
         [TestCase("ANThology CD", "ANThology")]
         [TestCase("ANThology CD xxxx (Remastered) - [Oh please why do they do this?]", "ANThology")]
         [TestCase("+ (Plus) - I feel the need for redundant information in the title field", "+")]
-        public void should_find_book_in_db_by_inexact_title(string title, string expected)
+        public void should_find_issue_in_db_by_inexact_title(string title, string expected)
         {
-            var book = Subject.FindByTitleInexact(0, title);
+            var issue = Subject.FindByTitleInexact(0, title);
 
-            book.Should().NotBeNull();
-            book.Title.Should().Be(expected);
+            issue.Should().NotBeNull();
+            issue.Title.Should().Be(expected);
         }
 
         [TestCase("ANTholog")]
@@ -72,12 +72,12 @@ namespace NzbDrone.Core.Test.MusicTests.BookRepositoryTests
         [TestCase("ANThology CD")]
         [TestCase("÷")]
         [TestCase("÷ (Divide)")]
-        public void should_not_find_book_in_db_by_inexact_title_when_two_similar_matches(string title)
+        public void should_not_find_issue_in_db_by_inexact_title_when_two_similar_matches(string title)
         {
-            GivenSimilarBook();
-            var book = Subject.FindByTitleInexact(0, title);
+            GivenSimilarIssue();
+            var issue = Subject.FindByTitleInexact(0, title);
 
-            book.Should().BeNull();
+            issue.Should().BeNull();
         }
     }
 }

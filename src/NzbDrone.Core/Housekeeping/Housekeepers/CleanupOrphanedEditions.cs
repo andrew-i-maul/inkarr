@@ -18,9 +18,9 @@ namespace NzbDrone.Core.Housekeeping.Housekeepers
             mapper.Execute(@"DELETE FROM ""Editions""
                              WHERE ""Id"" IN (
                              SELECT ""Editions"".""Id"" FROM ""Editions""
-                             LEFT OUTER JOIN ""Books""
-                             ON ""Editions"".""BookId"" = ""Books"".""Id""
-                             WHERE ""Books"".""Id"" IS NULL)");
+                             LEFT OUTER JOIN ""Issues""
+                             ON ""Editions"".""IssueId"" = ""Issues"".""Id""
+                             WHERE ""Issues"".""Id"" IS NULL)");
         }
     }
 }

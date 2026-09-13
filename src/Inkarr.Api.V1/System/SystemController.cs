@@ -86,7 +86,7 @@ namespace Inkarr.Api.V1.System
                 RuntimeName = "netcore",
                 StartTime = _runtimeInfo.StartTime,
                 PackageVersion = _deploymentInfoProvider.PackageVersion,
-                PackageAuthor = _deploymentInfoProvider.PackageAuthor,
+                PackageVolume = _deploymentInfoProvider.PackageVolume,
                 PackageUpdateMechanism = _deploymentInfoProvider.PackageUpdateMechanism,
                 PackageUpdateMechanismMessage = _deploymentInfoProvider.PackageUpdateMechanismMessage
             };

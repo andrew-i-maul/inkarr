@@ -2,7 +2,7 @@ using Inkarr.Http.REST;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Parser.Model;
 
-namespace Inkarr.Api.V1.BookFiles
+namespace Inkarr.Api.V1.IssueFiles
 {
     public class MediaInfoResource : RestResource
     {

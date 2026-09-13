@@ -3,8 +3,8 @@ using FizzWare.NBuilder;
 using FluentAssertions;
 using NUnit.Framework;
 using NzbDrone.Core.Blocklisting;
-using NzbDrone.Core.Books;
 using NzbDrone.Core.Housekeeping.Housekeepers;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Qualities;
 using NzbDrone.Core.Test.Framework;
 
@@ -17,7 +17,7 @@ namespace NzbDrone.Core.Test.Housekeeping.Housekeepers
         public void should_delete_orphaned_blocklist_items()
         {
             var blocklist = Builder<Blocklist>.CreateNew()
-                                              .With(h => h.BookIds = new List<int>())
+                                              .With(h => h.IssueIds = new List<int>())
                                               .With(h => h.Quality = new QualityModel())
                                               .BuildNew();
 
@@ -29,14 +29,14 @@ namespace NzbDrone.Core.Test.Housekeeping.Housekeepers
         [Test]
         public void should_not_delete_unorphaned_blocklist_items()
         {
-            var author = Builder<Author>.CreateNew().BuildNew();
+            var volume = Builder<Volume>.CreateNew().BuildNew();
 
-            Db.Insert(author);
+            Db.Insert(volume);
 
             var blocklist = Builder<Blocklist>.CreateNew()
-                                              .With(h => h.BookIds = new List<int>())
+                                              .With(h => h.IssueIds = new List<int>())
                                               .With(h => h.Quality = new QualityModel())
-                                              .With(b => b.AuthorId = author.Id)
+                                              .With(b => b.VolumeId = volume.Id)
                                               .BuildNew();
 
             Db.Insert(blocklist);

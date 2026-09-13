@@ -1,12 +1,12 @@
-using NzbDrone.Core.Books;
+using NzbDrone.Core.Issues;
 using NzbDrone.Core.Parser.Model;
 
 namespace NzbDrone.Core.CustomFormats
 {
     public class CustomFormatInput
     {
-        public ParsedBookInfo BookInfo { get; set; }
-        public Author Author { get; set; }
+        public ParsedIssueInfo IssueInfo { get; set; }
+        public Volume Volume { get; set; }
         public long Size { get; set; }
         public IndexerFlags IndexerFlags { get; set; }
         public string Filename { get; set; }

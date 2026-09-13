@@ -7,17 +7,17 @@ namespace NzbDrone.Core.Organizer
     {
         public static NamingConfig Default => new NamingConfig
         {
-            RenameBooks = false,
+            RenameIssues = false,
             ReplaceIllegalCharacters = true,
             ColonReplacementFormat = ColonReplacementFormat.Smart,
-            StandardBookFormat = "{Book Title}" + Path.DirectorySeparatorChar + "{Author Name} - {Book Title}{ (PartNumber)}",
-            AuthorFolderFormat = "{Author Name}",
+            StandardIssueFormat = "{Issue Title}" + Path.DirectorySeparatorChar + "{Volume Name} - {Issue Title}{ (PartNumber)}",
+            VolumeFolderFormat = "{Volume Name}",
         };
 
-        public bool RenameBooks { get; set; }
+        public bool RenameIssues { get; set; }
         public bool ReplaceIllegalCharacters { get; set; }
         public ColonReplacementFormat ColonReplacementFormat { get; set; }
-        public string StandardBookFormat { get; set; }
-        public string AuthorFolderFormat { get; set; }
+        public string StandardIssueFormat { get; set; }
+        public string VolumeFolderFormat { get; set; }
     }
 }

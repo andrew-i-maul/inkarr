@@ -9,30 +9,30 @@ namespace Inkarr.Api.V1.Notifications
         public bool OnReleaseImport { get; set; }
         public bool OnUpgrade { get; set; }
         public bool OnRename { get; set; }
-        public bool OnAuthorAdded { get; set; }
-        public bool OnAuthorDelete { get; set; }
-        public bool OnBookDelete { get; set; }
-        public bool OnBookFileDelete { get; set; }
-        public bool OnBookFileDeleteForUpgrade { get; set; }
+        public bool OnVolumeAdded { get; set; }
+        public bool OnVolumeDelete { get; set; }
+        public bool OnIssueDelete { get; set; }
+        public bool OnIssueFileDelete { get; set; }
+        public bool OnIssueFileDeleteForUpgrade { get; set; }
         public bool OnHealthIssue { get; set; }
         public bool OnDownloadFailure { get; set; }
         public bool OnImportFailure { get; set; }
-        public bool OnBookRetag { get; set; }
+        public bool OnIssueRetag { get; set; }
         public bool OnApplicationUpdate { get; set; }
         public bool SupportsOnGrab { get; set; }
         public bool SupportsOnReleaseImport { get; set; }
         public bool SupportsOnUpgrade { get; set; }
         public bool SupportsOnRename { get; set; }
-        public bool SupportsOnAuthorAdded { get; set; }
-        public bool SupportsOnAuthorDelete { get; set; }
-        public bool SupportsOnBookDelete { get; set; }
-        public bool SupportsOnBookFileDelete { get; set; }
-        public bool SupportsOnBookFileDeleteForUpgrade { get; set; }
+        public bool SupportsOnVolumeAdded { get; set; }
+        public bool SupportsOnVolumeDelete { get; set; }
+        public bool SupportsOnIssueDelete { get; set; }
+        public bool SupportsOnIssueFileDelete { get; set; }
+        public bool SupportsOnIssueFileDeleteForUpgrade { get; set; }
         public bool SupportsOnHealthIssue { get; set; }
         public bool IncludeHealthWarnings { get; set; }
         public bool SupportsOnDownloadFailure { get; set; }
         public bool SupportsOnImportFailure { get; set; }
-        public bool SupportsOnBookRetag { get; set; }
+        public bool SupportsOnIssueRetag { get; set; }
         public bool SupportsOnApplicationUpdate { get; set; }
         public string TestCommand { get; set; }
     }
@@ -52,30 +52,30 @@ namespace Inkarr.Api.V1.Notifications
             resource.OnReleaseImport = definition.OnReleaseImport;
             resource.OnUpgrade = definition.OnUpgrade;
             resource.OnRename = definition.OnRename;
-            resource.OnAuthorAdded = definition.OnAuthorAdded;
-            resource.OnAuthorDelete = definition.OnAuthorDelete;
-            resource.OnBookDelete = definition.OnBookDelete;
-            resource.OnBookFileDelete = definition.OnBookFileDelete;
-            resource.OnBookFileDeleteForUpgrade = definition.OnBookFileDeleteForUpgrade;
+            resource.OnVolumeAdded = definition.OnVolumeAdded;
+            resource.OnVolumeDelete = definition.OnVolumeDelete;
+            resource.OnIssueDelete = definition.OnIssueDelete;
+            resource.OnIssueFileDelete = definition.OnIssueFileDelete;
+            resource.OnIssueFileDeleteForUpgrade = definition.OnIssueFileDeleteForUpgrade;
             resource.OnHealthIssue = definition.OnHealthIssue;
             resource.OnDownloadFailure = definition.OnDownloadFailure;
             resource.OnImportFailure = definition.OnImportFailure;
-            resource.OnBookRetag = definition.OnBookRetag;
+            resource.OnIssueRetag = definition.OnIssueRetag;
             resource.OnApplicationUpdate = definition.OnApplicationUpdate;
             resource.SupportsOnGrab = definition.SupportsOnGrab;
             resource.SupportsOnReleaseImport = definition.SupportsOnReleaseImport;
             resource.SupportsOnUpgrade = definition.SupportsOnUpgrade;
             resource.SupportsOnRename = definition.SupportsOnRename;
-            resource.SupportsOnAuthorAdded = definition.SupportsOnAuthorAdded;
-            resource.SupportsOnAuthorDelete = definition.SupportsOnAuthorDelete;
-            resource.SupportsOnBookDelete = definition.SupportsOnBookDelete;
-            resource.SupportsOnBookFileDelete = definition.SupportsOnBookFileDelete;
-            resource.SupportsOnBookFileDeleteForUpgrade = definition.SupportsOnBookFileDeleteForUpgrade;
+            resource.SupportsOnVolumeAdded = definition.SupportsOnVolumeAdded;
+            resource.SupportsOnVolumeDelete = definition.SupportsOnVolumeDelete;
+            resource.SupportsOnIssueDelete = definition.SupportsOnIssueDelete;
+            resource.SupportsOnIssueFileDelete = definition.SupportsOnIssueFileDelete;
+            resource.SupportsOnIssueFileDeleteForUpgrade = definition.SupportsOnIssueFileDeleteForUpgrade;
             resource.SupportsOnHealthIssue = definition.SupportsOnHealthIssue;
             resource.IncludeHealthWarnings = definition.IncludeHealthWarnings;
             resource.SupportsOnDownloadFailure = definition.SupportsOnDownloadFailure;
             resource.SupportsOnImportFailure = definition.SupportsOnImportFailure;
-            resource.SupportsOnBookRetag = definition.SupportsOnBookRetag;
+            resource.SupportsOnIssueRetag = definition.SupportsOnIssueRetag;
             resource.SupportsOnApplicationUpdate = definition.SupportsOnApplicationUpdate;
 
             return resource;
@@ -94,30 +94,30 @@ namespace Inkarr.Api.V1.Notifications
             definition.OnReleaseImport = resource.OnReleaseImport;
             definition.OnUpgrade = resource.OnUpgrade;
             definition.OnRename = resource.OnRename;
-            definition.OnAuthorAdded = resource.OnAuthorAdded;
-            definition.OnAuthorDelete = resource.OnAuthorDelete;
-            definition.OnBookDelete = resource.OnBookDelete;
-            definition.OnBookFileDelete = resource.OnBookFileDelete;
-            definition.OnBookFileDeleteForUpgrade = resource.OnBookFileDeleteForUpgrade;
+            definition.OnVolumeAdded = resource.OnVolumeAdded;
+            definition.OnVolumeDelete = resource.OnVolumeDelete;
+            definition.OnIssueDelete = resource.OnIssueDelete;
+            definition.OnIssueFileDelete = resource.OnIssueFileDelete;
+            definition.OnIssueFileDeleteForUpgrade = resource.OnIssueFileDeleteForUpgrade;
             definition.OnHealthIssue = resource.OnHealthIssue;
             definition.OnDownloadFailure = resource.OnDownloadFailure;
             definition.OnImportFailure = resource.OnImportFailure;
-            definition.OnBookRetag = resource.OnBookRetag;
+            definition.OnIssueRetag = resource.OnIssueRetag;
             definition.OnApplicationUpdate = resource.OnApplicationUpdate;
             definition.SupportsOnGrab = resource.SupportsOnGrab;
             definition.SupportsOnReleaseImport = resource.SupportsOnReleaseImport;
             definition.SupportsOnUpgrade = resource.SupportsOnUpgrade;
             definition.SupportsOnRename = resource.SupportsOnRename;
-            definition.SupportsOnAuthorAdded = resource.SupportsOnAuthorAdded;
-            definition.SupportsOnAuthorDelete = resource.SupportsOnAuthorDelete;
-            definition.SupportsOnBookDelete = resource.SupportsOnBookDelete;
-            definition.SupportsOnBookFileDelete = resource.SupportsOnBookFileDelete;
-            definition.SupportsOnBookFileDeleteForUpgrade = resource.SupportsOnBookFileDeleteForUpgrade;
+            definition.SupportsOnVolumeAdded = resource.SupportsOnVolumeAdded;
+            definition.SupportsOnVolumeDelete = resource.SupportsOnVolumeDelete;
+            definition.SupportsOnIssueDelete = resource.SupportsOnIssueDelete;
+            definition.SupportsOnIssueFileDelete = resource.SupportsOnIssueFileDelete;
+            definition.SupportsOnIssueFileDeleteForUpgrade = resource.SupportsOnIssueFileDeleteForUpgrade;
             definition.SupportsOnHealthIssue = resource.SupportsOnHealthIssue;
             definition.IncludeHealthWarnings = resource.IncludeHealthWarnings;
             definition.SupportsOnDownloadFailure = resource.SupportsOnDownloadFailure;
             definition.SupportsOnImportFailure = resource.SupportsOnImportFailure;
-            definition.SupportsOnBookRetag = resource.SupportsOnBookRetag;
+            definition.SupportsOnIssueRetag = resource.SupportsOnIssueRetag;
             definition.SupportsOnApplicationUpdate = resource.SupportsOnApplicationUpdate;
 
             return definition;
