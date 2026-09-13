@@ -1,14 +1,14 @@
 import * as app from './appActions';
-import * as author from './authorActions';
-import * as authorDetails from './authorDetailsActions';
-import * as authorHistory from './authorHistoryActions';
-import * as authorIndex from './authorIndexActions';
+import * as volume from './volumeActions';
+import * as volumeDetails from './volumeDetailsActions';
+import * as volumeHistory from './volumeHistoryActions';
+import * as volumeIndex from './volumeIndexActions';
 import * as blocklist from './blocklistActions';
-import * as books from './bookActions';
-import * as bookFiles from './bookFileActions';
-import * as bookHistory from './bookHistoryActions';
-import * as bookIndex from './bookIndexActions';
-import * as bookStudio from './bookshelfActions';
+import * as issues from './issueActions';
+import * as issueFiles from './issueFileActions';
+import * as issueHistory from './issueHistoryActions';
+import * as issueIndex from './issueIndexActions';
+import * as issueStudio from './bookshelfActions';
 import * as calendar from './calendarActions';
 import * as captcha from './captchaActions';
 import * as commands from './commandActions';
@@ -32,16 +32,16 @@ import * as wanted from './wantedActions';
 
 export default [
   app,
-  author,
-  authorDetails,
-  authorHistory,
-  authorIndex,
+  volume,
+  volumeDetails,
+  volumeHistory,
+  volumeIndex,
   blocklist,
-  bookFiles,
-  bookHistory,
-  bookIndex,
-  books,
-  bookStudio,
+  issueFiles,
+  issueHistory,
+  issueIndex,
+  issues,
+  issueStudio,
   calendar,
   captcha,
   commands,

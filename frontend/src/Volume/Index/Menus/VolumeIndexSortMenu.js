@@ -92,7 +92,7 @@ function VolumeIndexSortMenu(props) {
         </SortMenuItem>
 
         <SortMenuItem
-          name="bookCount"
+          name="issueCount"
           sortKey={sortKey}
           sortDirection={sortDirection}
           onPress={onSortSelect}
@@ -101,7 +101,7 @@ function VolumeIndexSortMenu(props) {
         </SortMenuItem>
 
         <SortMenuItem
-          name="bookProgress"
+          name="issueProgress"
           sortKey={sortKey}
           sortDirection={sortDirection}
           onPress={onSortSelect}

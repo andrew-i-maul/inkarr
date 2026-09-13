@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { deleteBookFile, deleteBookFiles, setBookFilesSort, updateBookFiles } from 'Store/Actions/bookFileActions';
+import { deleteIssueFile, deleteIssueFiles, setIssueFilesSort, updateIssueFiles } from 'Store/Actions/issueFileActions';
 import { fetchQualityProfileSchema } from 'Store/Actions/settingsActions';
-import createAuthorSelector from 'Store/Selectors/createAuthorSelector';
+import createVolumeSelector from 'Store/Selectors/createVolumeSelector';
 import createClientSideCollectionSelector from 'Store/Selectors/createClientSideCollectionSelector';
 import getQualities from 'Utilities/Quality/getQualities';
 import IssueFileEditorTableContent from './IssueFileEditorTableContent';
@@ -35,26 +35,26 @@ function createSchemaSelector() {
 
 function createMapStateToProps() {
   return createSelector(
-    (state, { bookId }) => bookId,
-    createClientSideCollectionSelector('bookFiles'),
+    (state, { issueId }) => issueId,
+    createClientSideCollectionSelector('issueFiles'),
     createSchemaSelector(),
-    createAuthorSelector(),
+    createVolumeSelector(),
     (
-      bookId,
-      bookFiles,
+      issueId,
+      issueFiles,
       schema,
-      author
+      volume
     ) => {
       const {
         items,
         ...otherProps
-      } = bookFiles;
+      } = issueFiles;
       return {
         ...schema,
         items,
         ...otherProps,
-        isDeleting: bookFiles.isDeleting,
-        isSaving: bookFiles.isSaving
+        isDeleting: issueFiles.isDeleting,
+        isSaving: issueFiles.isSaving
       };
     }
   );
@@ -74,8 +74,8 @@ function createMapDispatchToProps(dispatch, props) {
       dispatch(updateIssueFiles(updateProps));
     },
 
-    onDeletePress(bookFileIds) {
-      dispatch(deleteIssueFiles({ bookFileIds }));
+    onDeletePress(issueFileIds) {
+      dispatch(deleteIssueFiles({ issueFileIds }));
     },
 
     dispatchDeleteIssueFile(id) {
@@ -96,7 +96,7 @@ class IssueFileEditorTableContentConnector extends Component {
   //
   // Listeners
 
-  onQualityChange = (bookFileIds, qualityId) => {
+  onQualityChange = (issueFileIds, qualityId) => {
     const quality = {
       quality: _.find(this.props.qualities, { id: qualityId }),
       revision: {
@@ -105,7 +105,7 @@ class IssueFileEditorTableContentConnector extends Component {
       }
     };
 
-    this.props.dispatchUpdateIssueFiles({ bookFileIds, quality });
+    this.props.dispatchUpdateIssueFiles({ issueFileIds, quality });
   };
 
   //
@@ -128,8 +128,8 @@ class IssueFileEditorTableContentConnector extends Component {
 }
 
 IssueFileEditorTableContentConnector.propTypes = {
-  authorId: PropTypes.number.isRequired,
-  bookId: PropTypes.number,
+  volumeId: PropTypes.number.isRequired,
+  issueId: PropTypes.number,
   qualities: PropTypes.arrayOf(PropTypes.object).isRequired,
   dispatchFetchQualityProfileSchema: PropTypes.func.isRequired,
   dispatchUpdateIssueFiles: PropTypes.func.isRequired,

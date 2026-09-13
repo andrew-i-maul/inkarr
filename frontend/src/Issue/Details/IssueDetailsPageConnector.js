@@ -14,18 +14,18 @@ import IssueDetailsConnector from './IssueDetailsConnector';
 function createMapStateToProps() {
   return createSelector(
     (state, { match }) => match,
-    (state) => state.books,
-    (state) => state.authors,
-    (match, books, author) => {
+    (state) => state.issues,
+    (state) => state.volumes,
+    (match, issues, volume) => {
       const titleSlug = match.params.titleSlug;
-      const isFetching = books.isFetching || author.isFetching;
-      const isPopulated = books.isPopulated && author.isPopulated;
+      const isFetching = issues.isFetching || volume.isFetching;
+      const isPopulated = issues.isPopulated && volume.isPopulated;
 
-      // if books have been fetched, make sure requested one exists
+      // if issues have been fetched, make sure requested one exists
       // otherwise don't map titleSlug to trigger not found page
       if (!isFetching && isPopulated) {
-        const bookIndex = _.findIndex(books.items, { titleSlug });
-        if (bookIndex === -1) {
+        const issueIndex = _.findIndex(issues.items, { titleSlug });
+        if (issueIndex === -1) {
           return {
             isFetching,
             isPopulated

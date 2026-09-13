@@ -14,26 +14,26 @@ class VolumeIndexFooter extends PureComponent {
   // Render
 
   render() {
-    const { author } = this.props;
-    const count = author.length;
-    let books = 0;
-    let bookFiles = 0;
+    const { volume } = this.props;
+    const count = volume.length;
+    let issues = 0;
+    let issueFiles = 0;
     let ended = 0;
     let continuing = 0;
     let monitored = 0;
     let totalFileSize = 0;
 
-    author.forEach((s) => {
+    volume.forEach((s) => {
       const { statistics = {} } = s;
 
       const {
-        bookCount = 0,
-        bookFileCount = 0,
+        issueCount = 0,
+        issueFileCount = 0,
         sizeOnDisk = 0
       } = statistics;
 
-      books += bookCount;
-      bookFiles += bookFileCount;
+      issues += issueCount;
+      issueFiles += issueFileCount;
 
       if (s.status === 'ended') {
         ended++;
@@ -136,12 +136,12 @@ class VolumeIndexFooter extends PureComponent {
                 <DescriptionList>
                   <DescriptionListItem
                     title={translate('Books')}
-                    data={books}
+                    data={issues}
                   />
 
                   <DescriptionListItem
                     title={translate('Files')}
-                    data={bookFiles}
+                    data={issueFiles}
                   />
                 </DescriptionList>
 
@@ -161,7 +161,7 @@ class VolumeIndexFooter extends PureComponent {
 }
 
 VolumeIndexFooter.propTypes = {
-  author: PropTypes.arrayOf(PropTypes.object).isRequired
+  volume: PropTypes.arrayOf(PropTypes.object).isRequired
 };
 
 export default VolumeIndexFooter;

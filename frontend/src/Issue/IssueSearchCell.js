@@ -36,9 +36,9 @@ class IssueSearchCell extends Component {
 
   render() {
     const {
-      bookId,
-      bookTitle,
-      authorName,
+      issueId,
+      issueTitle,
+      volumeName,
       isSearching,
       onSearchPress,
       ...otherProps
@@ -59,9 +59,9 @@ class IssueSearchCell extends Component {
 
         <IssueInteractiveSearchModalConnector
           isOpen={this.state.isDetailsModalOpen}
-          bookId={bookId}
-          bookTitle={bookTitle}
-          authorName={authorName}
+          issueId={issueId}
+          issueTitle={issueTitle}
+          volumeName={volumeName}
           onModalClose={this.onDetailsModalClose}
           {...otherProps}
         />
@@ -72,10 +72,10 @@ class IssueSearchCell extends Component {
 }
 
 IssueSearchCell.propTypes = {
-  bookId: PropTypes.number.isRequired,
-  authorId: PropTypes.number.isRequired,
-  bookTitle: PropTypes.string.isRequired,
-  authorName: PropTypes.string.isRequired,
+  issueId: PropTypes.number.isRequired,
+  volumeId: PropTypes.number.isRequired,
+  issueTitle: PropTypes.string.isRequired,
+  volumeName: PropTypes.string.isRequired,
   isSearching: PropTypes.bool.isRequired,
   onSearchPress: PropTypes.func.isRequired
 };

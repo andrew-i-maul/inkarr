@@ -82,8 +82,8 @@ class VolumeIndexRow extends Component {
       id,
       monitored,
       status,
-      authorName,
-      authorNameLastFirst,
+      volumeName,
+      volumeNameLastFirst,
       titleSlug,
       qualityProfile,
       metadataProfile,
@@ -110,9 +110,9 @@ class VolumeIndexRow extends Component {
     } = this.props;
 
     const {
-      bookCount = 0,
+      issueCount = 0,
       availableIssueCount = 0,
-      bookFileCount = 0,
+      issueFileCount = 0,
       totalIssueCount = 0,
       sizeOnDisk = 0
     } = statistics;
@@ -175,7 +175,7 @@ class VolumeIndexRow extends Component {
                     showBanners ?
                       <Link
                         className={styles.link}
-                        to={`/author/${titleSlug}`}
+                        to={`/volume/${titleSlug}`}
                       >
                         <VolumeBanner
                           className={styles.bannerImage}
@@ -189,14 +189,14 @@ class VolumeIndexRow extends Component {
                         {
                           hasBannerError &&
                             <div className={styles.overlayTitle}>
-                              {showTitle === 'firstLast' ? authorName : authorNameLastFirst}
+                              {showTitle === 'firstLast' ? volumeName : volumeNameLastFirst}
                             </div>
                         }
                       </Link> :
 
                       <VolumeNameLink
                         titleSlug={titleSlug}
-                        authorName={showTitle === 'firstLast' ? authorName : authorNameLastFirst}
+                        volumeName={showTitle === 'firstLast' ? volumeName : volumeNameLastFirst}
                       />
                   }
                 </VirtualTableRowCell>
@@ -286,8 +286,8 @@ class VolumeIndexRow extends Component {
               );
             }
 
-            if (name === 'bookProgress') {
-              const progress = bookCount ? (availableIssueCount / bookCount) * 100 : 100;
+            if (name === 'issueProgress') {
+              const progress = issueCount ? (availableIssueCount / issueCount) * 100 : 100;
 
               return (
                 <VirtualTableRowCell
@@ -298,8 +298,8 @@ class VolumeIndexRow extends Component {
                     progress={progress}
                     kind={getProgressBarKind(status, monitored, progress)}
                     showText={true}
-                    text={`${availableIssueCount} / ${bookCount}`}
-                    title={translate('VolumeProgressBarText', { bookCount, availableIssueCount, bookFileCount, totalIssueCount })}
+                    text={`${availableIssueCount} / ${issueCount}`}
+                    title={translate('VolumeProgressBarText', { issueCount, availableIssueCount, issueFileCount, totalIssueCount })}
                     width={125}
                   />
                 </VirtualTableRowCell>
@@ -408,14 +408,14 @@ class VolumeIndexRow extends Component {
 
         <EditVolumeModalConnector
           isOpen={isEditVolumeModalOpen}
-          authorId={id}
+          volumeId={id}
           onModalClose={this.onEditVolumeModalClose}
           onDeleteVolumePress={this.onDeleteVolumePress}
         />
 
         <DeleteVolumeModal
           isOpen={isDeleteVolumeModalOpen}
-          authorId={id}
+          volumeId={id}
           onModalClose={this.onDeleteVolumeModalClose}
         />
       </>
@@ -427,8 +427,8 @@ VolumeIndexRow.propTypes = {
   id: PropTypes.number.isRequired,
   monitored: PropTypes.bool.isRequired,
   status: PropTypes.string.isRequired,
-  authorName: PropTypes.string.isRequired,
-  authorNameLastFirst: PropTypes.string.isRequired,
+  volumeName: PropTypes.string.isRequired,
+  volumeNameLastFirst: PropTypes.string.isRequired,
   titleSlug: PropTypes.string.isRequired,
   qualityProfile: PropTypes.object.isRequired,
   metadataProfile: PropTypes.object.isRequired,
@@ -457,8 +457,8 @@ VolumeIndexRow.propTypes = {
 
 VolumeIndexRow.defaultProps = {
   statistics: {
-    bookCount: 0,
-    bookFileCount: 0,
+    issueCount: 0,
+    issueFileCount: 0,
     totalIssueCount: 0
   },
   genres: [],

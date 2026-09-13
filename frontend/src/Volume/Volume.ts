@@ -14,7 +14,7 @@ interface Volume extends ModelBase {
   sortName: string;
   status: VolumeStatus;
   tags: number[];
-  authorName: string;
+  volumeName: string;
   isSaving?: boolean;
 }
 

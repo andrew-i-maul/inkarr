@@ -1,13 +1,13 @@
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { setAuthorOverviewOption as setVolumeOverviewOption } from 'Store/Actions/authorIndexActions';
+import { setVolumeOverviewOption as setVolumeOverviewOption } from 'Store/Actions/volumeIndexActions';
 import VolumeIndexOverviewOptionsModalContent from './VolumeIndexOverviewOptionsModalContent';
 
 function createMapStateToProps() {
   return createSelector(
-    (state) => state.authorIndex,
-    (authorIndex) => {
-      return authorIndex.overviewOptions;
+    (state) => state.volumeIndex,
+    (volumeIndex) => {
+      return volumeIndex.overviewOptions;
     }
   );
 }

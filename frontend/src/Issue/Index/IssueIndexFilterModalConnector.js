@@ -1,17 +1,17 @@
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import FilterModal from 'Components/Filter/FilterModal';
-import { setBookFilter as setIssueFilter } from 'Store/Actions/bookIndexActions';
+import { setIssueFilter as setIssueFilter } from 'Store/Actions/issueIndexActions';
 
 function createMapStateToProps() {
   return createSelector(
-    (state) => state.books.items,
-    (state) => state.bookIndex.filterBuilderProps,
+    (state) => state.issues.items,
+    (state) => state.issueIndex.filterBuilderProps,
     (sectionItems, filterBuilderProps) => {
       return {
         sectionItems,
         filterBuilderProps,
-        customFilterType: 'bookIndex'
+        customFilterType: 'issueIndex'
       };
     }
   );

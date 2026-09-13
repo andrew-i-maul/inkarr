@@ -2,7 +2,7 @@ import { createAction } from 'redux-actions';
 import { filterBuilderTypes, filterBuilderValueTypes, sortDirections } from 'Helpers/Props';
 import { createThunk, handleThunks } from 'Store/thunks';
 import createAjaxRequest from 'Utilities/createAjaxRequest';
-import { filterPredicates, filters } from './authorActions';
+import { filterPredicates, filters } from './volumeActions';
 import { set } from './baseActions';
 import createHandleActions from './Creators/createHandleActions';
 import createSetClientSideCollectionFilterReducer from './Creators/Reducers/createSetClientSideCollectionFilterReducer';
@@ -38,7 +38,7 @@ export const defaultState = {
       name: 'status',
       label: 'Status',
       type: filterBuilderTypes.EXACT,
-      valueType: filterBuilderValueTypes.AUTHOR_STATUS
+      valueType: filterBuilderValueTypes.VOLUME_STATUS
     },
     {
       name: 'qualityProfileId',
@@ -76,40 +76,40 @@ export const persistState = [
 //
 // Actions Types
 
-export const SET_BOOKSHELF_SORT = 'bookshelf/setBookshelfSort';
-export const SET_BOOKSHELF_FILTER = 'bookshelf/setBookshelfFilter';
-export const SAVE_BOOKSHELF = 'bookshelf/saveBookshelf';
+export const SET_ISSUESHELF_SORT = 'bookshelf/setBookshelfSort';
+export const SET_ISSUESHELF_FILTER = 'bookshelf/setBookshelfFilter';
+export const SAVE_ISSUESHELF = 'bookshelf/saveBookshelf';
 
 //
 // Action Creators
 
-export const setBookshelfSort = createAction(SET_BOOKSHELF_SORT);
-export const setBookshelfFilter = createAction(SET_BOOKSHELF_FILTER);
-export const saveBookshelf = createThunk(SAVE_BOOKSHELF);
+export const setBookshelfSort = createAction(SET_ISSUESHELF_SORT);
+export const setBookshelfFilter = createAction(SET_ISSUESHELF_FILTER);
+export const saveBookshelf = createThunk(SAVE_ISSUESHELF);
 
 //
 // Action Handlers
 
 export const actionHandlers = handleThunks({
 
-  [SAVE_BOOKSHELF]: function(getState, payload, dispatch) {
+  [SAVE_ISSUESHELF]: function(getState, payload, dispatch) {
     const {
-      authorIds,
+      volumeIds,
       monitored,
       monitor,
       monitorNewItems
     } = payload;
 
-    const authors = [];
+    const volumes = [];
 
-    authorIds.forEach((id) => {
-      const authorToUpdate = { id };
+    volumeIds.forEach((id) => {
+      const volumeToUpdate = { id };
 
       if (payload.hasOwnProperty('monitored')) {
-        authorToUpdate.monitored = monitored;
+        volumeToUpdate.monitored = monitored;
       }
 
-      authors.push(authorToUpdate);
+      volumes.push(volumeToUpdate);
     });
 
     dispatch(set({
@@ -121,7 +121,7 @@ export const actionHandlers = handleThunks({
       url: '/bookshelf',
       method: 'POST',
       data: JSON.stringify({
-        authors,
+        volumes,
         monitoringOptions: { monitor },
         monitorNewItems
       }),
@@ -151,8 +151,8 @@ export const actionHandlers = handleThunks({
 
 export const reducers = createHandleActions({
 
-  [SET_BOOKSHELF_SORT]: createSetClientSideCollectionSortReducer(section),
-  [SET_BOOKSHELF_FILTER]: createSetClientSideCollectionFilterReducer(section)
+  [SET_ISSUESHELF_SORT]: createSetClientSideCollectionSortReducer(section),
+  [SET_ISSUESHELF_FILTER]: createSetClientSideCollectionFilterReducer(section)
 
 }, defaultState, section);
 

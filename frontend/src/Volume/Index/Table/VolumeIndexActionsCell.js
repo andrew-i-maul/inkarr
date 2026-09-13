@@ -79,14 +79,14 @@ class VolumeIndexActionsCell extends Component {
 
         <EditVolumeModalConnector
           isOpen={isEditVolumeModalOpen}
-          authorId={id}
+          volumeId={id}
           onModalClose={this.onEditVolumeModalClose}
           onDeleteVolumePress={this.onDeleteVolumePress}
         />
 
         <DeleteVolumeModal
           isOpen={isDeleteVolumeModalOpen}
-          authorId={id}
+          volumeId={id}
           onModalClose={this.onDeleteVolumeModalClose}
         />
       </VirtualTableRowCell>

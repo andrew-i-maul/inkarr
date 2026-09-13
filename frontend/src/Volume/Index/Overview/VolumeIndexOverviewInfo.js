@@ -9,7 +9,7 @@ import translate from 'Utilities/String/translate';
 import VolumeIndexOverviewInfoRow from './VolumeIndexOverviewInfoRow';
 import styles from './VolumeIndexOverviewInfo.css';
 
-const infoRowHeight = parseInt(dimensions.authorIndexOverviewInfoRowHeight);
+const infoRowHeight = parseInt(dimensions.volumeIndexOverviewInfoRowHeight);
 
 const rows = [
   {
@@ -34,9 +34,9 @@ const rows = [
     valueProp: 'added'
   },
   {
-    name: 'bookCount',
+    name: 'issueCount',
     showProp: 'showIssueCount',
-    valueProp: 'bookCount'
+    valueProp: 'issueCount'
   },
   {
     name: 'path',
@@ -132,20 +132,20 @@ function getInfoRowProps(row, props) {
     };
   }
 
-  if (name === 'bookCount') {
-    const { bookCount } = props;
-    let books = '1 book';
+  if (name === 'issueCount') {
+    const { issueCount } = props;
+    let issues = '1 issue';
 
-    if (bookCount === 0) {
-      books = 'No books';
-    } else if (bookCount > 1) {
-      books = `${bookCount} books`;
+    if (issueCount === 0) {
+      issues = 'No issues';
+    } else if (issueCount > 1) {
+      issues = `${issueCount} issues`;
     }
 
     return {
       title: 'Issue Count',
-      iconName: icons.BOOK,
-      label: books
+      iconName: icons.ISSUE,
+      label: issues
     };
   }
 
@@ -238,7 +238,7 @@ VolumeIndexOverviewInfo.propTypes = {
   qualityProfile: PropTypes.object.isRequired,
   lastIssue: PropTypes.object,
   added: PropTypes.string,
-  bookCount: PropTypes.number.isRequired,
+  issueCount: PropTypes.number.isRequired,
   path: PropTypes.string.isRequired,
   sizeOnDisk: PropTypes.number,
   sortKey: PropTypes.string.isRequired,

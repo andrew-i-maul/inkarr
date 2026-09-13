@@ -6,18 +6,18 @@ import IssueIndexFooter from './IssueIndexFooter';
 
 function createUnoptimizedSelector() {
   return createSelector(
-    createClientSideCollectionSelector('books', 'bookIndex'),
-    (books) => {
-      return books.items.map((s) => {
+    createClientSideCollectionSelector('issues', 'issueIndex'),
+    (issues) => {
+      return issues.items.map((s) => {
         const {
-          authorId,
+          volumeId,
           monitored,
           status,
           statistics
         } = s;
 
         return {
-          authorId,
+          volumeId,
           monitored,
           status,
           statistics
@@ -30,16 +30,16 @@ function createUnoptimizedSelector() {
 function createIssueSelector() {
   return createDeepEqualSelector(
     createUnoptimizedSelector(),
-    (book) => book
+    (issue) => issue
   );
 }
 
 function createMapStateToProps() {
   return createSelector(
     createIssueSelector(),
-    (book) => {
+    (issue) => {
       return {
-        book
+        issue
       };
     }
   );

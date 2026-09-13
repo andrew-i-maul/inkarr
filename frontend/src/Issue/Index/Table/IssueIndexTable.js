@@ -53,7 +53,7 @@ class IssueIndexTable extends Component {
       isEditorActive
     } = this.props;
 
-    const book = items[rowIndex];
+    const issue = items[rowIndex];
 
     return (
       <VirtualTableRow
@@ -61,13 +61,13 @@ class IssueIndexTable extends Component {
         style={style}
       >
         <IssueIndexItemConnector
-          key={book.id}
+          key={issue.id}
           component={IssueIndexRow}
           style={style}
           columns={columns}
-          authorId={book.authorId}
-          bookId={book.id}
-          isSelected={selectedState[book.id]}
+          volumeId={issue.volumeId}
+          issueId={issue.id}
+          isSelected={selectedState[issue.id]}
           onSelectedChange={onSelectedChange}
           isEditorActive={isEditorActive}
         />

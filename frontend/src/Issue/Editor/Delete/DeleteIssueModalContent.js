@@ -52,7 +52,7 @@ class DeleteIssueModalContent extends Component {
 
   render() {
     const {
-      book,
+      issue,
       files,
       onModalClose
     } = this.props;
@@ -71,7 +71,7 @@ class DeleteIssueModalContent extends Component {
         <ModalBody>
           <div>
             <FormGroup>
-              <FormLabel>{`Delete File${book.length > 1 ? 's' : ''}`}</FormLabel>
+              <FormLabel>{`Delete File${issue.length > 1 ? 's' : ''}`}</FormLabel>
 
               <FormInputGroup
                 type={inputTypes.CHECK}
@@ -109,12 +109,12 @@ class DeleteIssueModalContent extends Component {
           </div>
 
           <div className={styles.message}>
-            {`Are you sure you want to delete ${book.length} selected book${book.length > 1 ? 's' : ''}${deleteFiles ? ' and their files' : ''}?`}
+            {`Are you sure you want to delete ${issue.length} selected issue${issue.length > 1 ? 's' : ''}${deleteFiles ? ' and their files' : ''}?`}
           </div>
 
           <ul>
             {
-              book.map((s) => {
+              issue.map((s) => {
                 return (
                   <li key={s.title}>
                     <span>{s.title}</span>
@@ -163,7 +163,7 @@ class DeleteIssueModalContent extends Component {
 }
 
 DeleteIssueModalContent.propTypes = {
-  book: PropTypes.arrayOf(PropTypes.object).isRequired,
+  issue: PropTypes.arrayOf(PropTypes.object).isRequired,
   files: PropTypes.arrayOf(PropTypes.object).isRequired,
   onModalClose: PropTypes.func.isRequired,
   onDeleteSelectedPress: PropTypes.func.isRequired

@@ -46,8 +46,8 @@ function MoveVolumeModal(props) {
         <ModalBody>
           {
             destinationRootFolder ?
-              `Would you like to move the author folders to '${destinationRootFolder}'?` :
-              `Would you like to move the author files from '${originalPath}' to '${destinationPath}'?`
+              `Would you like to move the volume folders to '${destinationRootFolder}'?` :
+              `Would you like to move the volume files from '${originalPath}' to '${destinationPath}'?`
           }
         </ModalBody>
 

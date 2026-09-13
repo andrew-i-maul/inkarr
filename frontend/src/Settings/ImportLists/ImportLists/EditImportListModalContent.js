@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import AuthorMonitorNewItemsOptionsPopoverContent from 'AddVolume/VolumeMonitorNewItemsOptionsPopoverContent';
+import VolumeMonitorNewItemsOptionsPopoverContent from 'AddVolume/VolumeMonitorNewItemsOptionsPopoverContent';
 import Alert from 'Components/Alert';
 import DescriptionList from 'Components/DescriptionList/DescriptionList';
 import DescriptionListItem from 'Components/DescriptionList/DescriptionListItem';
@@ -50,8 +50,8 @@ function EditImportListModalContent(props) {
 
   const monitorOptions = [
     { key: 'none', value: 'None' },
-    { key: 'specificBook', value: 'Specific Book' },
-    { key: 'entireAuthor', value: 'All Author Books' }
+    { key: 'specificIssue', value: 'Specific Issue' },
+    { key: 'entireVolume', value: 'All Volume Issues' }
   ];
 
   const {
@@ -240,7 +240,7 @@ function EditImportListModalContent(props) {
                         />
                       }
                       title={translate('MonitorNewItems')}
-                      body={<AuthorMonitorNewItemsOptionsPopoverContent />}
+                      body={<VolumeMonitorNewItemsOptionsPopoverContent />}
                       position={tooltipPositions.RIGHT}
                     />
                   </FormLabel>

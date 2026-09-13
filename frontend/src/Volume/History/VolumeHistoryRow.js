@@ -22,17 +22,17 @@ function getTitle(eventType) {
       return 'Grabbed';
     case 'downloadImported':
       return 'Download Completed';
-    case 'bookFileImported':
+    case 'issueFileImported':
       return 'Issue Imported';
     case 'downloadFailed':
       return 'Download Failed';
-    case 'bookFileDeleted':
+    case 'issueFileDeleted':
       return 'Issue File Deleted';
-    case 'bookFileRenamed':
+    case 'issueFileRenamed':
       return 'Issue File Renamed';
-    case 'bookFileRetagged':
+    case 'issueFileRetagged':
       return 'Issue File Tags Updated';
-    case 'bookImportIncomplete':
+    case 'issueImportIncomplete':
       return 'Issue Import Incomplete';
     default:
       return 'Unknown';
@@ -81,7 +81,7 @@ class VolumeHistoryRow extends Component {
       customFormatScore,
       date,
       data,
-      book
+      issue
     } = this.props;
 
     const {
@@ -96,7 +96,7 @@ class VolumeHistoryRow extends Component {
         />
 
         <TableRowCell key={name}>
-          {book.title}
+          {issue.title}
         </TableRowCell>
 
         <TableRowCell className={styles.sourceTitle}>
@@ -176,8 +176,8 @@ VolumeHistoryRow.propTypes = {
   date: PropTypes.string.isRequired,
   data: PropTypes.object.isRequired,
   fullVolume: PropTypes.bool.isRequired,
-  author: PropTypes.object.isRequired,
-  book: PropTypes.object.isRequired,
+  volume: PropTypes.object.isRequired,
+  issue: PropTypes.object.isRequired,
   onMarkAsFailedPress: PropTypes.func.isRequired
 };
 

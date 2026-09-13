@@ -35,7 +35,7 @@
   float: right;
 }
 
-.bookNavigationButtons {
+.issueNavigationButtons {
   position: absolute;
   right: 0;
   z-index: 1;
@@ -44,8 +44,8 @@
   white-space: nowrap;
 }
 
-.bookUpButton,
-.bookNavigationButton {
+.issueUpButton,
+.issueNavigationButton {
   composes: button from '~Components/Link/IconButton.css';
 
   margin-left: 5px;
@@ -63,15 +63,15 @@
     padding: 20px 0;
   }
 
-  .bookNavigationButtons {
+  .issueNavigationButtons {
     padding: 15px;
   }
 
-  .bookNavigationButtons {
+  .issueNavigationButtons {
     margin-top: 5px;
   }
 
-  .bookNavigationButton {
+  .issueNavigationButton {
     display: none;
   }
 }

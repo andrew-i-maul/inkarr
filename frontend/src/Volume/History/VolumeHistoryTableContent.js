@@ -16,7 +16,7 @@ const columns = [
     isVisible: true
   },
   {
-    name: 'book',
+    name: 'issue',
     label: () => translate('Book'),
     isVisible: true
   },
@@ -63,7 +63,7 @@ class VolumeHistoryTableContent extends Component {
 
   render() {
     const {
-      bookId,
+      issueId,
       isFetching,
       isPopulated,
       error,
@@ -71,7 +71,7 @@ class VolumeHistoryTableContent extends Component {
       onMarkAsFailedPress
     } = this.props;
 
-    const fullVolume = bookId == null;
+    const fullVolume = issueId == null;
     const hasItems = !!items.length;
 
     return (
@@ -120,7 +120,7 @@ class VolumeHistoryTableContent extends Component {
 }
 
 VolumeHistoryTableContent.propTypes = {
-  bookId: PropTypes.number,
+  issueId: PropTypes.number,
   isFetching: PropTypes.bool.isRequired,
   isPopulated: PropTypes.bool.isRequired,
   error: PropTypes.object,

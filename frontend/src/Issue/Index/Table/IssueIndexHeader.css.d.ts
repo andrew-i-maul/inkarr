@@ -3,9 +3,8 @@
 interface CssExports {
   'actions': string;
   'added': string;
-  'authorName': string;
-  'bookFileCount': string;
   'genres': string;
+  'issueFileCount': string;
   'metadataProfileId': string;
   'path': string;
   'qualityProfileId': string;
@@ -15,6 +14,7 @@ interface CssExports {
   'status': string;
   'tags': string;
   'title': string;
+  'volumeName': string;
 }
 export const cssExports: CssExports;
 export default cssExports;

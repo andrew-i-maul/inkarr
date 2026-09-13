@@ -1,15 +1,15 @@
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import createBookFileSelector from 'Store/Selectors/createBookFileSelector';
+import createIssueFileSelector from 'Store/Selectors/createIssueFileSelector';
 import MediaInfo from './MediaInfo';
 
 function createMapStateToProps() {
   return createSelector(
-    createBookFileSelector(),
-    (bookFile) => {
-      if (bookFile) {
+    createIssueFileSelector(),
+    (issueFile) => {
+      if (issueFile) {
         return {
-          ...bookFile.mediaInfo
+          ...issueFile.mediaInfo
         };
       }
 

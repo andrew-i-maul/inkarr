@@ -14,19 +14,19 @@ $fullColorGradient: rgba(244, 245, 246, 0.2);
 }
 
 .info,
-.bookInfo {
+.issueInfo {
   display: flex;
 }
 
-.authorName,
-.bookTitle {
+.volumeName,
+.issueTitle {
   @add-mixin truncate;
 
   flex: 1 0 1px;
   margin-right: 10px;
 }
 
-.authorName {
+.volumeName {
   color: var(--calendarTextDimAlternate);
   font-size: $defaultFontSize;
 }

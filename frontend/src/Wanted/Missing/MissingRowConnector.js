@@ -1,14 +1,14 @@
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import createAuthorSelector from 'Store/Selectors/createAuthorSelector';
+import createVolumeSelector from 'Store/Selectors/createVolumeSelector';
 import MissingRow from './MissingRow';
 
 function createMapStateToProps() {
   return createSelector(
-    createAuthorSelector(),
-    (author) => {
+    createVolumeSelector(),
+    (volume) => {
       return {
-        author
+        volume
       };
     }
   );

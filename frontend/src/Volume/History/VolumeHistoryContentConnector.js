@@ -2,13 +2,13 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { authorHistoryMarkAsFailed, clearAuthorHistory as clearVolumeHistory, fetchAuthorHistory as fetchVolumeHistory } from 'Store/Actions/authorHistoryActions';
+import { volumeHistoryMarkAsFailed, clearVolumeHistory as clearVolumeHistory, fetchVolumeHistory as fetchVolumeHistory } from 'Store/Actions/volumeHistoryActions';
 
 function createMapStateToProps() {
   return createSelector(
-    (state) => state.authorHistory,
-    (authorHistory) => {
-      return authorHistory;
+    (state) => state.volumeHistory,
+    (volumeHistory) => {
+      return volumeHistory;
     }
   );
 }
@@ -16,7 +16,7 @@ function createMapStateToProps() {
 const mapDispatchToProps = {
   fetchVolumeHistory,
   clearVolumeHistory,
-  authorHistoryMarkAsFailed
+  volumeHistoryMarkAsFailed
 };
 
 class VolumeHistoryContentConnector extends Component {
@@ -26,13 +26,13 @@ class VolumeHistoryContentConnector extends Component {
 
   componentDidMount() {
     const {
-      authorId,
-      bookId
+      volumeId,
+      issueId
     } = this.props;
 
     this.props.fetchVolumeHistory({
-      authorId,
-      bookId
+      volumeId,
+      issueId
     });
   }
 
@@ -45,14 +45,14 @@ class VolumeHistoryContentConnector extends Component {
 
   onMarkAsFailedPress = (historyId) => {
     const {
-      authorId,
-      bookId
+      volumeId,
+      issueId
     } = this.props;
 
-    this.props.authorHistoryMarkAsFailed({
+    this.props.volumeHistoryMarkAsFailed({
       historyId,
-      authorId,
-      bookId
+      volumeId,
+      issueId
     });
   };
 
@@ -76,11 +76,11 @@ class VolumeHistoryContentConnector extends Component {
 
 VolumeHistoryContentConnector.propTypes = {
   component: PropTypes.elementType.isRequired,
-  authorId: PropTypes.number.isRequired,
-  bookId: PropTypes.number,
+  volumeId: PropTypes.number.isRequired,
+  issueId: PropTypes.number,
   fetchVolumeHistory: PropTypes.func.isRequired,
   clearVolumeHistory: PropTypes.func.isRequired,
-  authorHistoryMarkAsFailed: PropTypes.func.isRequired
+  volumeHistoryMarkAsFailed: PropTypes.func.isRequired
 };
 
 export default connect(createMapStateToProps, mapDispatchToProps)(VolumeHistoryContentConnector);

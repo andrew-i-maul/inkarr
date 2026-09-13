@@ -9,15 +9,15 @@ import styles from './IssueIndexProgressBar.css';
 function IssueIndexProgressBar(props) {
   const {
     monitored,
-    bookCount,
-    bookFileCount,
+    issueCount,
+    issueFileCount,
     totalIssueCount,
     posterWidth,
     detailedProgressBar
   } = props;
 
-  const progress = bookFileCount && bookCount ? (totalIssueCount / bookCount) * 100 : 0;
-  const text = `${bookFileCount ? bookCount : 0} / ${totalIssueCount}`;
+  const progress = issueFileCount && issueCount ? (totalIssueCount / issueCount) * 100 : 0;
+  const text = `${issueFileCount ? issueCount : 0} / ${totalIssueCount}`;
 
   return (
     <ProgressBar
@@ -29,8 +29,8 @@ function IssueIndexProgressBar(props) {
       showText={detailedProgressBar}
       text={text}
       title={translate('IssueProgressBarText', {
-        bookCount: bookFileCount ? bookCount : 0,
-        bookFileCount,
+        issueCount: issueFileCount ? issueCount : 0,
+        issueFileCount,
         totalIssueCount
       })}
       width={posterWidth}
@@ -40,8 +40,8 @@ function IssueIndexProgressBar(props) {
 
 IssueIndexProgressBar.propTypes = {
   monitored: PropTypes.bool.isRequired,
-  bookCount: PropTypes.number.isRequired,
-  bookFileCount: PropTypes.number.isRequired,
+  issueCount: PropTypes.number.isRequired,
+  issueFileCount: PropTypes.number.isRequired,
   totalIssueCount: PropTypes.number.isRequired,
   posterWidth: PropTypes.number.isRequired,
   detailedProgressBar: PropTypes.bool.isRequired

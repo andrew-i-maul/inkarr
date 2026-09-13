@@ -7,9 +7,9 @@ import IssueInteractiveSearchModalContent from './IssueInteractiveSearchModalCon
 function IssueInteractiveSearchModal(props) {
   const {
     isOpen,
-    bookId,
-    bookTitle,
-    authorName,
+    issueId,
+    issueTitle,
+    volumeName,
     onModalClose
   } = props;
 
@@ -21,9 +21,9 @@ function IssueInteractiveSearchModal(props) {
       onModalClose={onModalClose}
     >
       <IssueInteractiveSearchModalContent
-        bookId={bookId}
-        bookTitle={bookTitle}
-        authorName={authorName}
+        issueId={issueId}
+        issueTitle={issueTitle}
+        volumeName={volumeName}
         onModalClose={onModalClose}
       />
     </Modal>
@@ -32,9 +32,9 @@ function IssueInteractiveSearchModal(props) {
 
 IssueInteractiveSearchModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
-  bookId: PropTypes.number.isRequired,
-  bookTitle: PropTypes.string.isRequired,
-  authorName: PropTypes.string.isRequired,
+  issueId: PropTypes.number.isRequired,
+  issueTitle: PropTypes.string.isRequired,
+  volumeName: PropTypes.string.isRequired,
   onModalClose: PropTypes.func.isRequired
 };
 

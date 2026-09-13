@@ -3,22 +3,22 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { deleteBook } from 'Store/Actions/bookActions';
-import createBookSelector from 'Store/Selectors/createBookSelector';
+import { deleteIssue } from 'Store/Actions/issueActions';
+import createIssueSelector from 'Store/Selectors/createIssueSelector';
 import DeleteIssueModalContent from './DeleteIssueModalContent';
 
 function createMapStateToProps() {
   return createSelector(
-    createBookSelector(),
-    (book) => {
-      return book;
+    createIssueSelector(),
+    (issue) => {
+      return issue;
     }
   );
 }
 
 const mapDispatchToProps = {
   push,
-  deleteIssue: deleteBook
+  deleteIssue: deleteIssue
 };
 
 class DeleteIssueModalContentConnector extends Component {
@@ -28,14 +28,14 @@ class DeleteIssueModalContentConnector extends Component {
 
   onDeletePress = (deleteFiles, addImportListExclusion) => {
     this.props.deleteIssue({
-      id: this.props.bookId,
+      id: this.props.issueId,
       deleteFiles,
       addImportListExclusion
     });
 
     this.props.onModalClose(true);
 
-    this.props.push(`${window.Inkarr.urlBase}/author/${this.props.authorSlug}`);
+    this.props.push(`${window.Inkarr.urlBase}/volume/${this.props.volumeSlug}`);
   };
 
   //
@@ -52,8 +52,8 @@ class DeleteIssueModalContentConnector extends Component {
 }
 
 DeleteIssueModalContentConnector.propTypes = {
-  bookId: PropTypes.number.isRequired,
-  authorSlug: PropTypes.string.isRequired,
+  issueId: PropTypes.number.isRequired,
+  volumeSlug: PropTypes.string.isRequired,
   push: PropTypes.func.isRequired,
   onModalClose: PropTypes.func.isRequired,
   deleteIssue: PropTypes.func.isRequired

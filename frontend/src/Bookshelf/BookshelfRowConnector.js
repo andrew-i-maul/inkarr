@@ -3,17 +3,17 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { toggleAuthorMonitored } from 'Store/Actions/authorActions';
-import { toggleBooksMonitored } from 'Store/Actions/bookActions';
-import createAuthorSelector from 'Store/Selectors/createAuthorSelector';
+import { toggleVolumeMonitored } from 'Store/Actions/volumeActions';
+import { toggleIssuesMonitored } from 'Store/Actions/issueActions';
+import createVolumeSelector from 'Store/Selectors/createVolumeSelector';
 import BookshelfRow from './BookshelfRow';
 
 // Use a const to share the reselect cache between instances
-const getBookMap = createSelector(
-  (state) => state.books.items,
-  (books) => {
-    return books.reduce((acc, curr) => {
-      (acc[curr.authorId] = acc[curr.authorId] || []).push(curr);
+const getIssueMap = createSelector(
+  (state) => state.issues.items,
+  (issues) => {
+    return issues.reduce((acc, curr) => {
+      (acc[curr.volumeId] = acc[curr.volumeId] || []).push(curr);
       return acc;
     }, {});
   }
@@ -21,28 +21,28 @@ const getBookMap = createSelector(
 
 function createMapStateToProps() {
   return createSelector(
-    createAuthorSelector(),
-    getBookMap,
-    (author, bookMap) => {
-      const booksInAuthor = bookMap.hasOwnProperty(author.id) ? bookMap[author.id] : [];
-      const sortedBooks = _.orderBy(booksInAuthor, 'releaseDate', 'desc');
+    createVolumeSelector(),
+    getIssueMap,
+    (volume, issueMap) => {
+      const issuesInVolume = issueMap.hasOwnProperty(volume.id) ? issueMap[volume.id] : [];
+      const sortedIssues = _.orderBy(issuesInVolume, 'releaseDate', 'desc');
 
       return {
-        ...author,
-        authorId: author.id,
-        authorName: author.authorName,
-        monitored: author.monitored,
-        status: author.status,
-        isSaving: author.isSaving,
-        books: sortedBooks
+        ...volume,
+        volumeId: volume.id,
+        volumeName: volume.volumeName,
+        monitored: volume.monitored,
+        status: volume.status,
+        isSaving: volume.isSaving,
+        issues: sortedIssues
       };
     }
   );
 }
 
 const mapDispatchToProps = {
-  toggleAuthorMonitored,
-  toggleBooksMonitored
+  toggleVolumeMonitored,
+  toggleIssuesMonitored
 };
 
 class BookshelfRowConnector extends Component {
@@ -50,22 +50,22 @@ class BookshelfRowConnector extends Component {
   //
   // Listeners
 
-  onAuthorMonitoredPress = () => {
+  onVolumeMonitoredPress = () => {
     const {
-      authorId,
+      volumeId,
       monitored
     } = this.props;
 
-    this.props.toggleAuthorMonitored({
-      authorId,
+    this.props.toggleVolumeMonitored({
+      volumeId,
       monitored: !monitored
     });
   };
 
-  onBookMonitoredPress = (bookId, monitored) => {
-    const bookIds = [bookId];
-    this.props.toggleBooksMonitored({
-      bookIds,
+  onIssueMonitoredPress = (issueId, monitored) => {
+    const issueIds = [issueId];
+    this.props.toggleIssuesMonitored({
+      issueIds,
       monitored
     });
   };
@@ -77,18 +77,18 @@ class BookshelfRowConnector extends Component {
     return (
       <BookshelfRow
         {...this.props}
-        onAuthorMonitoredPress={this.onAuthorMonitoredPress}
-        onBookMonitoredPress={this.onBookMonitoredPress}
+        onVolumeMonitoredPress={this.onVolumeMonitoredPress}
+        onIssueMonitoredPress={this.onIssueMonitoredPress}
       />
     );
   }
 }
 
 BookshelfRowConnector.propTypes = {
-  authorId: PropTypes.number.isRequired,
+  volumeId: PropTypes.number.isRequired,
   monitored: PropTypes.bool.isRequired,
-  toggleAuthorMonitored: PropTypes.func.isRequired,
-  toggleBooksMonitored: PropTypes.func.isRequired
+  toggleVolumeMonitored: PropTypes.func.isRequired,
+  toggleIssuesMonitored: PropTypes.func.isRequired
 };
 
 export default connect(createMapStateToProps, mapDispatchToProps)(BookshelfRowConnector);

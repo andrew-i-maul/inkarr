@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import AuthorMetadataProfilePopoverContent from 'AddVolume/VolumeMetadataProfilePopoverContent';
-import AuthorMonitoringOptionsPopoverContent from 'AddVolume/VolumeMonitoringOptionsPopoverContent';
-import AuthorMonitorNewItemsOptionsPopoverContent from 'AddVolume/VolumeMonitorNewItemsOptionsPopoverContent';
+import VolumeMetadataProfilePopoverContent from 'AddVolume/VolumeMetadataProfilePopoverContent';
+import VolumeMonitoringOptionsPopoverContent from 'AddVolume/VolumeMonitoringOptionsPopoverContent';
+import VolumeMonitorNewItemsOptionsPopoverContent from 'AddVolume/VolumeMonitorNewItemsOptionsPopoverContent';
 import Alert from 'Components/Alert';
 import FieldSet from 'Components/FieldSet';
 import Form from 'Components/Form/Form';
@@ -128,13 +128,13 @@ function EditRootFolderModalContent(props) {
                         />
                       }
                       title={translate('MonitoringOptions')}
-                      body={<AuthorMonitoringOptionsPopoverContent />}
+                      body={<VolumeMonitoringOptionsPopoverContent />}
                       position={tooltipPositions.RIGHT}
                     />
                   </FormLabel>
 
                   <FormInputGroup
-                    type={inputTypes.MONITOR_BOOKS_SELECT}
+                    type={inputTypes.MONITOR_ISSUES_SELECT}
                     name="defaultMonitorOption"
                     onChange={onInputChange}
                     {...defaultMonitorOption}
@@ -154,7 +154,7 @@ function EditRootFolderModalContent(props) {
                         />
                       }
                       title={translate('MonitorNewItems')}
-                      body={<AuthorMonitorNewItemsOptionsPopoverContent />}
+                      body={<VolumeMonitorNewItemsOptionsPopoverContent />}
                       position={tooltipPositions.RIGHT}
                     />
                   </FormLabel>
@@ -193,7 +193,7 @@ function EditRootFolderModalContent(props) {
                         />
                       }
                       title={translate('MetadataProfile')}
-                      body={<AuthorMetadataProfilePopoverContent />}
+                      body={<VolumeMetadataProfilePopoverContent />}
                       position={tooltipPositions.RIGHT}
                     />
                   </FormLabel>
@@ -250,7 +250,7 @@ function EditRootFolderModalContent(props) {
                     helpText={translate('IsCalibreLibraryHelpText')}
                     {...isCalibreLibrary}
                     onChange={onInputChange}
-                    helpLink={'https://manual.calibre-ebook.com/server.html'}
+                    helpLink={'https://manual.calibre-eissue.com/server.html'}
                   />
                 </FormGroup>
 

@@ -36,7 +36,7 @@ const downloadPropersAndRepacksOptions = [
 
 const fileDateOptions = [
   { key: 'none', value: 'None' },
-  { key: 'bookReleaseDate', value: 'Book Release Date' }
+  { key: 'issueReleaseDate', value: 'Issue Release Date' }
 ];
 
 class MediaManagement extends Component {
@@ -106,10 +106,10 @@ class MediaManagement extends Component {
 
                         <FormInputGroup
                           type={inputTypes.CHECK}
-                          name="createEmptyAuthorFolders"
+                          name="createEmptyVolumeFolders"
                           helpText={translate('CreateEmptyAuthorFoldersHelpText')}
                           onChange={onInputChange}
-                          {...settings.createEmptyAuthorFolders}
+                          {...settings.createEmptyVolumeFolders}
                         />
                       </FormGroup>
 
@@ -244,10 +244,10 @@ class MediaManagement extends Component {
 
                     <FormInputGroup
                       type={inputTypes.CHECK}
-                      name="autoUnmonitorPreviouslyDownloadedBooks"
+                      name="autoUnmonitorPreviouslyDownloadedIssues"
                       helpText={translate('AutoUnmonitorPreviouslyDownloadedBooksHelpText')}
                       onChange={onInputChange}
-                      {...settings.autoUnmonitorPreviouslyDownloadedBooks}
+                      {...settings.autoUnmonitorPreviouslyDownloadedIssues}
                     />
                   </FormGroup>
 

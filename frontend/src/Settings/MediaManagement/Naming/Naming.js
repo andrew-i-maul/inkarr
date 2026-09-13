@@ -34,18 +34,18 @@ class Naming extends Component {
     this.setState({
       isNamingModalOpen: true,
       namingModalOptions: {
-        name: 'standardBookFormat',
-        book: true,
+        name: 'standardIssueFormat',
+        issue: true,
         additional: true
       }
     });
   };
 
-  onAuthorFolderNamingModalOpenClick = () => {
+  onVolumeFolderNamingModalOpenClick = () => {
     this.setState({
       isNamingModalOpen: true,
       namingModalOptions: {
-        name: 'authorFolderFormat'
+        name: 'volumeFolderFormat'
       }
     });
   };
@@ -74,7 +74,7 @@ class Naming extends Component {
       namingModalOptions
     } = this.state;
 
-    const renameBooks = hasSettings && settings.renameBooks.value;
+    const renameIssues = hasSettings && settings.renameIssues.value;
     const replaceIllegalCharacters = hasSettings && settings.replaceIllegalCharacters.value;
 
     const colonReplacementOptions = [
@@ -85,28 +85,28 @@ class Naming extends Component {
       { key: 4, value: translate('SmartReplace'), hint: translate('DashOrSpaceDashDependingOnName') }
     ];
 
-    const standardBookFormatHelpTexts = [];
-    const standardBookFormatErrors = [];
-    const authorFolderFormatHelpTexts = [];
-    const authorFolderFormatErrors = [];
+    const standardIssueFormatHelpTexts = [];
+    const standardIssueFormatErrors = [];
+    const volumeFolderFormatHelpTexts = [];
+    const volumeFolderFormatErrors = [];
 
     if (examplesPopulated) {
-      if (examples.singleBookExample) {
-        standardBookFormatHelpTexts.push(`Single Book: ${examples.singleBookExample}`);
+      if (examples.singleIssueExample) {
+        standardIssueFormatHelpTexts.push(`Single Issue: ${examples.singleIssueExample}`);
       } else {
-        standardBookFormatErrors.push({ message: 'Single Book: Invalid Format' });
+        standardIssueFormatErrors.push({ message: 'Single Issue: Invalid Format' });
       }
 
-      if (examples.multiPartBookExample) {
-        standardBookFormatHelpTexts.push(`Multi-part Book: ${examples.multiPartBookExample}`);
+      if (examples.multiPartIssueExample) {
+        standardIssueFormatHelpTexts.push(`Multi-part Issue: ${examples.multiPartIssueExample}`);
       } else {
-        standardBookFormatErrors.push({ message: 'Multi-part Book: Invalid Format' });
+        standardIssueFormatErrors.push({ message: 'Multi-part Issue: Invalid Format' });
       }
 
-      if (examples.authorFolderExample) {
-        authorFolderFormatHelpTexts.push(`Example: ${examples.authorFolderExample}`);
+      if (examples.volumeFolderExample) {
+        volumeFolderFormatHelpTexts.push(`Example: ${examples.volumeFolderExample}`);
       } else {
-        authorFolderFormatErrors.push({ message: 'Invalid Format' });
+        volumeFolderFormatErrors.push({ message: 'Invalid Format' });
       }
     }
 
@@ -134,10 +134,10 @@ class Naming extends Component {
 
                 <FormInputGroup
                   type={inputTypes.CHECK}
-                  name="renameBooks"
+                  name="renameIssues"
                   helpText={translate('RenameBooksHelpText')}
                   onChange={onInputChange}
-                  {...settings.renameBooks}
+                  {...settings.renameIssues}
                 />
               </FormGroup>
 
@@ -174,7 +174,7 @@ class Naming extends Component {
               }
 
               {
-                renameBooks &&
+                renameIssues &&
                   <div>
                     <FormGroup size={sizes.LARGE}>
                       <FormLabel>
@@ -184,12 +184,12 @@ class Naming extends Component {
                       <FormInputGroup
                         inputClassName={styles.namingInput}
                         type={inputTypes.TEXT}
-                        name="standardBookFormat"
+                        name="standardIssueFormat"
                         buttons={<FormInputButton onPress={this.onStandardNamingModalOpenClick}>?</FormInputButton>}
                         onChange={onInputChange}
-                        {...settings.standardBookFormat}
-                        helpTexts={standardBookFormatHelpTexts}
-                        errors={[...standardBookFormatErrors, ...settings.standardBookFormat.errors]}
+                        {...settings.standardIssueFormat}
+                        helpTexts={standardIssueFormatHelpTexts}
+                        errors={[...standardIssueFormatErrors, ...settings.standardIssueFormat.errors]}
                       />
                     </FormGroup>
                   </div>
@@ -206,12 +206,12 @@ class Naming extends Component {
                 <FormInputGroup
                   inputClassName={styles.namingInput}
                   type={inputTypes.TEXT}
-                  name="authorFolderFormat"
-                  buttons={<FormInputButton onPress={this.onAuthorFolderNamingModalOpenClick}>?</FormInputButton>}
+                  name="volumeFolderFormat"
+                  buttons={<FormInputButton onPress={this.onVolumeFolderNamingModalOpenClick}>?</FormInputButton>}
                   onChange={onInputChange}
-                  {...settings.authorFolderFormat}
-                  helpTexts={['Used when adding a new author or moving an author via the author editor', ...authorFolderFormatHelpTexts]}
-                  errors={[...authorFolderFormatErrors, ...settings.authorFolderFormat.errors]}
+                  {...settings.volumeFolderFormat}
+                  helpTexts={['Used when adding a new volume or moving an volume via the volume editor', ...volumeFolderFormatHelpTexts]}
+                  errors={[...volumeFolderFormatErrors, ...settings.volumeFolderFormat.errors]}
                 />
               </FormGroup>
 

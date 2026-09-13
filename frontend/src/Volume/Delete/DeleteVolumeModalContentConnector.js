@@ -2,21 +2,21 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { deleteAuthor } from 'Store/Actions/authorActions';
-import createAuthorSelector from 'Store/Selectors/createAuthorSelector';
+import { deleteVolume } from 'Store/Actions/volumeActions';
+import createVolumeSelector from 'Store/Selectors/createVolumeSelector';
 import DeleteVolumeModalContent from './DeleteVolumeModalContent';
 
 function createMapStateToProps() {
   return createSelector(
-    createAuthorSelector(),
-    (author) => {
-      return author;
+    createVolumeSelector(),
+    (volume) => {
+      return volume;
     }
   );
 }
 
 const mapDispatchToProps = {
-  deleteVolume: deleteAuthor
+  deleteVolume: deleteVolume
 };
 
 class DeleteVolumeModalContentConnector extends Component {
@@ -26,7 +26,7 @@ class DeleteVolumeModalContentConnector extends Component {
 
   onDeletePress = (deleteFiles, addImportListExclusion) => {
     this.props.deleteVolume({
-      id: this.props.authorId,
+      id: this.props.volumeId,
       deleteFiles,
       addImportListExclusion
     });
@@ -48,7 +48,7 @@ class DeleteVolumeModalContentConnector extends Component {
 }
 
 DeleteVolumeModalContentConnector.propTypes = {
-  authorId: PropTypes.number.isRequired,
+  volumeId: PropTypes.number.isRequired,
   onModalClose: PropTypes.func.isRequired,
   deleteVolume: PropTypes.func.isRequired
 };

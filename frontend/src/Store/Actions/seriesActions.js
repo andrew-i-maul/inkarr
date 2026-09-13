@@ -86,10 +86,10 @@ export const defaultState = {
 // Actions Types
 
 export const FETCH_SERIES = 'series/fetchSeries';
-export const SET_SERIES_SORT = 'books/setSeriesSort';
-export const SET_SERIES_TABLE_OPTION = 'books/setSeriesTableOption';
+export const SET_SERIES_SORT = 'issues/setSeriesSort';
+export const SET_SERIES_TABLE_OPTION = 'issues/setSeriesTableOption';
 export const CLEAR_SERIES = 'series/clearSeries';
-export const SET_SERIES_VALUE = 'books/setBookValue';
+export const SET_SERIES_VALUE = 'issues/setIssueValue';
 
 //
 // Action Creators

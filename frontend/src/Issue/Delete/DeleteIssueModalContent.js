@@ -58,15 +58,15 @@ class DeleteIssueModalContent extends Component {
     } = this.props;
 
     const {
-      bookFileCount,
+      issueFileCount,
       sizeOnDisk
     } = statistics;
 
     const deleteFiles = this.state.deleteFiles;
     const addImportListExclusion = this.state.addImportListExclusion;
 
-    const deleteFilesLabel = `Delete ${bookFileCount} Issue Files`;
-    const deleteFilesHelpText = 'Delete the book files';
+    const deleteFilesLabel = `Delete ${issueFileCount} Issue Files`;
+    const deleteFilesHelpText = 'Delete the issue files';
 
     return (
       <ModalContent
@@ -123,8 +123,8 @@ class DeleteIssueModalContent extends Component {
                 </div>
 
                 {
-                  !!bookFileCount &&
-                    <div>{bookFileCount} book files totaling {formatBytes(sizeOnDisk)}</div>
+                  !!issueFileCount &&
+                    <div>{issueFileCount} issue files totaling {formatBytes(sizeOnDisk)}</div>
                 }
               </div>
           }
@@ -157,7 +157,7 @@ DeleteIssueModalContent.propTypes = {
 
 DeleteIssueModalContent.defaultProps = {
   statistics: {
-    bookFileCount: 0
+    issueFileCount: 0
   }
 };
 

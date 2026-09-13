@@ -1,21 +1,21 @@
 /* eslint max-params: 0 */
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import createAuthorSelector from 'Store/Selectors/createAuthorSelector';
+import createVolumeSelector from 'Store/Selectors/createVolumeSelector';
 import IssueRow from './IssueRow';
 
 const selectIssueFiles = createSelector(
-  (state) => state.bookFiles,
-  (bookFiles) => {
-    const { items } = bookFiles;
+  (state) => state.issueFiles,
+  (issueFiles) => {
+    const { items } = issueFiles;
 
     return items.reduce((acc, file) => {
-      const bookId = file.bookId;
-      if (!acc.hasOwnProperty(bookId)) {
-        acc[bookId] = [];
+      const issueId = file.issueId;
+      if (!acc.hasOwnProperty(issueId)) {
+        acc[issueId] = [];
       }
 
-      acc[bookId].push(file);
+      acc[issueId].push(file);
 
       return acc;
     }, {});
@@ -24,18 +24,18 @@ const selectIssueFiles = createSelector(
 
 function createMapStateToProps() {
   return createSelector(
-    createAuthorSelector(),
+    createVolumeSelector(),
     selectIssueFiles,
     (state, { id }) => id,
-    (author = {}, bookFiles, bookId) => {
-      const files = bookFiles[bookId] ?? [];
-      const bookFile = files[0];
+    (volume = {}, issueFiles, issueId) => {
+      const files = issueFiles[issueId] ?? [];
+      const issueFile = files[0];
 
       return {
-        authorMonitored: author.monitored,
-        authorName: author.authorName,
-        bookFiles: files,
-        indexerFlags: bookFile ? bookFile.indexerFlags : 0
+        volumeMonitored: volume.monitored,
+        volumeName: volume.volumeName,
+        issueFiles: files,
+        indexerFlags: issueFile ? issueFile.indexerFlags : 0
       };
     }
   );

@@ -84,7 +84,7 @@
   font-size: 20px;
 }
 
-.authorLink {
+.volumeLink {
   composes: link from '~Components/Link/Link.css';
 
   margin-right: 15px;

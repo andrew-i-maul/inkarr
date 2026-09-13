@@ -34,10 +34,10 @@ class VolumeDetailsSeries extends Component {
 
   componentDidUpdate(prevProps) {
     const {
-      authorId
+      volumeId
     } = this.props;
 
-    if (prevProps.authorId !== authorId) {
+    if (prevProps.volumeId !== volumeId) {
       this._expandByDefault();
       return;
     }
@@ -56,11 +56,11 @@ class VolumeDetailsSeries extends Component {
   }
 
   isSeriesMonitored(series) {
-    return series.items.every((book) => book.monitored);
+    return series.items.every((issue) => issue.monitored);
   }
 
   isSeriesSaving(series) {
-    return series.items.some((book) => book.isSaving);
+    return series.items.some((issue) => issue.isSaving);
   }
 
   //
@@ -75,28 +75,28 @@ class VolumeDetailsSeries extends Component {
     this.props.onExpandPress(id, !isExpanded);
   };
 
-  onMonitorIssuePress = (bookId, monitored, { shiftKey }) => {
+  onMonitorIssuePress = (issueId, monitored, { shiftKey }) => {
     const lastToggled = this.state.lastToggledIssue;
-    const bookIds = [bookId];
+    const issueIds = [issueId];
 
     if (shiftKey && lastToggled) {
-      const { lower, upper } = getToggledRange(this.props.items, bookId, lastToggled);
+      const { lower, upper } = getToggledRange(this.props.items, issueId, lastToggled);
       const items = this.props.items;
 
       for (let i = lower; i < upper; i++) {
-        bookIds.push(items[i].id);
+        issueIds.push(items[i].id);
       }
     }
 
-    this.setState({ lastToggledIssue: bookId });
+    this.setState({ lastToggledIssue: issueId });
 
-    this.props.onMonitorIssuePress(_.uniq(bookIds), monitored);
+    this.props.onMonitorIssuePress(_.uniq(issueIds), monitored);
   };
 
   onMonitorSeriesPress = (monitored, { shiftKey }) => {
-    const bookIds = this.props.items.map((book) => book.id);
+    const issueIds = this.props.items.map((issue) => issue.id);
 
-    this.props.onMonitorIssuePress(_.uniq(bookIds), monitored);
+    this.props.onMonitorIssuePress(_.uniq(issueIds), monitored);
   };
 
   //
@@ -114,18 +114,18 @@ class VolumeDetailsSeries extends Component {
       onSortPress,
       isSmallScreen,
       onTableOptionChange,
-      authorMonitored
+      volumeMonitored
     } = this.props;
 
     return (
       <div
-        className={styles.bookType}
+        className={styles.issueType}
       >
         <div className={styles.seriesTitle}>
           <MonitorToggleButton
             size={24}
             monitored={this.isSeriesMonitored(this.props)}
-            isDisabled={!authorMonitored}
+            isDisabled={!volumeMonitored}
             isSaving={this.isSeriesSaving(this.props)}
             onPress={this.onMonitorSeriesPress}
           />
@@ -138,11 +138,11 @@ class VolumeDetailsSeries extends Component {
               <div className={styles.left}>
                 {
                   <div>
-                    <span className={styles.bookTypeLabel}>
+                    <span className={styles.issueTypeLabel}>
                       {label}
                     </span>
 
-                    <span className={styles.bookCount}>
+                    <span className={styles.issueCount}>
                       ({items.length} Issues)
                     </span>
                   </div>
@@ -169,7 +169,7 @@ class VolumeDetailsSeries extends Component {
         <div>
           {
             isExpanded &&
-              <div className={styles.books}>
+              <div className={styles.issues}>
                 <Table
                   columns={columns}
                   sortKey={sortKey}
@@ -213,7 +213,7 @@ class VolumeDetailsSeries extends Component {
 
 VolumeDetailsSeries.propTypes = {
   id: PropTypes.number.isRequired,
-  authorId: PropTypes.number.isRequired,
+  volumeId: PropTypes.number.isRequired,
   label: PropTypes.string.isRequired,
   sortKey: PropTypes.string,
   sortDirection: PropTypes.oneOf(sortDirections.all),
@@ -227,7 +227,7 @@ VolumeDetailsSeries.propTypes = {
   onSortPress: PropTypes.func.isRequired,
   onMonitorIssuePress: PropTypes.func.isRequired,
   uiSettings: PropTypes.object.isRequired,
-  authorMonitored: PropTypes.bool.isRequired
+  volumeMonitored: PropTypes.bool.isRequired
 };
 
 export default VolumeDetailsSeries;

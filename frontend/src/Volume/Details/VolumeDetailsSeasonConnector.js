@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { setAuthorDetailsId, setAuthorDetailsSort } from 'Store/Actions/authorDetailsActions';
-import { setBooksTableOption, toggleBooksMonitored } from 'Store/Actions/bookActions';
+import { setVolumeDetailsId, setVolumeDetailsSort } from 'Store/Actions/volumeDetailsActions';
+import { setIssuesTableOption, toggleIssuesMonitored } from 'Store/Actions/issueActions';
 import { executeCommand } from 'Store/Actions/commandActions';
-import createAuthorSelector from 'Store/Selectors/createAuthorSelector';
+import createVolumeSelector from 'Store/Selectors/createVolumeSelector';
 import createClientSideCollectionSelector from 'Store/Selectors/createClientSideCollectionSelector';
 import createDimensionsSelector from 'Store/Selectors/createDimensionsSelector';
 import createUISettingsSelector from 'Store/Selectors/createUISettingsSelector';
@@ -15,28 +15,28 @@ import VolumeDetailsSeason from './VolumeDetailsSeason';
 
 function createMapStateToProps() {
   return createSelector(
-    createClientSideCollectionSelector('books', 'authorDetails'),
-    createAuthorSelector(),
+    createClientSideCollectionSelector('issues', 'volumeDetails'),
+    createVolumeSelector(),
     createDimensionsSelector(),
     createUISettingsSelector(),
-    (books, author, dimensions, uiSettings) => {
+    (issues, volume, dimensions, uiSettings) => {
 
-      const booksInGroup = books.items;
+      const issuesInGroup = issues.items;
 
       let sortDir = 'asc';
 
-      if (books.sortDirection === 'descending') {
+      if (issues.sortDirection === 'descending') {
         sortDir = 'desc';
       }
 
-      const sortedIssues = _.orderBy(booksInGroup, books.sortKey, sortDir);
+      const sortedIssues = _.orderBy(issuesInGroup, issues.sortKey, sortDir);
 
       return {
         items: sortedIssues,
-        columns: books.columns,
-        sortKey: books.sortKey,
-        sortDirection: books.sortDirection,
-        authorMonitored: author.monitored,
+        columns: issues.columns,
+        sortKey: issues.sortKey,
+        sortDirection: issues.sortDirection,
+        volumeMonitored: volume.monitored,
         isSmallScreen: dimensions.isSmallScreen,
         uiSettings
       };
@@ -45,10 +45,10 @@ function createMapStateToProps() {
 }
 
 const mapDispatchToProps = {
-  setVolumeDetailsId: setAuthorDetailsId,
-  setVolumeDetailsSort: setAuthorDetailsSort,
-  toggleIssuesMonitored: toggleBooksMonitored,
-  setIssuesTableOption: setBooksTableOption,
+  setVolumeDetailsId: setVolumeDetailsId,
+  setVolumeDetailsSort: setVolumeDetailsSort,
+  toggleIssuesMonitored: toggleIssuesMonitored,
+  setIssuesTableOption: setIssuesTableOption,
   executeCommand
 };
 
@@ -58,7 +58,7 @@ class VolumeDetailsSeasonConnector extends Component {
   // Lifecycle
 
   componentDidMount() {
-    this.props.setVolumeDetailsId({ authorId: this.props.authorId });
+    this.props.setVolumeDetailsId({ volumeId: this.props.volumeId });
   }
 
   //
@@ -72,9 +72,9 @@ class VolumeDetailsSeasonConnector extends Component {
     this.props.setVolumeDetailsSort({ sortKey });
   };
 
-  onMonitorIssuePress = (bookIds, monitored) => {
+  onMonitorIssuePress = (issueIds, monitored) => {
     this.props.toggleIssuesMonitored({
-      bookIds,
+      issueIds,
       monitored
     });
   };
@@ -95,7 +95,7 @@ class VolumeDetailsSeasonConnector extends Component {
 }
 
 VolumeDetailsSeasonConnector.propTypes = {
-  authorId: PropTypes.number.isRequired,
+  volumeId: PropTypes.number.isRequired,
   toggleIssuesMonitored: PropTypes.func.isRequired,
   setIssuesTableOption: PropTypes.func.isRequired,
   setVolumeDetailsId: PropTypes.func.isRequired,

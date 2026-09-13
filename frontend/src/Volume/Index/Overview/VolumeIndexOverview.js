@@ -17,8 +17,8 @@ import translate from 'Utilities/String/translate';
 import VolumeIndexOverviewInfo from './VolumeIndexOverviewInfo';
 import styles from './VolumeIndexOverview.css';
 
-const columnPadding = parseInt(dimensions.authorIndexColumnPadding);
-const columnPaddingSmallScreen = parseInt(dimensions.authorIndexColumnPaddingSmallScreen);
+const columnPadding = parseInt(dimensions.volumeIndexColumnPadding);
+const columnPaddingSmallScreen = parseInt(dimensions.volumeIndexColumnPaddingSmallScreen);
 const defaultFontSize = parseInt(fonts.defaultFontSize);
 const lineHeight = parseFloat(fonts.lineHeight);
 
@@ -83,8 +83,8 @@ class VolumeIndexOverview extends Component {
   render() {
     const {
       id,
-      authorName,
-      authorNameLastFirst,
+      volumeName,
+      volumeNameLastFirst,
       overview,
       monitored,
       status,
@@ -113,9 +113,9 @@ class VolumeIndexOverview extends Component {
     } = this.props;
 
     const {
-      bookCount = 0,
+      issueCount = 0,
       availableIssueCount = 0,
-      bookFileCount = 0,
+      issueFileCount = 0,
       totalIssueCount = 0,
       sizeOnDisk = 0
     } = statistics;
@@ -125,7 +125,7 @@ class VolumeIndexOverview extends Component {
       isDeleteVolumeModalOpen
     } = this.state;
 
-    const link = `/author/${titleSlug}`;
+    const link = `/volume/${titleSlug}`;
 
     const elementStyle = {
       width: `${posterWidth}px`,
@@ -179,9 +179,9 @@ class VolumeIndexOverview extends Component {
             <VolumeIndexProgressBar
               monitored={monitored}
               status={status}
-              bookCount={bookCount}
+              issueCount={issueCount}
               availableIssueCount={availableIssueCount}
-              bookFileCount={bookFileCount}
+              issueFileCount={issueFileCount}
               totalIssueCount={totalIssueCount}
               posterWidth={posterWidth}
               detailedProgressBar={overviewOptions.detailedProgressBar}
@@ -194,7 +194,7 @@ class VolumeIndexOverview extends Component {
                 className={styles.title}
                 to={link}
               >
-                {overviewOptions.showTitle === 'firstLast' ? authorName : authorNameLastFirst}
+                {overviewOptions.showTitle === 'firstLast' ? volumeName : volumeNameLastFirst}
               </Link>
 
               <div className={styles.actions}>
@@ -240,7 +240,7 @@ class VolumeIndexOverview extends Component {
                 height={overviewHeight}
                 monitored={monitored}
                 nextAiring={nextAiring}
-                bookCount={bookCount}
+                issueCount={issueCount}
                 sizeOnDisk={sizeOnDisk}
                 qualityProfile={qualityProfile}
                 showRelativeDates={showRelativeDates}
@@ -256,14 +256,14 @@ class VolumeIndexOverview extends Component {
 
         <EditVolumeModalConnector
           isOpen={isEditVolumeModalOpen}
-          authorId={id}
+          volumeId={id}
           onModalClose={this.onEditVolumeModalClose}
           onDeleteVolumePress={this.onDeleteVolumePress}
         />
 
         <DeleteVolumeModal
           isOpen={isDeleteVolumeModalOpen}
-          authorId={id}
+          volumeId={id}
           onModalClose={this.onDeleteVolumeModalClose}
         />
       </div>
@@ -273,8 +273,8 @@ class VolumeIndexOverview extends Component {
 
 VolumeIndexOverview.propTypes = {
   id: PropTypes.number.isRequired,
-  authorName: PropTypes.string.isRequired,
-  authorNameLastFirst: PropTypes.string.isRequired,
+  volumeName: PropTypes.string.isRequired,
+  volumeNameLastFirst: PropTypes.string.isRequired,
   overview: PropTypes.string,
   monitored: PropTypes.bool.isRequired,
   status: PropTypes.string.isRequired,
@@ -304,8 +304,8 @@ VolumeIndexOverview.propTypes = {
 
 VolumeIndexOverview.defaultProps = {
   statistics: {
-    bookCount: 0,
-    bookFileCount: 0,
+    issueCount: 0,
+    issueFileCount: 0,
     totalIssueCount: 0
   }
 };

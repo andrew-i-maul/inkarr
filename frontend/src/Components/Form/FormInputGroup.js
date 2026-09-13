@@ -5,7 +5,7 @@ import { inputTypes, kinds } from 'Helpers/Props';
 import translate from 'Utilities/String/translate';
 // import translate from 'Utilities/String/translate';
 import AutoCompleteInput from './AutoCompleteInput';
-import BookEditionSelectInputConnector from './BookEditionSelectInputConnector';
+import IssueEditionSelectInputConnector from './IssueEditionSelectInputConnector';
 import BookshelfInputConnector from './BookshelfInputConnector';
 import CaptchaInputConnector from './CaptchaInputConnector';
 import CheckInput from './CheckInput';
@@ -18,7 +18,7 @@ import IndexerFlagsSelectInput from './IndexerFlagsSelectInput';
 import IndexerSelectInputConnector from './IndexerSelectInputConnector';
 import KeyValueListInput from './KeyValueListInput';
 import MetadataProfileSelectInputConnector from './MetadataProfileSelectInputConnector';
-import MonitorBooksSelectInput from './MonitorBooksSelectInput';
+import MonitorIssuesSelectInput from './MonitorIssuesSelectInput';
 import MonitorNewItemsSelectInput from './MonitorNewItemsSelectInput';
 import NumberInput from './NumberInput';
 import OAuthInputConnector from './OAuthInputConnector';
@@ -48,14 +48,14 @@ function getComponent(type) {
     case inputTypes.DEVICE:
       return DeviceInputConnector;
 
-    case inputTypes.BOOKSHELF:
+    case inputTypes.ISSUESHELF:
       return BookshelfInputConnector;
 
     case inputTypes.KEY_VALUE_LIST:
       return KeyValueListInput;
 
-    case inputTypes.MONITOR_BOOKS_SELECT:
-      return MonitorBooksSelectInput;
+    case inputTypes.MONITOR_ISSUES_SELECT:
+      return MonitorIssuesSelectInput;
 
     case inputTypes.MONITOR_NEW_ITEMS_SELECT:
       return MonitorNewItemsSelectInput;
@@ -78,8 +78,8 @@ function getComponent(type) {
     case inputTypes.METADATA_PROFILE_SELECT:
       return MetadataProfileSelectInputConnector;
 
-    case inputTypes.BOOK_EDITION_SELECT:
-      return BookEditionSelectInputConnector;
+    case inputTypes.ISSUE_EDITION_SELECT:
+      return IssueEditionSelectInputConnector;
 
     case inputTypes.INDEXER_SELECT:
       return IndexerSelectInputConnector;

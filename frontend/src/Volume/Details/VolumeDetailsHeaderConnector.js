@@ -4,18 +4,18 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { toggleAuthorMonitored } from 'Store/Actions/authorActions';
-import createAuthorSelector from 'Store/Selectors/createAuthorSelector';
+import { toggleVolumeMonitored } from 'Store/Actions/volumeActions';
+import createVolumeSelector from 'Store/Selectors/createVolumeSelector';
 import createDimensionsSelector from 'Store/Selectors/createDimensionsSelector';
 import VolumeDetailsHeader from './VolumeDetailsHeader';
 
 function createMapStateToProps() {
   return createSelector(
-    (state) => state.authors,
-    createAuthorSelector(),
+    (state) => state.volumes,
+    createVolumeSelector(),
     createDimensionsSelector(),
-    (authors, author, dimensions) => {
-      const alternateTitles = _.reduce(author.alternateTitles, (acc, alternateTitle) => {
+    (volumes, volume, dimensions) => {
+      const alternateTitles = _.reduce(volume.alternateTitles, (acc, alternateTitle) => {
         if ((alternateTitle.seasonNumber === -1 || alternateTitle.seasonNumber === undefined) &&
             (alternateTitle.sceneSeasonNumber === -1 || alternateTitle.sceneSeasonNumber === undefined)) {
           acc.push(alternateTitle.title);
@@ -25,8 +25,8 @@ function createMapStateToProps() {
       }, []);
 
       return {
-        ...author,
-        isSaving: authors.isSaving,
+        ...volume,
+        isSaving: volumes.isSaving,
         alternateTitles,
         isSmallScreen: dimensions.isSmallScreen
       };
@@ -35,7 +35,7 @@ function createMapStateToProps() {
 }
 
 const mapDispatchToProps = {
-  toggleVolumeMonitored: toggleAuthorMonitored
+  toggleVolumeMonitored: toggleVolumeMonitored
 };
 
 class VolumeDetailsHeaderConnector extends Component {
@@ -45,7 +45,7 @@ class VolumeDetailsHeaderConnector extends Component {
 
   onMonitorTogglePress = (monitored) => {
     this.props.toggleVolumeMonitored({
-      authorId: this.props.authorId,
+      volumeId: this.props.volumeId,
       monitored
     });
   };
@@ -64,7 +64,7 @@ class VolumeDetailsHeaderConnector extends Component {
 }
 
 VolumeDetailsHeaderConnector.propTypes = {
-  authorId: PropTypes.number.isRequired,
+  volumeId: PropTypes.number.isRequired,
   toggleVolumeMonitored: PropTypes.func.isRequired
 };
 

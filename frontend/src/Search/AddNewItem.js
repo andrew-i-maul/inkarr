@@ -11,8 +11,8 @@ import PageContentBody from 'Components/Page/PageContentBody';
 import { icons, kinds } from 'Helpers/Props';
 import getErrorMessage from 'Utilities/Object/getErrorMessage';
 import translate from 'Utilities/String/translate';
-import AddNewAuthorSearchResultConnector from './Author/AddNewAuthorSearchResultConnector';
-import AddNewBookSearchResultConnector from './Book/AddNewBookSearchResultConnector';
+import AddNewVolumeSearchResultConnector from './Volume/AddNewVolumeSearchResultConnector';
+import AddNewIssueSearchResultConnector from './Issue/AddNewIssueSearchResultConnector';
 import styles from './AddNewItem.css';
 
 class AddNewItem extends Component {
@@ -83,7 +83,7 @@ class AddNewItem extends Component {
     const {
       error,
       items,
-      hasExistingAuthors
+      hasExistingVolumes
     } = this.props;
 
     const term = this.state.term;
@@ -147,22 +147,22 @@ class AddNewItem extends Component {
               <div className={styles.searchResults}>
                 {
                   items.map((item) => {
-                    if (item.author) {
-                      const author = item.author;
+                    if (item.volume) {
+                      const volume = item.volume;
                       return (
-                        <AddNewAuthorSearchResultConnector
+                        <AddNewVolumeSearchResultConnector
                           key={item.id}
-                          {...author}
+                          {...volume}
                         />
                       );
-                    } else if (item.book) {
-                      const book = item.book;
+                    } else if (item.issue) {
+                      const issue = item.issue;
                       return (
-                        <AddNewBookSearchResultConnector
+                        <AddNewIssueSearchResultConnector
                           key={item.id}
-                          isExistingBook={'id' in book && book.id !== 0}
-                          isExistingAuthor={'id' in book.author && book.author.id !== 0}
-                          {...book}
+                          isExistingIssue={'id' in issue && issue.id !== 0}
+                          isExistingVolume={'id' in issue.volume && issue.volume.id !== 0}
+                          {...issue}
                         />
                       );
                     }
@@ -198,10 +198,10 @@ class AddNewItem extends Component {
           }
 
           {
-            !term && !hasExistingAuthors ?
+            !term && !hasExistingVolumes ?
               <div className={styles.message}>
-                <div className={styles.noAuthorsText}>
-                  You haven't added any authors yet, do you want to add an existing library location (Root Folder) and update?
+                <div className={styles.noVolumesText}>
+                  You haven't added any volumes yet, do you want to add an existing library location (Root Folder) and update?
                 </div>
                 <div>
                   <Button
@@ -229,7 +229,7 @@ AddNewItem.propTypes = {
   isAdding: PropTypes.bool.isRequired,
   addError: PropTypes.object,
   items: PropTypes.arrayOf(PropTypes.object).isRequired,
-  hasExistingAuthors: PropTypes.bool.isRequired,
+  hasExistingVolumes: PropTypes.bool.isRequired,
   onSearchChange: PropTypes.func.isRequired,
   onClearSearch: PropTypes.func.isRequired
 };

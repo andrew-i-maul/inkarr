@@ -12,7 +12,7 @@ import styles from './OrganizeVolumeModalContent.css';
 
 function OrganizeVolumeModalContent(props) {
   const {
-    authorNames,
+    volumeNames,
     onModalClose,
     onOrganizeVolumePress
   } = props;
@@ -25,7 +25,7 @@ function OrganizeVolumeModalContent(props) {
 
       <ModalBody>
         <Alert>
-          Tip: To preview a rename, select "Cancel", then select any author name and use the
+          Tip: To preview a rename, select "Cancel", then select any volume name and use the
           <Icon
             className={styles.renameIcon}
             name={icons.ORGANIZE}
@@ -33,15 +33,15 @@ function OrganizeVolumeModalContent(props) {
         </Alert>
 
         <div className={styles.message}>
-          Are you sure you want to organize all files in the {authorNames.length} selected author?
+          Are you sure you want to organize all files in the {volumeNames.length} selected volume?
         </div>
 
         <ul>
           {
-            authorNames.map((authorName) => {
+            volumeNames.map((volumeName) => {
               return (
-                <li key={authorName}>
-                  {authorName}
+                <li key={volumeName}>
+                  {volumeName}
                 </li>
               );
             })
@@ -66,7 +66,7 @@ function OrganizeVolumeModalContent(props) {
 }
 
 OrganizeVolumeModalContent.propTypes = {
-  authorNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+  volumeNames: PropTypes.arrayOf(PropTypes.string).isRequired,
   onModalClose: PropTypes.func.isRequired,
   onOrganizeVolumePress: PropTypes.func.isRequired
 };

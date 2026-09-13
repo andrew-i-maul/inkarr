@@ -1,18 +1,18 @@
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import createAuthorSelector from 'Store/Selectors/createAuthorSelector';
+import createVolumeSelector from 'Store/Selectors/createVolumeSelector';
 import createQueueItemSelector from 'Store/Selectors/createQueueItemSelector';
 import createUISettingsSelector from 'Store/Selectors/createUISettingsSelector';
 import CalendarEvent from './CalendarEvent';
 
 function createMapStateToProps() {
   return createSelector(
-    createAuthorSelector(),
+    createVolumeSelector(),
     createQueueItemSelector(),
     createUISettingsSelector(),
-    (author, queueItem, uiSettings) => {
+    (volume, queueItem, uiSettings) => {
       return {
-        author,
+        volume,
         queueItem,
         timeFormat: uiSettings.timeFormat,
         colorImpairedMode: uiSettings.enableColorImpairedMode

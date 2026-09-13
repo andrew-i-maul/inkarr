@@ -6,10 +6,10 @@ interface CssExports {
   'banner': string;
   'bannerGrow': string;
   'bannerImage': string;
-  'bookProgress': string;
   'cell': string;
   'checkInput': string;
   'genres': string;
+  'issueProgress': string;
   'lastIssue': string;
   'link': string;
   'metadataProfileId': string;

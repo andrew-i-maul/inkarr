@@ -79,8 +79,8 @@ class VolumeIndexPoster extends Component {
   render() {
     const {
       id,
-      authorName,
-      authorNameLastFirst,
+      volumeName,
+      volumeNameLastFirst,
       monitored,
       titleSlug,
       status,
@@ -110,9 +110,9 @@ class VolumeIndexPoster extends Component {
     } = this.props;
 
     const {
-      bookCount = 0,
+      issueCount = 0,
       availableIssueCount = 0,
-      bookFileCount = 0,
+      issueFileCount = 0,
       totalIssueCount = 0,
       sizeOnDisk = 0
     } = statistics;
@@ -123,7 +123,7 @@ class VolumeIndexPoster extends Component {
       isDeleteVolumeModalOpen
     } = this.state;
 
-    const link = `/author/${titleSlug}`;
+    const link = `/volume/${titleSlug}`;
 
     const elementStyle = {
       width: `${posterWidth}px`,
@@ -203,7 +203,7 @@ class VolumeIndexPoster extends Component {
               {
                 hasPosterError &&
                   <div className={styles.overlayTitle}>
-                    {authorName}
+                    {volumeName}
                   </div>
               }
 
@@ -213,9 +213,9 @@ class VolumeIndexPoster extends Component {
           <VolumeIndexProgressBar
             monitored={monitored}
             status={status}
-            bookCount={bookCount}
+            issueCount={issueCount}
             availableIssueCount={availableIssueCount}
-            bookFileCount={bookFileCount}
+            issueFileCount={issueFileCount}
             totalIssueCount={totalIssueCount}
             posterWidth={posterWidth}
             detailedProgressBar={detailedProgressBar}
@@ -224,7 +224,7 @@ class VolumeIndexPoster extends Component {
           {
             showTitle !== 'no' &&
               <div className={styles.title}>
-                {showTitle === 'firstLast' ? authorName : authorNameLastFirst}
+                {showTitle === 'firstLast' ? volumeName : volumeNameLastFirst}
               </div>
           }
 
@@ -258,7 +258,7 @@ class VolumeIndexPoster extends Component {
               </div>
           }
           <VolumeIndexPosterInfo
-            bookCount={bookCount}
+            issueCount={issueCount}
             sizeOnDisk={sizeOnDisk}
             qualityProfile={qualityProfile}
             showQualityProfile={showQualityProfile}
@@ -271,14 +271,14 @@ class VolumeIndexPoster extends Component {
 
           <EditVolumeModalConnector
             isOpen={isEditVolumeModalOpen}
-            authorId={id}
+            volumeId={id}
             onModalClose={this.onEditVolumeModalClose}
             onDeleteVolumePress={this.onDeleteVolumePress}
           />
 
           <DeleteVolumeModal
             isOpen={isDeleteVolumeModalOpen}
-            authorId={id}
+            volumeId={id}
             onModalClose={this.onDeleteVolumeModalClose}
           />
         </div>
@@ -289,8 +289,8 @@ class VolumeIndexPoster extends Component {
 
 VolumeIndexPoster.propTypes = {
   id: PropTypes.number.isRequired,
-  authorName: PropTypes.string.isRequired,
-  authorNameLastFirst: PropTypes.string.isRequired,
+  volumeName: PropTypes.string.isRequired,
+  volumeNameLastFirst: PropTypes.string.isRequired,
   monitored: PropTypes.bool.isRequired,
   status: PropTypes.string.isRequired,
   titleSlug: PropTypes.string.isRequired,
@@ -320,8 +320,8 @@ VolumeIndexPoster.propTypes = {
 
 VolumeIndexPoster.defaultProps = {
   statistics: {
-    bookCount: 0,
-    bookFileCount: 0,
+    issueCount: 0,
+    issueFileCount: 0,
     totalIssueCount: 0
   }
 };

@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import MonitorBooksSelectInput from 'Components/Form/MonitorBooksSelectInput';
+import MonitorIssuesSelectInput from 'Components/Form/MonitorIssuesSelectInput';
 import MonitorNewItemsSelectInput from 'Components/Form/MonitorNewItemsSelectInput';
 import SelectInput from 'Components/Form/SelectInput';
 import SpinnerButton from 'Components/Link/SpinnerButton';
@@ -101,7 +101,7 @@ class BookshelfFooter extends Component {
       <PageContentFooter>
         <div className={styles.inputContainer}>
           <div className={styles.label}>
-            Monitor Author
+            Monitor Volume
           </div>
 
           <SelectInput
@@ -118,7 +118,7 @@ class BookshelfFooter extends Component {
             {translate('MonitorExistingBooks')}
           </div>
 
-          <MonitorBooksSelectInput
+          <MonitorIssuesSelectInput
             name="monitor"
             value={monitor}
             includeNoChange={true}
@@ -143,7 +143,7 @@ class BookshelfFooter extends Component {
 
         <div>
           <div className={styles.label}>
-            {translate('CountAuthorsSelected', { selectedCount })}
+            {translate('CountVolumesSelected', { selectedCount })}
           </div>
 
           <SpinnerButton

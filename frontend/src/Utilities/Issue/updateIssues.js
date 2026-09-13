@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import { update } from 'Store/Actions/baseActions';
 
-function updateIssues(section, books, bookIds, options) {
-  const data = _.reduce(books, (result, item) => {
-    if (bookIds.indexOf(item.id) > -1) {
+function updateIssues(section, issues, issueIds, options) {
+  const data = _.reduce(issues, (result, item) => {
+    if (issueIds.indexOf(item.id) > -1) {
       result.push({
         ...item,
         ...options

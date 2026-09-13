@@ -4,10 +4,10 @@ import { Redirect, Route } from 'react-router-dom';
 import BlocklistConnector from 'Activity/Blocklist/BlocklistConnector';
 import HistoryConnector from 'Activity/History/HistoryConnector';
 import QueueConnector from 'Activity/Queue/QueueConnector';
-import AuthorDetailsPageConnector from 'Volume/Details/VolumeDetailsPageConnector';
-import AuthorIndexConnector from 'Volume/Index/VolumeIndexConnector';
-import BookDetailsPageConnector from 'Issue/Details/IssueDetailsPageConnector';
-import BookIndexConnector from 'Issue/Index/IssueIndexConnector';
+import VolumeDetailsPageConnector from 'Volume/Details/VolumeDetailsPageConnector';
+import VolumeIndexConnector from 'Volume/Index/VolumeIndexConnector';
+import IssueDetailsPageConnector from 'Issue/Details/IssueDetailsPageConnector';
+import IssueIndexConnector from 'Issue/Index/IssueIndexConnector';
 import BookshelfConnector from 'Bookshelf/BookshelfConnector';
 import CalendarPageConnector from 'Calendar/CalendarPageConnector';
 import NotFound from 'Components/NotFound';
@@ -46,13 +46,13 @@ function AppRoutes(props) {
   return (
     <Switch>
       {/*
-        Author
+        Volume
       */}
 
       <Route
         exact={true}
         path="/"
-        component={AuthorIndexConnector}
+        component={VolumeIndexConnector}
       />
 
       {
@@ -73,8 +73,8 @@ function AppRoutes(props) {
       }
 
       <Route
-        path="/authors"
-        component={AuthorIndexConnector}
+        path="/volumes"
+        component={VolumeIndexConnector}
       />
 
       <Route
@@ -90,8 +90,8 @@ function AppRoutes(props) {
 
       <Route
         exact={true}
-        path="/books"
-        component={BookIndexConnector}
+        path="/issues"
+        component={IssueIndexConnector}
       />
 
       <Route
@@ -100,13 +100,13 @@ function AppRoutes(props) {
       />
 
       <Route
-        path="/author/:titleSlug"
-        component={AuthorDetailsPageConnector}
+        path="/volume/:titleSlug"
+        component={VolumeDetailsPageConnector}
       />
 
       <Route
-        path="/book/:titleSlug"
-        component={BookDetailsPageConnector}
+        path="/issue/:titleSlug"
+        component={IssueDetailsPageConnector}
       />
 
       {/*

@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import NoAuthor from 'Volume/NoVolume';
+import NoVolume from 'Volume/NoVolume';
 import LoadingIndicator from 'Components/Loading/LoadingIndicator';
 import Measure from 'Components/Measure';
 import FilterMenu from 'Components/Menu/FilterMenu';
@@ -63,11 +63,11 @@ class CalendarPage extends Component {
 
   onSearchMissingPress = () => {
     const {
-      missingBookIds,
+      missingIssueIds,
       onSearchMissingPress
     } = this.props;
 
-    onSearchMissingPress(missingBookIds);
+    onSearchMissingPress(missingIssueIds);
   };
 
   //
@@ -77,11 +77,11 @@ class CalendarPage extends Component {
     const {
       selectedFilterKey,
       filters,
-      hasAuthor,
-      authorError,
-      authorIsFetching,
-      authorIsPopulated,
-      missingBookIds,
+      hasVolume,
+      volumeError,
+      volumeIsFetching,
+      volumeIsPopulated,
+      missingIssueIds,
       isSearchingForMissing,
       useCurrentPage,
       onFilterSelect
@@ -107,7 +107,7 @@ class CalendarPage extends Component {
             <PageToolbarButton
               label={translate('SearchForMissing')}
               iconName={icons.SEARCH}
-              isDisabled={!missingBookIds.length}
+              isDisabled={!missingIssueIds.length}
               isSpinning={isSearchingForMissing}
               onPress={this.onSearchMissingPress}
             />
@@ -122,7 +122,7 @@ class CalendarPage extends Component {
 
             <FilterMenu
               alignMenu={align.RIGHT}
-              isDisabled={!hasAuthor}
+              isDisabled={!hasVolume}
               selectedFilterKey={selectedFilterKey}
               filters={filters}
               customFilters={[]}
@@ -136,19 +136,19 @@ class CalendarPage extends Component {
           innerClassName={styles.calendarInnerPageBody}
         >
           {
-            authorIsFetching && !authorIsPopulated &&
+            volumeIsFetching && !volumeIsPopulated &&
               <LoadingIndicator />
           }
 
           {
-            authorError &&
+            volumeError &&
               <div className={styles.errorMessage}>
-                {getErrorMessage(authorError, 'Failed to load author from API')}
+                {getErrorMessage(volumeError, 'Failed to load volume from API')}
               </div>
           }
 
           {
-            !authorError && authorIsPopulated && hasAuthor &&
+            !volumeError && volumeIsPopulated && hasVolume &&
               <Measure
                 onMeasure={this.onMeasure}
               >
@@ -163,12 +163,12 @@ class CalendarPage extends Component {
           }
 
           {
-            !authorError && authorIsPopulated && !hasAuthor &&
-              <NoAuthor totalItems={0} />
+            !volumeError && volumeIsPopulated && !hasVolume &&
+              <NoVolume totalItems={0} />
           }
 
           {
-            hasAuthor && !!authorError &&
+            hasVolume && !!volumeError &&
               <LegendConnector />
           }
         </PageContentBody>
@@ -191,11 +191,11 @@ class CalendarPage extends Component {
 CalendarPage.propTypes = {
   selectedFilterKey: PropTypes.string.isRequired,
   filters: PropTypes.arrayOf(PropTypes.object).isRequired,
-  hasAuthor: PropTypes.bool.isRequired,
-  authorError: PropTypes.object,
-  authorIsFetching: PropTypes.bool.isRequired,
-  authorIsPopulated: PropTypes.bool.isRequired,
-  missingBookIds: PropTypes.arrayOf(PropTypes.number).isRequired,
+  hasVolume: PropTypes.bool.isRequired,
+  volumeError: PropTypes.object,
+  volumeIsFetching: PropTypes.bool.isRequired,
+  volumeIsPopulated: PropTypes.bool.isRequired,
+  missingIssueIds: PropTypes.arrayOf(PropTypes.number).isRequired,
   isSearchingForMissing: PropTypes.bool.isRequired,
   useCurrentPage: PropTypes.bool.isRequired,
   onSearchMissingPress: PropTypes.func.isRequired,

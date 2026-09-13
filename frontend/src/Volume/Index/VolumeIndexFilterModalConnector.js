@@ -1,17 +1,17 @@
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import FilterModal from 'Components/Filter/FilterModal';
-import { setAuthorFilter as setVolumeFilter } from 'Store/Actions/authorIndexActions';
+import { setVolumeFilter as setVolumeFilter } from 'Store/Actions/volumeIndexActions';
 
 function createMapStateToProps() {
   return createSelector(
-    (state) => state.authors.items,
-    (state) => state.authorIndex.filterBuilderProps,
+    (state) => state.volumes.items,
+    (state) => state.volumeIndex.filterBuilderProps,
     (sectionItems, filterBuilderProps) => {
       return {
         sectionItems,
         filterBuilderProps,
-        customFilterType: 'authorIndex'
+        customFilterType: 'volumeIndex'
       };
     }
   );

@@ -2,7 +2,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { CellMeasurer, CellMeasurerCache } from 'react-virtualized';
-import NoAuthor from 'Volume/NoVolume';
+import NoVolume from 'Volume/NoVolume';
 import LoadingIndicator from 'Components/Loading/LoadingIndicator';
 import FilterMenu from 'Components/Menu/FilterMenu';
 import PageContent from 'Components/Page/PageContent';
@@ -19,9 +19,9 @@ import translate from 'Utilities/String/translate';
 import getSelectedIds from 'Utilities/Table/getSelectedIds';
 import selectAll from 'Utilities/Table/selectAll';
 import toggleSelected from 'Utilities/Table/toggleSelected';
-import BookStudioFilterModalConnector from './BookshelfFilterModalConnector';
+import IssueStudioFilterModalConnector from './BookshelfFilterModalConnector';
 import BookshelfFooter from './BookshelfFooter';
-import BookStudioRowConnector from './BookshelfRowConnector';
+import IssueStudioRowConnector from './BookshelfRowConnector';
 import BookshelfTableHeader from './BookshelfTableHeader';
 import styles from './Bookshelf.css';
 
@@ -41,8 +41,8 @@ const columns = [
     isVisible: true
   },
   {
-    name: 'bookCount',
-    label: 'Books',
+    name: 'issueCount',
+    label: 'Issues',
     isSortable: false,
     isVisible: true
   }
@@ -184,13 +184,13 @@ class Bookshelf extends Component {
 
     const newSelectedState = {};
 
-    items.forEach((author) => {
-      const isItemSelected = selectedState[author.id];
+    items.forEach((volume) => {
+      const isItemSelected = selectedState[volume.id];
 
       if (isItemSelected) {
-        newSelectedState[author.id] = isItemSelected;
+        newSelectedState[volume.id] = isItemSelected;
       } else {
-        newSelectedState[author.id] = false;
+        newSelectedState[volume.id] = false;
       }
     });
 
@@ -210,22 +210,22 @@ class Bookshelf extends Component {
 
   estimateRowHeight = (width) => {
     const {
-      bookCount,
+      issueCount,
       items
     } = this.props;
 
-    if (bookCount === undefined || bookCount === 0 || items.length === 0) {
+    if (issueCount === undefined || issueCount === 0 || items.length === 0) {
       return 100;
     }
 
-    // guess 250px per book entry
+    // guess 250px per issue entry
     // available width is total width less 186px for select, status etc
     const cols = Math.max(Math.floor((width - 186) / 250), 1);
-    const booksPerAuthor = bookCount / items.length;
-    const bookRowsPerAuthor = booksPerAuthor / cols;
+    const issuesPerVolume = issueCount / items.length;
+    const issueRowsPerVolume = issuesPerVolume / cols;
 
-    // each row is 23px per book row plus 16px padding
-    return bookRowsPerAuthor * 23 + 16;
+    // each row is 23px per issue row plus 16px padding
+    return issueRowsPerVolume * 23 + 16;
   };
 
   rowRenderer = ({ key, rowIndex, parent, style }) => {
@@ -252,9 +252,9 @@ class Bookshelf extends Component {
             ref={registerChild}
             style={style}
           >
-            <BookStudioRowConnector
+            <IssueStudioRowConnector
               key={item.id}
-              authorId={item.id}
+              volumeId={item.id}
               isSelected={selectedState[item.id]}
               onSelectedChange={this.onSelectedChange}
             />
@@ -283,7 +283,7 @@ class Bookshelf extends Component {
 
   onUpdateSelectedPress = (changes) => {
     this.props.onUpdateSelectedPress({
-      authorIds: this.getSelectedIds(),
+      volumeIds: this.getSelectedIds(),
       ...changes
     });
   };
@@ -349,7 +349,7 @@ class Bookshelf extends Component {
               selectedFilterKey={selectedFilterKey}
               filters={filters}
               customFilters={customFilters}
-              filterModalConnectorComponent={BookStudioFilterModalConnector}
+              filterModalConnectorComponent={IssueStudioFilterModalConnector}
               onFilterSelect={onFilterSelect}
             />
           </PageToolbarSection>
@@ -368,7 +368,7 @@ class Bookshelf extends Component {
 
             {
               !isFetching && !!error &&
-                <div>{getErrorMessage(error, 'Failed to load author from API')}</div>
+                <div>{getErrorMessage(error, 'Failed to load volume from API')}</div>
             }
 
             {
@@ -405,7 +405,7 @@ class Bookshelf extends Component {
 
             {
               !error && isPopulated && !items.length &&
-                <NoAuthor totalItems={totalItems} />
+                <NoVolume totalItems={totalItems} />
             }
           </PageContentBody>
 
@@ -435,7 +435,7 @@ Bookshelf.propTypes = {
   error: PropTypes.object,
   totalItems: PropTypes.number.isRequired,
   items: PropTypes.arrayOf(PropTypes.object).isRequired,
-  bookCount: PropTypes.number.isRequired,
+  issueCount: PropTypes.number.isRequired,
   sortKey: PropTypes.string,
   sortDirection: PropTypes.oneOf(sortDirections.all),
   selectedFilterKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,

@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { setBookTableOption as setIssueTableOption } from 'Store/Actions/bookIndexActions';
+import { setIssueTableOption as setIssueTableOption } from 'Store/Actions/issueIndexActions';
 import IssueIndexHeader from './IssueIndexHeader';
 
 function createMapDispatchToProps(dispatch, props) {

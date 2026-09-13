@@ -10,22 +10,22 @@ function IssueStatus(props) {
   const {
     isAvailable,
     monitored,
-    bookFile
+    issueFile
   } = props;
 
-  const hasIssueFile = !!bookFile;
+  const hasIssueFile = !!issueFile;
 
   if (hasIssueFile) {
-    const quality = bookFile.quality;
+    const quality = issueFile.quality;
 
     return (
       <div className={styles.center}>
         <IssueQuality
           title={quality.quality.name}
-          size={bookFile.size}
+          size={issueFile.size}
           quality={quality}
           isMonitored={monitored}
-          isCutoffNotMet={bookFile.qualityCutoffNotMet}
+          isCutoffNotMet={issueFile.qualityCutoffNotMet}
         />
       </div>
     );
@@ -72,7 +72,7 @@ function IssueStatus(props) {
 IssueStatus.propTypes = {
   isAvailable: PropTypes.bool,
   monitored: PropTypes.bool.isRequired,
-  bookFile: PropTypes.object
+  issueFile: PropTypes.object
 };
 
 export default IssueStatus;

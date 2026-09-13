@@ -3,19 +3,19 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import { saveBookshelf, setBookshelfFilter, setBookshelfSort } from 'Store/Actions/bookshelfActions';
-import createAuthorClientSideCollectionItemsSelector from 'Store/Selectors/createAuthorClientSideCollectionItemsSelector';
+import createVolumeClientSideCollectionItemsSelector from 'Store/Selectors/createVolumeClientSideCollectionItemsSelector';
 import createDimensionsSelector from 'Store/Selectors/createDimensionsSelector';
 import Bookshelf from './Bookshelf';
 
-function createBookFetchStateSelector() {
+function createIssueFetchStateSelector() {
   return createSelector(
-    (state) => state.books.items.length,
-    (state) => state.books.isFetching,
-    (state) => state.books.isPopulated,
+    (state) => state.issues.items.length,
+    (state) => state.issues.isFetching,
+    (state) => state.issues.isPopulated,
     (length, isFetching, isPopulated) => {
-      const bookCount = (!isFetching && isPopulated) ? length : 0;
+      const issueCount = (!isFetching && isPopulated) ? length : 0;
       return {
-        bookCount,
+        issueCount,
         isFetching,
         isPopulated
       };
@@ -25,17 +25,17 @@ function createBookFetchStateSelector() {
 
 function createMapStateToProps() {
   return createSelector(
-    createBookFetchStateSelector(),
-    createAuthorClientSideCollectionItemsSelector('bookshelf'),
+    createIssueFetchStateSelector(),
+    createVolumeClientSideCollectionItemsSelector('bookshelf'),
     createDimensionsSelector(),
-    (books, author, dimensionsState) => {
-      const isPopulated = books.isPopulated && author.isPopulated;
-      const isFetching = author.isFetching || books.isFetching;
+    (issues, volume, dimensionsState) => {
+      const isPopulated = issues.isPopulated && volume.isPopulated;
+      const isFetching = volume.isFetching || issues.isFetching;
       return {
-        ...author,
+        ...volume,
         isPopulated,
         isFetching,
-        bookCount: books.bookCount,
+        issueCount: issues.issueCount,
         isSmallScreen: dimensionsState.isSmallScreen
       };
     }

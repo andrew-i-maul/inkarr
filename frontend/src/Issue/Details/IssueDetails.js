@@ -92,9 +92,9 @@ class IssueDetails extends Component {
       isRefreshing,
       isFetching,
       isPopulated,
-      bookFilesError,
+      issueFilesError,
       hasIssueFiles,
-      author,
+      volume,
       previousIssue,
       nextIssue,
       isSearching,
@@ -104,7 +104,7 @@ class IssueDetails extends Component {
     } = this.props;
 
     const {
-      bookFileCount = 0
+      issueFileCount = 0
     } = statistics;
 
     const {
@@ -171,65 +171,65 @@ class IssueDetails extends Component {
         <PageContentBody innerClassName={styles.innerContentBody}>
           <SwipeHeaderConnector
             className={styles.header}
-            nextLink={`/book/${nextIssue.titleSlug}`}
+            nextLink={`/issue/${nextIssue.titleSlug}`}
             nextComponent={(width) => (
               <IssueDetailsHeaderConnector
-                bookId={nextIssue.id}
-                author={author}
+                issueId={nextIssue.id}
+                volume={volume}
                 width={width}
               />
             )}
-            prevLink={`/book/${previousIssue.titleSlug}`}
+            prevLink={`/issue/${previousIssue.titleSlug}`}
             prevComponent={(width) => (
               <IssueDetailsHeaderConnector
-                bookId={previousIssue.id}
-                author={author}
+                issueId={previousIssue.id}
+                volume={volume}
                 width={width}
               />
             )}
             currentComponent={(width) => (
               <IssueDetailsHeaderConnector
-                bookId={id}
-                author={author}
+                issueId={id}
+                volume={volume}
                 width={width}
               />
             )}
           >
-            <div className={styles.bookNavigationButtons}>
+            <div className={styles.issueNavigationButtons}>
               <IconButton
-                className={styles.bookNavigationButton}
+                className={styles.issueNavigationButton}
                 name={icons.ARROW_LEFT}
                 size={30}
                 title={translate('GoToInterp', [previousIssue.title])}
-                to={`/book/${previousIssue.titleSlug}`}
+                to={`/issue/${previousIssue.titleSlug}`}
               />
 
               <IconButton
-                className={styles.bookUpButton}
+                className={styles.issueUpButton}
                 name={icons.ARROW_UP}
                 size={30}
-                title={translate('GoToInterp', [author.authorName])}
-                to={`/author/${author.titleSlug}`}
+                title={translate('GoToInterp', [volume.volumeName])}
+                to={`/volume/${volume.titleSlug}`}
               />
 
               <IconButton
-                className={styles.bookNavigationButton}
+                className={styles.issueNavigationButton}
                 name={icons.ARROW_RIGHT}
                 size={30}
                 title={translate('GoToInterp', [nextIssue.title])}
-                to={`/book/${nextIssue.titleSlug}`}
+                to={`/issue/${nextIssue.titleSlug}`}
               />
             </div>
           </SwipeHeaderConnector>
 
           <div className={styles.contentContainer}>
             {
-              !isPopulated && !bookFilesError &&
+              !isPopulated && !issueFilesError &&
                 <LoadingIndicator />
             }
 
             {
-              !isFetching && bookFilesError &&
+              !isFetching && issueFilesError &&
                 <div>
                   {translate('LoadingBookFilesFailed')}
                 </div>
@@ -257,14 +257,14 @@ class IssueDetails extends Component {
                   className={styles.tab}
                   selectedClassName={styles.selectedTab}
                 >
-                  {translate('FilesTotal', [bookFileCount])}
+                  {translate('FilesTotal', [issueFileCount])}
                 </Tab>
 
                 {
                   selectedTabIndex === 1 &&
                     <div className={styles.filterIcon}>
                       <InteractiveSearchFilterMenuConnector
-                        type="book"
+                        type="issue"
                       />
                     </div>
                 }
@@ -273,22 +273,22 @@ class IssueDetails extends Component {
 
               <TabPanel>
                 <VolumeHistoryTable
-                  authorId={author.id}
-                  bookId={id}
+                  volumeId={volume.id}
+                  issueId={id}
                 />
               </TabPanel>
 
               <TabPanel>
                 <InteractiveSearchTable
-                  bookId={id}
-                  type="book"
+                  issueId={id}
+                  type="issue"
                 />
               </TabPanel>
 
               <TabPanel>
                 <IssueFileEditorTable
-                  authorId={author.id}
-                  bookId={id}
+                  volumeId={volume.id}
+                  issueId={id}
                 />
               </TabPanel>
             </Tabs>
@@ -296,30 +296,30 @@ class IssueDetails extends Component {
 
           <OrganizePreviewModalConnector
             isOpen={isOrganizeModalOpen}
-            authorId={author.id}
-            bookId={id}
+            volumeId={volume.id}
+            issueId={id}
             onModalClose={this.onOrganizeModalClose}
           />
 
           <RetagPreviewModalConnector
             isOpen={isRetagModalOpen}
-            authorId={author.id}
-            bookId={id}
+            volumeId={volume.id}
+            issueId={id}
             onModalClose={this.onRetagModalClose}
           />
 
           <EditIssueModalConnector
             isOpen={isEditIssueModalOpen}
-            bookId={id}
-            authorId={author.id}
+            issueId={id}
+            volumeId={volume.id}
             onModalClose={this.onEditIssueModalClose}
             onDeleteVolumePress={this.onDeleteIssuePress}
           />
 
           <DeleteIssueModal
             isOpen={isDeleteIssueModalOpen}
-            bookId={id}
-            authorSlug={author.titleSlug}
+            issueId={id}
+            volumeSlug={volume.titleSlug}
             onModalClose={this.onDeleteIssueModalClose}
           />
 
@@ -348,9 +348,9 @@ IssueDetails.propTypes = {
   isSearching: PropTypes.bool,
   isFetching: PropTypes.bool,
   isPopulated: PropTypes.bool,
-  bookFilesError: PropTypes.object,
+  issueFilesError: PropTypes.object,
   hasIssueFiles: PropTypes.bool.isRequired,
-  author: PropTypes.object,
+  volume: PropTypes.object,
   previousIssue: PropTypes.object,
   nextIssue: PropTypes.object,
   isSmallScreen: PropTypes.bool.isRequired,

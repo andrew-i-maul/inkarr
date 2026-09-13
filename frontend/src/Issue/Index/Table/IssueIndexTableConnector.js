@@ -1,13 +1,13 @@
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { setBookSort as setIssueSort } from 'Store/Actions/bookIndexActions';
+import { setIssueSort as setIssueSort } from 'Store/Actions/issueIndexActions';
 import IssueIndexTable from './IssueIndexTable';
 
 function createMapStateToProps() {
   return createSelector(
     (state) => state.app.dimensions,
-    (state) => state.bookIndex.tableOptions,
-    (state) => state.bookIndex.columns,
+    (state) => state.issueIndex.tableOptions,
+    (state) => state.issueIndex.columns,
     (dimensions, tableOptions, columns) => {
       return {
         isSmallScreen: dimensions.isSmallScreen,

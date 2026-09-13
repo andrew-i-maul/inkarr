@@ -12,7 +12,7 @@ function VolumeIndexPosterInfo(props) {
     added,
     nextIssue,
     lastIssue,
-    bookCount,
+    issueCount,
     path,
     sizeOnDisk,
     sortKey,
@@ -91,18 +91,18 @@ function VolumeIndexPosterInfo(props) {
     );
   }
 
-  if (sortKey === 'bookCount') {
-    let books = '1 book';
+  if (sortKey === 'issueCount') {
+    let issues = '1 issue';
 
-    if (bookCount === 0) {
-      books = 'No books';
-    } else if (bookCount > 1) {
-      books = `${bookCount} books`;
+    if (issueCount === 0) {
+      issues = 'No issues';
+    } else if (issueCount > 1) {
+      issues = `${issueCount} issues`;
     }
 
     return (
       <div className={styles.info}>
-        {books}
+        {issues}
       </div>
     );
   }
@@ -133,7 +133,7 @@ VolumeIndexPosterInfo.propTypes = {
   added: PropTypes.string,
   nextIssue: PropTypes.object,
   lastIssue: PropTypes.object,
-  bookCount: PropTypes.number.isRequired,
+  issueCount: PropTypes.number.isRequired,
   path: PropTypes.string.isRequired,
   sizeOnDisk: PropTypes.number,
   sortKey: PropTypes.string.isRequired,

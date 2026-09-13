@@ -2,17 +2,17 @@
 // Please do not change this file!
 interface CssExports {
   'absoluteEpisodeNumber': string;
-  'authorName': string;
-  'bookInfo': string;
-  'bookTitle': string;
   'downloaded': string;
   'downloading': string;
   'event': string;
   'info': string;
+  'issueInfo': string;
+  'issueTitle': string;
   'missing': string;
   'statusIcon': string;
   'unmonitored': string;
   'unreleased': string;
+  'volumeName': string;
 }
 export const cssExports: CssExports;
 export default cssExports;

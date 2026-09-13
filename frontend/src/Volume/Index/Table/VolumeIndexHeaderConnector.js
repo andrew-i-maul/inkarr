@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { setAuthorTableOption as setVolumeTableOption } from 'Store/Actions/authorIndexActions';
+import { setVolumeTableOption as setVolumeTableOption } from 'Store/Actions/volumeIndexActions';
 import VolumeIndexHeader from './VolumeIndexHeader';
 
 function createMapDispatchToProps(dispatch, props) {

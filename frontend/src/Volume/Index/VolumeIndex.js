@@ -119,13 +119,13 @@ class VolumeIndex extends Component {
 
     const newSelectedState = {};
 
-    items.forEach((author) => {
-      const isItemSelected = selectedState[author.id];
+    items.forEach((volume) => {
+      const isItemSelected = selectedState[volume.id];
 
       if (isItemSelected) {
-        newSelectedState[author.id] = isItemSelected;
+        newSelectedState[volume.id] = isItemSelected;
       } else {
-        newSelectedState[author.id] = false;
+        newSelectedState[volume.id] = false;
       }
     });
 
@@ -236,7 +236,7 @@ class VolumeIndex extends Component {
 
   onSaveSelected = (changes) => {
     this.props.onSaveSelected({
-      authorIds: this.getSelectedIds(),
+      volumeIds: this.getSelectedIds(),
       ...changes
     });
   };
@@ -351,7 +351,7 @@ class VolumeIndex extends Component {
               isEditorActive ?
                 <PageToolbarButton
                   label={translate('AuthorIndex')}
-                  iconName={icons.AUTHOR_CONTINUING}
+                  iconName={icons.VOLUME_CONTINUING}
                   isDisabled={hasNoVolume}
                   onPress={this.onEditorTogglePress}
                 /> :
@@ -457,7 +457,7 @@ class VolumeIndex extends Component {
             {
               !isFetching && !!error &&
                 <div className={styles.errorMessage}>
-                  {getErrorMessage(error, 'Failed to load author from API')}
+                  {getErrorMessage(error, 'Failed to load volume from API')}
                 </div>
             }
 
@@ -502,7 +502,7 @@ class VolumeIndex extends Component {
         {
           isLoaded && isEditorActive &&
             <VolumeEditorFooter
-              authorIds={selectedVolumeIds}
+              volumeIds={selectedVolumeIds}
               selectedCount={selectedVolumeIds.length}
               isSaving={isSaving}
               saveError={saveError}
@@ -529,13 +529,13 @@ class VolumeIndex extends Component {
 
         <OrganizeVolumeModal
           isOpen={this.state.isOrganizingVolumeModalOpen}
-          authorIds={selectedVolumeIds}
+          volumeIds={selectedVolumeIds}
           onModalClose={this.onOrganizeVolumeModalClose}
         />
 
         <RetagVolumeModal
           isOpen={this.state.isRetaggingVolumeModalOpen}
-          authorIds={selectedVolumeIds}
+          volumeIds={selectedVolumeIds}
           onModalClose={this.onRetagVolumeModalClose}
         />
 

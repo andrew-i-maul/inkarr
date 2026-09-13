@@ -5,26 +5,26 @@ import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import * as commandNames from 'Commands/commandNames';
 import { executeCommand } from 'Store/Actions/commandActions';
-import createBookAuthorSelector from 'Store/Selectors/createBookAuthorSelector';
-import createBookQualityProfileSelector from 'Store/Selectors/createBookQualityProfileSelector';
-import createBookSelector from 'Store/Selectors/createBookSelector';
+import createIssueVolumeSelector from 'Store/Selectors/createIssueVolumeSelector';
+import createIssueQualityProfileSelector from 'Store/Selectors/createIssueQualityProfileSelector';
+import createIssueSelector from 'Store/Selectors/createIssueSelector';
 import createExecutingCommandsSelector from 'Store/Selectors/createExecutingCommandsSelector';
 
 function selectShowSearchAction() {
   return createSelector(
-    (state) => state.bookIndex,
-    (bookIndex) => {
-      const view = bookIndex.view;
+    (state) => state.issueIndex,
+    (issueIndex) => {
+      const view = issueIndex.view;
 
       switch (view) {
         case 'posters':
-          return bookIndex.posterOptions.showSearchAction;
+          return issueIndex.posterOptions.showSearchAction;
         case 'banners':
-          return bookIndex.bannerOptions.showSearchAction;
+          return issueIndex.bannerOptions.showSearchAction;
         case 'overview':
-          return bookIndex.overviewOptions.showSearchAction;
+          return issueIndex.overviewOptions.showSearchAction;
         default:
-          return bookIndex.tableOptions.showSearchAction;
+          return issueIndex.tableOptions.showSearchAction;
       }
     }
   );
@@ -32,49 +32,49 @@ function selectShowSearchAction() {
 
 function createMapStateToProps() {
   return createSelector(
-    createBookSelector(),
-    createBookAuthorSelector(),
-    createBookQualityProfileSelector(),
+    createIssueSelector(),
+    createIssueVolumeSelector(),
+    createIssueQualityProfileSelector(),
     selectShowSearchAction(),
     createExecutingCommandsSelector(),
     (
-      book,
-      author,
+      issue,
+      volume,
       qualityProfile,
       showSearchAction,
       executingCommands
     ) => {
 
-      // If a book is deleted this selector may fire before the parent
-      // selectors, which will result in an undefined book, if that happens
+      // If a issue is deleted this selector may fire before the parent
+      // selectors, which will result in an undefined issue, if that happens
       // we want to return early here and again in the render function to avoid
-      // trying to show an book that has no information available.
+      // trying to show an issue that has no information available.
 
-      if (!book) {
+      if (!issue) {
         return {};
       }
 
       const isRefreshingIssue = executingCommands.some((command) => {
         return (
-          (command.name === commandNames.REFRESH_AUTHOR &&
-            command.body.authorId === book.authorId) ||
-          (command.name === commandNames.REFRESH_BOOK &&
-            command.body.bookId === book.id)
+          (command.name === commandNames.REFRESH_VOLUME &&
+            command.body.volumeId === issue.volumeId) ||
+          (command.name === commandNames.REFRESH_ISSUE &&
+            command.body.issueId === issue.id)
         );
       });
 
       const isSearchingIssue = executingCommands.some((command) => {
         return (
-          (command.name === commandNames.AUTHOR_SEARCH &&
-            command.body.authorId === book.authorId) ||
-          (command.name === commandNames.BOOK_SEARCH &&
-            command.body.bookIds.includes(book.id))
+          (command.name === commandNames.VOLUME_SEARCH &&
+            command.body.volumeId === issue.volumeId) ||
+          (command.name === commandNames.ISSUE_SEARCH &&
+            command.body.issueIds.includes(issue.id))
         );
       });
 
       return {
-        ...book,
-        author,
+        ...issue,
+        volume,
         qualityProfile,
         showSearchAction,
         isRefreshingIssue,
@@ -95,15 +95,15 @@ class IssueIndexItemConnector extends Component {
 
   onRefreshIssuePress = () => {
     this.props.dispatchExecuteCommand({
-      name: commandNames.REFRESH_BOOK,
-      bookId: this.props.id
+      name: commandNames.REFRESH_ISSUE,
+      issueId: this.props.id
     });
   };
 
   onSearchPress = () => {
     this.props.dispatchExecuteCommand({
-      name: commandNames.BOOK_SEARCH,
-      bookIds: [this.props.id]
+      name: commandNames.ISSUE_SEARCH,
+      issueIds: [this.props.id]
     });
   };
 

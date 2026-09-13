@@ -37,7 +37,7 @@ const writeAudioTagOptions = [
   }
 ];
 
-const writeBookTagOptions = [
+const writeIssueTagOptions = [
   {
     key: 'sync',
     get value() {
@@ -93,12 +93,12 @@ function MetadataProvider(props) {
 
                 <FormInputGroup
                   type={inputTypes.SELECT}
-                  name="writeBookTags"
+                  name="writeIssueTags"
                   helpTextWarning={translate('WriteBookTagsHelpTextWarning')}
-                  helpLink="https://wiki.servarr.com/readarr/settings#write-metadata-to-book-files"
-                  values={writeBookTagOptions}
+                  helpLink="https://wiki.servarr.com/readarr/settings#write-metadata-to-issue-files"
+                  values={writeIssueTagOptions}
                   onChange={onInputChange}
-                  {...settings.writeBookTags}
+                  {...settings.writeIssueTags}
                 />
               </FormGroup>
 

@@ -1,4 +1,4 @@
-.bookType {
+.issueType {
   margin-bottom: 20px;
   border: 1px solid var(--borderColor);
   border-radius: 4px;
@@ -18,12 +18,12 @@
   cursor: pointer;
 }
 
-.bookTypeLabel {
+.issueTypeLabel {
   margin-right: 5px;
   margin-left: 5px;
 }
 
-.bookCount {
+.issueCount {
   color: #8895aa;
   font-style: italic;
   font-size: 18px;
@@ -75,7 +75,7 @@
   width: 30px;
 }
 
-.books {
+.issues {
   padding-top: 15px;
   border-top: 1px solid var(--borderColor);
 }
@@ -113,7 +113,7 @@
 }
 
 @media only screen and (max-width: $breakpointSmall) {
-  .bookType {
+  .issueType {
     border-right: 0;
     border-left: 0;
     border-radius: 0;

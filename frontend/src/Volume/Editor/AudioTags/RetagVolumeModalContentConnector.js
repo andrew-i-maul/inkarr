@@ -5,23 +5,23 @@ import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import * as commandNames from 'Commands/commandNames';
 import { executeCommand } from 'Store/Actions/commandActions';
-import createAllAuthorSelector from 'Store/Selectors/createAllAuthorsSelector';
+import createAllVolumeSelector from 'Store/Selectors/createAllVolumesSelector';
 import RetagVolumeModalContent from './RetagVolumeModalContent';
 
 function createMapStateToProps() {
   return createSelector(
-    (state, { authorIds }) => authorIds,
-    createAllAuthorSelector(),
-    (authorIds, allVolumes) => {
-      const author = _.intersectionWith(allVolumes, authorIds, (s, id) => {
+    (state, { volumeIds }) => volumeIds,
+    createAllVolumeSelector(),
+    (volumeIds, allVolumes) => {
+      const volume = _.intersectionWith(allVolumes, volumeIds, (s, id) => {
         return s.id === id;
       });
 
-      const sortedVolume = _.orderBy(author, 'sortName');
-      const authorNames = _.map(sortedVolume, 'authorName');
+      const sortedVolume = _.orderBy(volume, 'sortName');
+      const volumeNames = _.map(sortedVolume, 'volumeName');
 
       return {
-        authorNames
+        volumeNames
       };
     }
   );
@@ -38,8 +38,8 @@ class RetagVolumeModalContentConnector extends Component {
 
   onRetagVolumePress = (updateCovers, embedMetadata) => {
     this.props.executeCommand({
-      name: commandNames.RETAG_AUTHOR,
-      authorIds: this.props.authorIds,
+      name: commandNames.RETAG_VOLUME,
+      volumeIds: this.props.volumeIds,
       updateCovers,
       embedMetadata
     });
@@ -61,7 +61,7 @@ class RetagVolumeModalContentConnector extends Component {
 }
 
 RetagVolumeModalContentConnector.propTypes = {
-  authorIds: PropTypes.arrayOf(PropTypes.number).isRequired,
+  volumeIds: PropTypes.arrayOf(PropTypes.number).isRequired,
   onModalClose: PropTypes.func.isRequired,
   executeCommand: PropTypes.func.isRequired
 };

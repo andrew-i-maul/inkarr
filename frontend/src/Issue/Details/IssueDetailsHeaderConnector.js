@@ -2,8 +2,8 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { toggleBooksMonitored } from 'Store/Actions/bookActions';
-import createBookSelector from 'Store/Selectors/createBookSelector';
+import { toggleIssuesMonitored } from 'Store/Actions/issueActions';
+import createIssueSelector from 'Store/Selectors/createIssueSelector';
 import createDimensionsSelector from 'Store/Selectors/createDimensionsSelector';
 import createUISettingsSelector from 'Store/Selectors/createUISettingsSelector';
 import IssueDetailsHeader from './IssueDetailsHeader';
@@ -18,14 +18,14 @@ const selectOverview = createSelector(
 
 function createMapStateToProps() {
   return createSelector(
-    createBookSelector(),
+    createIssueSelector(),
     selectOverview,
     createUISettingsSelector(),
     createDimensionsSelector(),
-    (book, overview, uiSettings, dimensions) => {
+    (issue, overview, uiSettings, dimensions) => {
 
       return {
-        ...book,
+        ...issue,
         overview,
         shortDateFormat: uiSettings.shortDateFormat,
         isSmallScreen: dimensions.isSmallScreen
@@ -35,7 +35,7 @@ function createMapStateToProps() {
 }
 
 const mapDispatchToProps = {
-  toggleIssuesMonitored: toggleBooksMonitored
+  toggleIssuesMonitored: toggleIssuesMonitored
 };
 
 class IssueDetailsHeaderConnector extends Component {
@@ -45,7 +45,7 @@ class IssueDetailsHeaderConnector extends Component {
 
   onMonitorTogglePress = (monitored) => {
     this.props.toggleIssuesMonitored({
-      bookIds: [this.props.bookId],
+      issueIds: [this.props.issueId],
       monitored
     });
   };
@@ -64,9 +64,9 @@ class IssueDetailsHeaderConnector extends Component {
 }
 
 IssueDetailsHeaderConnector.propTypes = {
-  bookId: PropTypes.number,
+  issueId: PropTypes.number,
   toggleIssuesMonitored: PropTypes.func.isRequired,
-  author: PropTypes.object
+  volume: PropTypes.object
 };
 
 export default connect(createMapStateToProps, mapDispatchToProps)(IssueDetailsHeaderConnector);

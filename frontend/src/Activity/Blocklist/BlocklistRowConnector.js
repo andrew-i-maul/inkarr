@@ -1,15 +1,15 @@
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import { removeBlocklistItem } from 'Store/Actions/blocklistActions';
-import createAuthorSelector from 'Store/Selectors/createAuthorSelector';
+import createVolumeSelector from 'Store/Selectors/createVolumeSelector';
 import BlocklistRow from './BlocklistRow';
 
 function createMapStateToProps() {
   return createSelector(
-    createAuthorSelector(),
-    (author) => {
+    createVolumeSelector(),
+    (volume) => {
       return {
-        author
+        volume
       };
     }
   );

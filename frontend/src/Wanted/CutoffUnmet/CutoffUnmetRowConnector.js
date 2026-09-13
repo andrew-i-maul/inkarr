@@ -1,14 +1,14 @@
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import createAuthorSelector from 'Store/Selectors/createAuthorSelector';
+import createVolumeSelector from 'Store/Selectors/createVolumeSelector';
 import CutoffUnmetRow from './CutoffUnmetRow';
 
 function createMapStateToProps() {
   return createSelector(
-    createAuthorSelector(),
-    (author) => {
+    createVolumeSelector(),
+    (volume) => {
       return {
-        author
+        volume
       };
     }
   );

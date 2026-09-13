@@ -13,12 +13,12 @@ import Blocklist from './Blocklist';
 function createMapStateToProps() {
   return createSelector(
     (state) => state.blocklist,
-    (state) => state.authors,
+    (state) => state.volumes,
     createCommandExecutingSelector(commandNames.CLEAR_BLOCKLIST),
-    (blocklist, authors, isClearingBlocklistExecuting) => {
+    (blocklist, volumes, isClearingBlocklistExecuting) => {
       return {
-        isAuthorFetching: authors.isFetching,
-        isAuthorPopulated: authors.isPopulated,
+        isVolumeFetching: volumes.isFetching,
+        isVolumePopulated: volumes.isPopulated,
         isClearingBlocklistExecuting,
         ...blocklist
       };

@@ -5,25 +5,25 @@ import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import * as commandNames from 'Commands/commandNames';
 import withScrollPosition from 'Components/withScrollPosition';
-import { saveBookEditor, setBookFilter, setBookSort, setBookTableOption, setBookView } from 'Store/Actions/bookIndexActions';
+import { saveIssueEditor, setIssueFilter, setIssueSort, setIssueTableOption, setIssueView } from 'Store/Actions/issueIndexActions';
 import { executeCommand } from 'Store/Actions/commandActions';
 import scrollPositions from 'Store/scrollPositions';
-import createBookClientSideCollectionItemsSelector from 'Store/Selectors/createBookClientSideCollectionItemsSelector';
+import createIssueClientSideCollectionItemsSelector from 'Store/Selectors/createIssueClientSideCollectionItemsSelector';
 import createCommandExecutingSelector from 'Store/Selectors/createCommandExecutingSelector';
 import createDimensionsSelector from 'Store/Selectors/createDimensionsSelector';
 import IssueIndex from './IssueIndex';
 
 function createMapStateToProps() {
   return createSelector(
-    createBookClientSideCollectionItemsSelector('bookIndex'),
-    createCommandExecutingSelector(commandNames.BULK_REFRESH_AUTHOR),
-    createCommandExecutingSelector(commandNames.BULK_REFRESH_BOOK),
+    createIssueClientSideCollectionItemsSelector('issueIndex'),
+    createCommandExecutingSelector(commandNames.BULK_REFRESH_VOLUME),
+    createCommandExecutingSelector(commandNames.BULK_REFRESH_ISSUE),
     createCommandExecutingSelector(commandNames.RSS_SYNC),
-    createCommandExecutingSelector(commandNames.CUTOFF_UNMET_BOOK_SEARCH),
-    createCommandExecutingSelector(commandNames.MISSING_BOOK_SEARCH),
+    createCommandExecutingSelector(commandNames.CUTOFF_UNMET_ISSUE_SEARCH),
+    createCommandExecutingSelector(commandNames.MISSING_ISSUE_SEARCH),
     createDimensionsSelector(),
     (
-      book,
+      issue,
       isRefreshingVolumeCommand,
       isRefreshingIssueCommand,
       isRssSyncExecuting,
@@ -33,7 +33,7 @@ function createMapStateToProps() {
     ) => {
       const isRefreshingIssue = isRefreshingIssueCommand || isRefreshingVolumeCommand;
       return {
-        ...book,
+        ...issue,
         isRefreshingIssue,
         isRssSyncExecuting,
         isSearching: isCutoffIssuesSearch || isMissingIssuesSearch,
@@ -67,8 +67,8 @@ function createMapDispatchToProps(dispatch, props) {
 
     onRefreshIssuePress(items) {
       dispatch(executeCommand({
-        name: commandNames.BULK_REFRESH_BOOK,
-        bookIds: items
+        name: commandNames.BULK_REFRESH_ISSUE,
+        issueIds: items
       }));
     },
 
@@ -80,8 +80,8 @@ function createMapDispatchToProps(dispatch, props) {
 
     onSearchPress(items) {
       dispatch(executeCommand({
-        name: commandNames.BOOK_SEARCH,
-        bookIds: items
+        name: commandNames.ISSUE_SEARCH,
+        issueIds: items
       }));
     }
   };
@@ -101,7 +101,7 @@ class IssueIndexConnector extends Component {
   };
 
   onScroll = ({ scrollTop }) => {
-    scrollPositions.bookIndex = scrollTop;
+    scrollPositions.issueIndex = scrollTop;
   };
 
   //
@@ -128,6 +128,6 @@ IssueIndexConnector.propTypes = {
 
 export default withScrollPosition(
   connect(createMapStateToProps, createMapDispatchToProps)(IssueIndexConnector),
-  'bookIndex'
+  'issueIndex'
 );
 

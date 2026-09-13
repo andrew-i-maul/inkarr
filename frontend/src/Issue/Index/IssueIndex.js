@@ -117,13 +117,13 @@ class IssueIndex extends Component {
 
     const newSelectedState = {};
 
-    items.forEach((book) => {
-      const isItemSelected = selectedState[book.id];
+    items.forEach((issue) => {
+      const isItemSelected = selectedState[issue.id];
 
       if (isItemSelected) {
-        newSelectedState[book.id] = isItemSelected;
+        newSelectedState[issue.id] = isItemSelected;
       } else {
-        newSelectedState[book.id] = false;
+        newSelectedState[issue.id] = false;
       }
     });
 
@@ -150,7 +150,7 @@ class IssueIndex extends Component {
     } = this.props;
 
     // Reset if not sorting by sortName
-    if (!isPopulated || (sortKey !== 'title' && sortKey !== 'authorTitle')) {
+    if (!isPopulated || (sortKey !== 'title' && sortKey !== 'volumeTitle')) {
       this.setState({ jumpBarItems: { order: [] } });
       return;
     }
@@ -235,7 +235,7 @@ class IssueIndex extends Component {
 
   onSaveSelected = (changes) => {
     this.props.onSaveSelected({
-      bookIds: this.getSelectedIds(),
+      issueIds: this.getSelectedIds(),
       ...changes
     });
   };
@@ -354,7 +354,7 @@ class IssueIndex extends Component {
               isEditorActive ?
                 <PageToolbarButton
                   label={translate('BookIndex')}
-                  iconName={icons.AUTHOR_CONTINUING}
+                  iconName={icons.VOLUME_CONTINUING}
                   isDisabled={hasNoVolume}
                   onPress={this.onEditorTogglePress}
                 /> :
@@ -460,7 +460,7 @@ class IssueIndex extends Component {
             {
               !isFetching && !!error &&
                 <div className={styles.errorMessage}>
-                  {getErrorMessage(error, 'Failed to load books from API')}
+                  {getErrorMessage(error, 'Failed to load issues from API')}
                 </div>
             }
 
@@ -508,7 +508,7 @@ class IssueIndex extends Component {
         {
           isLoaded && isEditorActive &&
             <IssueEditorFooter
-              bookIds={selectedIssueIds}
+              issueIds={selectedIssueIds}
               selectedCount={selectedIssueIds.length}
               isSaving={isSaving}
               saveError={saveError}

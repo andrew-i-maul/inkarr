@@ -36,14 +36,14 @@ export const defaultState = {
       isModifiable: false
     },
     {
-      name: 'authorMetadata.sortName',
-      label: 'Author',
+      name: 'volumeMetadata.sortName',
+      label: 'Volume',
       isSortable: true,
       isVisible: true
     },
     {
-      name: 'books.title',
-      label: 'Book',
+      name: 'issues.title',
+      label: 'Issue',
       isSortable: true,
       isVisible: true
     },
@@ -121,8 +121,8 @@ export const defaultState = {
       ]
     },
     {
-      key: 'bookFileImported',
-      label: 'Book Imported',
+      key: 'issueFileImported',
+      label: 'Issue Imported',
       filters: [
         {
           key: 'eventType',

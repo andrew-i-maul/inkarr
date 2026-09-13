@@ -14,28 +14,28 @@ class IssueIndexFooter extends PureComponent {
   // Render
 
   render() {
-    const { book } = this.props;
-    const count = book.length;
-    let books = 0;
-    let bookFiles = 0;
+    const { issue } = this.props;
+    const count = issue.length;
+    let issues = 0;
+    let issueFiles = 0;
     let monitored = 0;
     let totalFileSize = 0;
 
-    const authors = new Set();
+    const volumes = new Set();
 
-    book.forEach((s) => {
-      authors.add(s.authorId);
+    issue.forEach((s) => {
+      volumes.add(s.volumeId);
 
       const { statistics = {} } = s;
 
       const {
-        bookCount = 0,
-        bookFileCount = 0,
+        issueCount = 0,
+        issueFileCount = 0,
         sizeOnDisk = 0
       } = statistics;
 
-      books += bookCount;
-      bookFiles += bookFileCount;
+      issues += issueCount;
+      issueFiles += issueFileCount;
 
       if (s.monitored) {
         monitored++;
@@ -115,17 +115,17 @@ class IssueIndexFooter extends PureComponent {
                 <DescriptionList>
                   <DescriptionListItem
                     title={translate('Authors')}
-                    data={authors.size}
+                    data={volumes.size}
                   />
 
                   <DescriptionListItem
                     title={translate('Books')}
-                    data={books}
+                    data={issues}
                   />
 
                   <DescriptionListItem
                     title={translate('Files')}
-                    data={bookFiles}
+                    data={issueFiles}
                   />
                 </DescriptionList>
 
@@ -145,7 +145,7 @@ class IssueIndexFooter extends PureComponent {
 }
 
 IssueIndexFooter.propTypes = {
-  book: PropTypes.arrayOf(PropTypes.object).isRequired
+  issue: PropTypes.arrayOf(PropTypes.object).isRequired
 };
 
 export default IssueIndexFooter;

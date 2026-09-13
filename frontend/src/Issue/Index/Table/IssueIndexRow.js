@@ -85,10 +85,10 @@ class IssueIndexRow extends Component {
   render() {
     const {
       id,
-      authorId,
+      volumeId,
       monitored,
       title,
-      author,
+      volume,
       titleSlug,
       qualityProfile,
       releaseDate,
@@ -109,7 +109,7 @@ class IssueIndexRow extends Component {
     } = this.props;
 
     const {
-      bookFileCount,
+      issueFileCount,
       sizeOnDisk
     } = statistics;
 
@@ -173,7 +173,7 @@ class IssueIndexRow extends Component {
               );
             }
 
-            if (name === 'authorName') {
+            if (name === 'volumeName') {
               return (
                 <VirtualTableRowCell
                   key={name}
@@ -182,8 +182,8 @@ class IssueIndexRow extends Component {
                   )}
                 >
                   <VolumeNameLink
-                    titleSlug={author.titleSlug}
-                    authorName={author.authorName}
+                    titleSlug={volume.titleSlug}
+                    volumeName={volume.volumeName}
                   />
                 </VirtualTableRowCell>
               );
@@ -222,13 +222,13 @@ class IssueIndexRow extends Component {
               );
             }
 
-            if (name === 'bookFileCount') {
+            if (name === 'issueFileCount') {
               return (
                 <VirtualTableRowCell
                   key={name}
                   className={styles[name]}
                 >
-                  {bookFileCount}
+                  {issueFileCount}
                 </VirtualTableRowCell>
               );
             }
@@ -239,7 +239,7 @@ class IssueIndexRow extends Component {
                   key={name}
                   className={styles[name]}
                 >
-                  {author.path}
+                  {volume.path}
                 </VirtualTableRowCell>
               );
             }
@@ -342,21 +342,21 @@ class IssueIndexRow extends Component {
 
         <EditVolumeModalConnector
           isOpen={isEditVolumeModalOpen}
-          authorId={authorId}
+          volumeId={volumeId}
           onModalClose={this.onEditVolumeModalClose}
           onDeleteVolumePress={this.onDeleteVolumePress}
         />
 
         <DeleteVolumeModal
           isOpen={isDeleteVolumeModalOpen}
-          authorId={authorId}
+          volumeId={volumeId}
           onModalClose={this.onDeleteVolumeModalClose}
         />
 
         <EditIssueModalConnector
           isOpen={isEditIssueModalOpen}
-          authorId={authorId}
-          bookId={id}
+          volumeId={volumeId}
+          issueId={id}
           onModalClose={this.onEditIssueModalClose}
         />
       </>
@@ -366,11 +366,11 @@ class IssueIndexRow extends Component {
 
 IssueIndexRow.propTypes = {
   id: PropTypes.number.isRequired,
-  authorId: PropTypes.number.isRequired,
+  volumeId: PropTypes.number.isRequired,
   monitored: PropTypes.bool.isRequired,
   title: PropTypes.string.isRequired,
   titleSlug: PropTypes.string.isRequired,
-  author: PropTypes.object.isRequired,
+  volume: PropTypes.object.isRequired,
   qualityProfile: PropTypes.object.isRequired,
   releaseDate: PropTypes.string,
   added: PropTypes.string,
@@ -392,8 +392,8 @@ IssueIndexRow.propTypes = {
 
 IssueIndexRow.defaultProps = {
   statistics: {
-    bookCount: 0,
-    bookFileCount: 0,
+    issueCount: 0,
+    issueFileCount: 0,
     totalIssueCount: 0
   },
   genres: [],

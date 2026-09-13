@@ -3,13 +3,12 @@
 interface CssExports {
   'actions': string;
   'added': string;
-  'authorName': string;
   'bannerImage': string;
-  'bookFileCount': string;
-  'bookProgress': string;
   'cell': string;
   'checkInput': string;
   'genres': string;
+  'issueFileCount': string;
+  'issueProgress': string;
   'link': string;
   'metadataProfileId': string;
   'overlayTitle': string;
@@ -21,6 +20,7 @@ interface CssExports {
   'status': string;
   'tags': string;
   'title': string;
+  'volumeName': string;
 }
 export const cssExports: CssExports;
 export default cssExports;

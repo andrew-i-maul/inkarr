@@ -1,13 +1,13 @@
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { setAuthorPosterOption as setVolumePosterOption } from 'Store/Actions/authorIndexActions';
+import { setVolumePosterOption as setVolumePosterOption } from 'Store/Actions/volumeIndexActions';
 import VolumeIndexPosterOptionsModalContent from './VolumeIndexPosterOptionsModalContent';
 
 function createMapStateToProps() {
   return createSelector(
-    (state) => state.authorIndex,
-    (authorIndex) => {
-      return authorIndex.posterOptions;
+    (state) => state.volumeIndex,
+    (volumeIndex) => {
+      return volumeIndex.posterOptions;
     }
   );
 }

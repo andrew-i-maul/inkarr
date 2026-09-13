@@ -78,7 +78,7 @@
   margin-left: 20px;
 }
 
-.authorNavigationButtons {
+.volumeNavigationButtons {
   position: absolute;
   right: 0;
   z-index: 1;
@@ -87,8 +87,8 @@
   white-space: nowrap;
 }
 
-.authorUpButton,
-.authorNavigationButton {
+.volumeUpButton,
+.volumeNavigationButton {
   composes: button from '~Components/Link/IconButton.css';
 
   margin-left: 5px;

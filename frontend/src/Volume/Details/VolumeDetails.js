@@ -173,7 +173,7 @@ class VolumeDetails extends Component {
     this.setState(getExpandedState(selectAll(expandedState, !allExpanded)));
   };
 
-  onExpandPress = (bookId, isExpanded) => {
+  onExpandPress = (issueId, isExpanded) => {
     this.setState((state) => {
       const convertedState = {
         allSelected: state.allExpanded,
@@ -181,7 +181,7 @@ class VolumeDetails extends Component {
         selectedState: state.expandedState
       };
 
-      const newState = toggleSelected(convertedState, [], bookId, isExpanded, false);
+      const newState = toggleSelected(convertedState, [], issueId, isExpanded, false);
 
       return getExpandedState(newState);
     });
@@ -203,7 +203,7 @@ class VolumeDetails extends Component {
 
   onSaveSelected = (changes) => {
     this.props.onSaveSelected({
-      bookIds: this.getSelectedIds(),
+      issueIds: this.getSelectedIds(),
       ...changes
     });
   };
@@ -218,15 +218,15 @@ class VolumeDetails extends Component {
   render() {
     const {
       id,
-      authorName,
+      volumeName,
       path,
       monitored,
       isRefreshing,
       isSearching,
       isFetching,
       isPopulated,
-      booksError,
-      bookFilesError,
+      issuesError,
+      issueFilesError,
       hasIssues,
       hasMonitoredIssues,
       hasSeries,
@@ -244,7 +244,7 @@ class VolumeDetails extends Component {
     } = this.props;
 
     const {
-      bookFileCount = 0,
+      issueFileCount = 0,
       totalIssueCount = 0
     } = statistics;
 
@@ -275,7 +275,7 @@ class VolumeDetails extends Component {
     const selectedIssueIds = this.getSelectedIds();
 
     return (
-      <PageContent title={authorName}>
+      <PageContent title={volumeName}>
         <PageToolbar>
           <PageToolbarSection>
             <PageToolbarButton
@@ -344,7 +344,7 @@ class VolumeDetails extends Component {
               isEditorActive ?
                 <PageToolbarButton
                   label={translate('BookList')}
-                  iconName={icons.AUTHOR_CONTINUING}
+                  iconName={icons.VOLUME_CONTINUING}
                   onPress={this.onIssueEditorTogglePress}
                 /> :
                 <PageToolbarButton
@@ -378,23 +378,23 @@ class VolumeDetails extends Component {
         <PageContentBody innerClassName={styles.innerContentBody}>
           <SwipeHeaderConnector
             className={styles.header}
-            nextLink={`/author/${nextVolume.titleSlug}`}
-            nextComponent={(width) => <VolumeDetailsHeaderConnector authorId={nextVolume.id} width={width} />}
-            prevLink={`/author/${previousVolume.titleSlug}`}
-            prevComponent={(width) => <VolumeDetailsHeaderConnector authorId={previousVolume.id} width={width} />}
-            currentComponent={(width) => <VolumeDetailsHeaderConnector authorId={id} width={width} />}
+            nextLink={`/volume/${nextVolume.titleSlug}`}
+            nextComponent={(width) => <VolumeDetailsHeaderConnector volumeId={nextVolume.id} width={width} />}
+            prevLink={`/volume/${previousVolume.titleSlug}`}
+            prevComponent={(width) => <VolumeDetailsHeaderConnector volumeId={previousVolume.id} width={width} />}
+            currentComponent={(width) => <VolumeDetailsHeaderConnector volumeId={id} width={width} />}
           >
-            <div className={styles.authorNavigationButtons}>
+            <div className={styles.volumeNavigationButtons}>
               <IconButton
-                className={styles.authorNavigationButton}
+                className={styles.volumeNavigationButton}
                 name={icons.ARROW_LEFT}
                 size={30}
-                title={translate('GoToInterp', [previousVolume.authorName])}
-                to={`/author/${previousVolume.titleSlug}`}
+                title={translate('GoToInterp', [previousVolume.volumeName])}
+                to={`/volume/${previousVolume.titleSlug}`}
               />
 
               <IconButton
-                className={styles.authorUpButton}
+                className={styles.volumeUpButton}
                 name={icons.ARROW_UP}
                 size={30}
                 title={translate('GoToAuthorListing')}
@@ -402,24 +402,24 @@ class VolumeDetails extends Component {
               />
 
               <IconButton
-                className={styles.authorNavigationButton}
+                className={styles.volumeNavigationButton}
                 name={icons.ARROW_RIGHT}
                 size={30}
-                title={translate('GoToInterp', [nextVolume.authorName])}
-                to={`/author/${nextVolume.titleSlug}`}
+                title={translate('GoToInterp', [nextVolume.volumeName])}
+                to={`/volume/${nextVolume.titleSlug}`}
               />
             </div>
           </SwipeHeaderConnector>
 
           <div className={styles.contentContainer}>
             {
-              !isPopulated && !booksError && !bookFilesError ?
+              !isPopulated && !issuesError && !issueFilesError ?
                 <LoadingIndicator /> :
                 null
             }
 
             {
-              !isFetching && booksError ?
+              !isFetching && issuesError ?
                 <Alert kind={kinds.DANGER}>
                   {translate('LoadingBooksFailed')}
                 </Alert> :
@@ -427,7 +427,7 @@ class VolumeDetails extends Component {
             }
 
             {
-              !isFetching && bookFilesError ?
+              !isFetching && issueFilesError ?
                 <Alert kind={kinds.DANGER}>
                   {translate('LoadingBookFilesFailed')}
                 </Alert> :
@@ -472,14 +472,14 @@ class VolumeDetails extends Component {
                       className={styles.tab}
                       selectedClassName={styles.selectedTab}
                     >
-                      {translate('FilesTotal', [bookFileCount])}
+                      {translate('FilesTotal', [issueFileCount])}
                     </Tab>
 
                     {
                       selectedTabIndex === 3 &&
                         <div className={styles.filterIcon}>
                           <InteractiveSearchFilterMenuConnector
-                            type="author"
+                            type="volume"
                           />
                         </div>
                     }
@@ -487,7 +487,7 @@ class VolumeDetails extends Component {
 
                   <TabPanel>
                     <VolumeDetailsSeasonConnector
-                      authorId={id}
+                      volumeId={id}
                       isExpanded={true}
                       selectedState={selectedState}
                       onExpandPress={this.onExpandPress}
@@ -507,7 +507,7 @@ class VolumeDetails extends Component {
                                 <VolumeDetailsSeriesConnector
                                   key={item.id}
                                   seriesId={item.id}
-                                  authorId={id}
+                                  volumeId={id}
                                   isExpanded={expandedState[item.id]}
                                   onExpandPress={this.onExpandPress}
                                 />
@@ -520,20 +520,20 @@ class VolumeDetails extends Component {
 
                   <TabPanel>
                     <VolumeHistoryTable
-                      authorId={id}
+                      volumeId={id}
                     />
                   </TabPanel>
 
                   <TabPanel>
                     <InteractiveSearchTable
-                      type="author"
-                      authorId={id}
+                      type="volume"
+                      volumeId={id}
                     />
                   </TabPanel>
 
                   <TabPanel>
                     <IssueFileEditorTable
-                      authorId={id}
+                      volumeId={id}
                     />
                   </TabPanel>
                 </Tabs>
@@ -544,38 +544,38 @@ class VolumeDetails extends Component {
             {translate('TooManyBooks')}
             <Link to='/settings/profiles'> {translate('MetadataProfile')} </Link>
             or manually
-            <Link to={`/add/search?term=${encodeURIComponent(authorName)}`}> {translate('Search')} </Link>
+            <Link to={`/add/search?term=${encodeURIComponent(volumeName)}`}> {translate('Search')} </Link>
             for new items!
           </div>
 
           <OrganizePreviewModalConnector
             isOpen={isOrganizeModalOpen}
-            authorId={id}
+            volumeId={id}
             onModalClose={this.onOrganizeModalClose}
           />
 
           <RetagPreviewModalConnector
             isOpen={isRetagModalOpen}
-            authorId={id}
+            volumeId={id}
             onModalClose={this.onRetagModalClose}
           />
 
           <EditVolumeModalConnector
             isOpen={isEditVolumeModalOpen}
-            authorId={id}
+            volumeId={id}
             onModalClose={this.onEditVolumeModalClose}
             onDeleteVolumePress={this.onDeleteVolumePress}
           />
 
           <DeleteVolumeModal
             isOpen={isDeleteVolumeModalOpen}
-            authorId={id}
+            volumeId={id}
             onModalClose={this.onDeleteVolumeModalClose}
           />
 
           <InteractiveImportModal
             isOpen={isInteractiveImportModalOpen}
-            authorId={id}
+            volumeId={id}
             folder={path}
             allowVolumeChange={false}
             showFilterExistingFiles={true}
@@ -585,7 +585,7 @@ class VolumeDetails extends Component {
 
           <MonitoringOptionsModal
             isOpen={isMonitorOptionsModalOpen}
-            authorId={id}
+            volumeId={id}
             onModalClose={this.onMonitorOptionsClose}
           />
         </PageContentBody>
@@ -593,7 +593,7 @@ class VolumeDetails extends Component {
         {
           isEditorActive &&
             <IssueEditorFooter
-              bookIds={selectedIssueIds}
+              issueIds={selectedIssueIds}
               selectedCount={selectedIssueIds.length}
               isSaving={isSaving}
               saveError={saveError}
@@ -609,7 +609,7 @@ class VolumeDetails extends Component {
 
 VolumeDetails.propTypes = {
   id: PropTypes.number.isRequired,
-  authorName: PropTypes.string.isRequired,
+  volumeName: PropTypes.string.isRequired,
   ratings: PropTypes.object.isRequired,
   path: PropTypes.string.isRequired,
   statistics: PropTypes.object.isRequired,
@@ -625,8 +625,8 @@ VolumeDetails.propTypes = {
   isSearching: PropTypes.bool.isRequired,
   isFetching: PropTypes.bool.isRequired,
   isPopulated: PropTypes.bool.isRequired,
-  booksError: PropTypes.object,
-  bookFilesError: PropTypes.object,
+  issuesError: PropTypes.object,
+  issueFilesError: PropTypes.object,
   hasIssues: PropTypes.bool.isRequired,
   hasMonitoredIssues: PropTypes.bool.isRequired,
   hasSeries: PropTypes.bool.isRequired,

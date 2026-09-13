@@ -18,7 +18,7 @@ export const shortcuts = {
     name: 'Accept Confirmation Modal'
   },
 
-  AUTHOR_SEARCH_INPUT: {
+  VOLUME_SEARCH_INPUT: {
     key: 's',
     name: 'Focus Search Box'
   },

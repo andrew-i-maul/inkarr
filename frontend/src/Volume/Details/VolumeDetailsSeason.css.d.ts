@@ -6,16 +6,16 @@ interface CssExports {
   'actions': string;
   'actionsMenu': string;
   'actionsMenuContent': string;
-  'bookCount': string;
-  'bookType': string;
-  'bookTypeLabel': string;
-  'books': string;
   'collapseButtonContainer': string;
   'collapseButtonIcon': string;
   'episodeCountTooltip': string;
   'expandButton': string;
   'expandButtonIcon': string;
   'header': string;
+  'issueCount': string;
+  'issueType': string;
+  'issueTypeLabel': string;
+  'issues': string;
   'left': string;
   'noIssues': string;
 }

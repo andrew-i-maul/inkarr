@@ -10,8 +10,8 @@ function IssueIndexPosterInfo(props) {
     showQualityProfile,
     added,
     releaseDate,
-    author,
-    bookFileCount,
+    volume,
+    issueFileCount,
     sizeOnDisk,
     sortKey,
     showRelativeDates,
@@ -63,18 +63,18 @@ function IssueIndexPosterInfo(props) {
     );
   }
 
-  if (sortKey === 'bookFileCount') {
-    let books = '1 file';
+  if (sortKey === 'issueFileCount') {
+    let issues = '1 file';
 
-    if (bookFileCount === 0) {
-      books = 'No files';
-    } else if (bookFileCount > 1) {
-      books = `${bookFileCount} files`;
+    if (issueFileCount === 0) {
+      issues = 'No files';
+    } else if (issueFileCount > 1) {
+      issues = `${issueFileCount} files`;
     }
 
     return (
       <div className={styles.info}>
-        {books}
+        {issues}
       </div>
     );
   }
@@ -82,7 +82,7 @@ function IssueIndexPosterInfo(props) {
   if (sortKey === 'path') {
     return (
       <div className={styles.info}>
-        {author.path}
+        {volume.path}
       </div>
     );
   }
@@ -101,10 +101,10 @@ function IssueIndexPosterInfo(props) {
 IssueIndexPosterInfo.propTypes = {
   qualityProfile: PropTypes.object.isRequired,
   showQualityProfile: PropTypes.bool.isRequired,
-  author: PropTypes.object.isRequired,
+  volume: PropTypes.object.isRequired,
   added: PropTypes.string,
   releaseDate: PropTypes.string,
-  bookFileCount: PropTypes.number.isRequired,
+  issueFileCount: PropTypes.number.isRequired,
   sizeOnDisk: PropTypes.number,
   sortKey: PropTypes.string.isRequired,
   showRelativeDates: PropTypes.bool.isRequired,

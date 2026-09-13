@@ -10,8 +10,8 @@ import VolumeIndexPoster from './VolumeIndexPoster';
 import styles from './VolumeIndexPosters.css';
 
 // Poster container dimensions
-const columnPadding = parseInt(dimensions.authorIndexColumnPadding);
-const columnPaddingSmallScreen = parseInt(dimensions.authorIndexColumnPaddingSmallScreen);
+const columnPadding = parseInt(dimensions.volumeIndexColumnPadding);
+const columnPaddingSmallScreen = parseInt(dimensions.volumeIndexColumnPaddingSmallScreen);
 const progressBarHeight = parseInt(dimensions.progressBarSmallHeight);
 const detailedProgressBarHeight = parseInt(dimensions.progressBarMediumHeight);
 
@@ -221,10 +221,10 @@ class VolumeIndexPosters extends Component {
       showQualityProfile
     } = posterOptions;
 
-    const authorIdx = rowIndex * columnCount + columnIndex;
-    const author = items[authorIdx];
+    const volumeIdx = rowIndex * columnCount + columnIndex;
+    const volume = items[volumeIdx];
 
-    if (!author) {
+    if (!volume) {
       return null;
     }
 
@@ -237,7 +237,7 @@ class VolumeIndexPosters extends Component {
         }}
       >
         <VolumeIndexItemConnector
-          key={author.id}
+          key={volume.id}
           component={VolumeIndexPoster}
           sortKey={sortKey}
           posterWidth={posterWidth}
@@ -250,10 +250,10 @@ class VolumeIndexPosters extends Component {
           shortDateFormat={shortDateFormat}
           timeFormat={timeFormat}
           style={style}
-          authorId={author.id}
-          qualityProfileId={author.qualityProfileId}
-          metadataProfileId={author.metadataProfileId}
-          isSelected={selectedState[author.id]}
+          volumeId={volume.id}
+          qualityProfileId={volume.qualityProfileId}
+          metadataProfileId={volume.metadataProfileId}
+          isSelected={selectedState[volume.id]}
           onSelectedChange={onSelectedChange}
           isEditorActive={isEditorActive}
         />

@@ -17,7 +17,7 @@
   flex: 4 0 110px;
 }
 
-.authorName {
+.volumeName {
   composes: cell;
 
   flex: 1 0 110px;
@@ -52,7 +52,7 @@
   font-size: 20px;
 }
 
-.bookFileCount,
+.issueFileCount,
 .qualityProfileId,
 .metadataProfileId {
   composes: cell;
@@ -68,7 +68,7 @@
   flex: 0 0 180px;
 }
 
-.bookProgress {
+.issueProgress {
   composes: cell;
 
   display: flex;

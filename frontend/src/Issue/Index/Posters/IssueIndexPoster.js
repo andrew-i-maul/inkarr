@@ -90,8 +90,8 @@ class IssueIndexPoster extends Component {
     const {
       id,
       title,
-      authorId,
-      author,
+      volumeId,
+      volume,
       monitored,
       titleSlug,
       nextAiring,
@@ -120,9 +120,9 @@ class IssueIndexPoster extends Component {
     } = this.props;
 
     const {
-      bookCount,
+      issueCount,
       sizeOnDisk,
-      bookFileCount,
+      issueFileCount,
       totalIssueCount
     } = statistics;
 
@@ -133,7 +133,7 @@ class IssueIndexPoster extends Component {
       isEditIssueModalOpen
     } = this.state;
 
-    const link = `/book/${titleSlug}`;
+    const link = `/issue/${titleSlug}`;
 
     const elementStyle = {
       width: `${posterWidth}px`,
@@ -222,8 +222,8 @@ class IssueIndexPoster extends Component {
 
           <IssueIndexProgressBar
             monitored={monitored}
-            bookCount={bookCount}
-            bookFileCount={bookFileCount}
+            issueCount={issueCount}
+            issueFileCount={issueFileCount}
             totalIssueCount={totalIssueCount}
             posterWidth={posterWidth}
             detailedProgressBar={detailedProgressBar}
@@ -239,7 +239,7 @@ class IssueIndexPoster extends Component {
           {
             showVolume &&
               <div className={styles.title}>
-                {author.authorName}
+                {volume.volumeName}
               </div>
           }
 
@@ -273,8 +273,8 @@ class IssueIndexPoster extends Component {
               </div>
           }
           <IssueIndexPosterInfo
-            author={author}
-            bookFileCount={bookFileCount}
+            volume={volume}
+            issueFileCount={issueFileCount}
             sizeOnDisk={sizeOnDisk}
             qualityProfile={qualityProfile}
             showQualityProfile={showQualityProfile}
@@ -286,21 +286,21 @@ class IssueIndexPoster extends Component {
 
           <EditVolumeModalConnector
             isOpen={isEditVolumeModalOpen}
-            authorId={authorId}
+            volumeId={volumeId}
             onModalClose={this.onEditVolumeModalClose}
             onDeleteVolumePress={this.onDeleteVolumePress}
           />
 
           <DeleteVolumeModal
             isOpen={isDeleteVolumeModalOpen}
-            authorId={authorId}
+            volumeId={volumeId}
             onModalClose={this.onDeleteVolumeModalClose}
           />
 
           <EditIssueModalConnector
             isOpen={isEditIssueModalOpen}
-            authorId={authorId}
-            bookId={id}
+            volumeId={volumeId}
+            issueId={id}
             onModalClose={this.onEditIssueModalClose}
           />
         </div>
@@ -312,8 +312,8 @@ class IssueIndexPoster extends Component {
 IssueIndexPoster.propTypes = {
   id: PropTypes.number.isRequired,
   title: PropTypes.string.isRequired,
-  authorId: PropTypes.number.isRequired,
-  author: PropTypes.object.isRequired,
+  volumeId: PropTypes.number.isRequired,
+  volume: PropTypes.object.isRequired,
   monitored: PropTypes.bool.isRequired,
   titleSlug: PropTypes.string.isRequired,
   nextAiring: PropTypes.string,
@@ -342,8 +342,8 @@ IssueIndexPoster.propTypes = {
 
 IssueIndexPoster.defaultProps = {
   statistics: {
-    bookCount: 0,
-    bookFileCount: 0,
+    issueCount: 0,
+    issueFileCount: 0,
     totalIssueCount: 0
   }
 };

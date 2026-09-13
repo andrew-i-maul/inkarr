@@ -15,7 +15,7 @@ function getType({ type, selectOptionsProviderAction }) {
     case 'device':
       return inputTypes.DEVICE;
     case 'bookshelf':
-      return inputTypes.BOOKSHELF;
+      return inputTypes.ISSUESHELF;
     case 'password':
       return inputTypes.PASSWORD;
     case 'number':

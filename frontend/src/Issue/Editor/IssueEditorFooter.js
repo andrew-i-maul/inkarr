@@ -77,7 +77,7 @@ class IssueEditorFooter extends Component {
 
   render() {
     const {
-      bookIds,
+      issueIds,
       selectedCount,
       isSaving,
       isDeleting
@@ -134,7 +134,7 @@ class IssueEditorFooter extends Component {
 
         <DeleteIssueModal
           isOpen={isDeleteIssueModalOpen}
-          bookIds={bookIds}
+          issueIds={issueIds}
           onModalClose={this.onDeleteIssueModalClose}
         />
 
@@ -144,7 +144,7 @@ class IssueEditorFooter extends Component {
 }
 
 IssueEditorFooter.propTypes = {
-  bookIds: PropTypes.arrayOf(PropTypes.number).isRequired,
+  issueIds: PropTypes.arrayOf(PropTypes.number).isRequired,
   selectedCount: PropTypes.number.isRequired,
   isSaving: PropTypes.bool.isRequired,
   saveError: PropTypes.object,

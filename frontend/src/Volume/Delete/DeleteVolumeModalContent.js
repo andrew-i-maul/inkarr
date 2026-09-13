@@ -53,26 +53,26 @@ class DeleteVolumeModalContent extends Component {
 
   render() {
     const {
-      authorName,
+      volumeName,
       path,
       statistics,
       onModalClose
     } = this.props;
 
     const {
-      bookFileCount,
+      issueFileCount,
       sizeOnDisk
     } = statistics;
 
     const deleteFiles = this.state.deleteFiles;
     const addImportListExclusion = this.state.addImportListExclusion;
 
-    let deleteFilesLabel = `Delete ${bookFileCount} Issue Files`;
+    let deleteFilesLabel = `Delete ${issueFileCount} Issue Files`;
     let deleteFilesHelpText = translate('DeleteFilesHelpText');
 
-    if (bookFileCount === 0) {
+    if (issueFileCount === 0) {
       deleteFilesLabel = 'Delete Volume Folder';
-      deleteFilesHelpText = 'Delete the author folder and its contents';
+      deleteFilesHelpText = 'Delete the volume folder and its contents';
     }
 
     return (
@@ -80,7 +80,7 @@ class DeleteVolumeModalContent extends Component {
         onModalClose={onModalClose}
       >
         <ModalHeader>
-          Delete - {authorName}
+          Delete - {volumeName}
         </ModalHeader>
 
         <ModalBody>
@@ -129,8 +129,8 @@ class DeleteVolumeModalContent extends Component {
                 </div>
 
                 {
-                  !!bookFileCount &&
-                    <div>{bookFileCount} book files totaling {formatBytes(sizeOnDisk)}</div>
+                  !!issueFileCount &&
+                    <div>{issueFileCount} issue files totaling {formatBytes(sizeOnDisk)}</div>
                 }
               </div>
           }
@@ -155,7 +155,7 @@ class DeleteVolumeModalContent extends Component {
 }
 
 DeleteVolumeModalContent.propTypes = {
-  authorName: PropTypes.string.isRequired,
+  volumeName: PropTypes.string.isRequired,
   path: PropTypes.string.isRequired,
   statistics: PropTypes.object.isRequired,
   onDeletePress: PropTypes.func.isRequired,
@@ -164,7 +164,7 @@ DeleteVolumeModalContent.propTypes = {
 
 DeleteVolumeModalContent.defaultProps = {
   statistics: {
-    bookFileCount: 0
+    issueFileCount: 0
   }
 };
 

@@ -10,8 +10,8 @@ import IssueIndexOverview from './IssueIndexOverview';
 import styles from './IssueIndexOverviews.css';
 
 // Poster container dimensions
-const columnPadding = parseInt(dimensions.authorIndexColumnPadding);
-const columnPaddingSmallScreen = parseInt(dimensions.authorIndexColumnPaddingSmallScreen);
+const columnPadding = parseInt(dimensions.volumeIndexColumnPadding);
+const columnPaddingSmallScreen = parseInt(dimensions.volumeIndexColumnPaddingSmallScreen);
 const progressBarHeight = parseInt(dimensions.progressBarSmallHeight);
 const detailedProgressBarHeight = parseInt(dimensions.progressBarMediumHeight);
 
@@ -164,9 +164,9 @@ class IssueIndexOverviews extends Component {
       rowHeight
     } = this.state;
 
-    const book = items[rowIndex];
+    const issue = items[rowIndex];
 
-    if (!book) {
+    if (!issue) {
       return null;
     }
 
@@ -176,7 +176,7 @@ class IssueIndexOverviews extends Component {
         style={style}
       >
         <IssueIndexItemConnector
-          key={book.id}
+          key={issue.id}
           component={IssueIndexOverview}
           sortKey={sortKey}
           posterWidth={posterWidth}
@@ -188,9 +188,9 @@ class IssueIndexOverviews extends Component {
           longDateFormat={longDateFormat}
           timeFormat={timeFormat}
           isSmallScreen={isSmallScreen}
-          bookId={book.id}
-          authorId={book.authorId}
-          isSelected={selectedState[book.id]}
+          issueId={issue.id}
+          volumeId={issue.volumeId}
+          isSelected={selectedState[issue.id]}
           onSelectedChange={onSelectedChange}
           isEditorActive={isEditorActive}
         />

@@ -10,13 +10,13 @@
   flex: 4 0 110px;
 }
 
-.authorName {
+.volumeName {
   composes: headerCell from '~Components/Table/VirtualTableHeaderCell.css';
 
   flex: 1 0 110px;
 }
 
-.bookFileCount,
+.issueFileCount,
 .qualityProfileId,
 .metadataProfileId {
   composes: headerCell from '~Components/Table/VirtualTableHeaderCell.css';

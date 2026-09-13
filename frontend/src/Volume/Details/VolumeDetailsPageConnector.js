@@ -16,19 +16,19 @@ import styles from './VolumeDetails.css';
 function createMapStateToProps() {
   return createSelector(
     (state, { match }) => match,
-    (state) => state.authors,
-    (match, authors) => {
+    (state) => state.volumes,
+    (match, volumes) => {
       const titleSlug = match.params.titleSlug;
       const {
         isFetching,
         isPopulated,
         error,
         items
-      } = authors;
+      } = volumes;
 
-      const authorIndex = _.findIndex(items, { titleSlug });
+      const volumeIndex = _.findIndex(items, { titleSlug });
 
-      if (authorIndex > -1) {
+      if (volumeIndex > -1) {
         return {
           isFetching,
           isPopulated,
@@ -85,7 +85,7 @@ class VolumeDetailsPageConnector extends Component {
     if (!isFetching && !!error) {
       return (
         <div className={styles.errorMessage}>
-          {getErrorMessage(error, 'Failed to load author from API')}
+          {getErrorMessage(error, 'Failed to load volume from API')}
         </div>
       );
     }

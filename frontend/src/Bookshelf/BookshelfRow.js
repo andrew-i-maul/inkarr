@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import AuthorNameLink from 'Volume/VolumeNameLink';
+import VolumeNameLink from 'Volume/VolumeNameLink';
 import { getVolumeStatusDetails } from 'Volume/VolumeStatus';
 import Icon from 'Components/Icon';
 import MonitorToggleButton from 'Components/MonitorToggleButton';
 import VirtualTableRowCell from 'Components/Table/Cells/VirtualTableRowCell';
 import VirtualTableSelectCell from 'Components/Table/Cells/VirtualTableSelectCell';
-import BookshelfBook from './BookshelfBook';
+import BookshelfIssue from './BookshelfIssue';
 import styles from './BookshelfRow.css';
 
 class BookshelfRow extends Component {
@@ -16,17 +16,17 @@ class BookshelfRow extends Component {
 
   render() {
     const {
-      authorId,
+      volumeId,
       status,
       titleSlug,
-      authorName,
+      volumeName,
       monitored,
-      books,
+      issues,
       isSaving,
       isSelected,
       onSelectedChange,
-      onAuthorMonitoredPress,
-      onBookMonitoredPress
+      onVolumeMonitoredPress,
+      onIssueMonitoredPress
     } = this.props;
 
     const statusDetails = getVolumeStatusDetails(status);
@@ -35,7 +35,7 @@ class BookshelfRow extends Component {
       <>
         <VirtualTableSelectCell
           className={styles.selectCell}
-          id={authorId}
+          id={volumeId}
           isSelected={isSelected}
           onSelectedChange={onSelectedChange}
           isDisabled={false}
@@ -46,7 +46,7 @@ class BookshelfRow extends Component {
             monitored={monitored}
             size={14}
             isSaving={isSaving}
-            onPress={onAuthorMonitoredPress}
+            onPress={onVolumeMonitoredPress}
           />
         </VirtualTableRowCell>
 
@@ -59,20 +59,20 @@ class BookshelfRow extends Component {
         </VirtualTableRowCell>
 
         <VirtualTableRowCell className={styles.title}>
-          <AuthorNameLink
+          <VolumeNameLink
             titleSlug={titleSlug}
-            authorName={authorName}
+            volumeName={volumeName}
           />
         </VirtualTableRowCell>
 
-        <VirtualTableRowCell className={styles.books}>
+        <VirtualTableRowCell className={styles.issues}>
           {
-            books.map((book) => {
+            issues.map((issue) => {
               return (
-                <BookshelfBook
-                  key={book.id}
-                  {...book}
-                  onBookMonitoredPress={onBookMonitoredPress}
+                <BookshelfIssue
+                  key={issue.id}
+                  {...issue}
+                  onIssueMonitoredPress={onIssueMonitoredPress}
                 />
               );
             })
@@ -84,17 +84,17 @@ class BookshelfRow extends Component {
 }
 
 BookshelfRow.propTypes = {
-  authorId: PropTypes.number.isRequired,
+  volumeId: PropTypes.number.isRequired,
   status: PropTypes.string.isRequired,
   titleSlug: PropTypes.string.isRequired,
-  authorName: PropTypes.string.isRequired,
+  volumeName: PropTypes.string.isRequired,
   monitored: PropTypes.bool.isRequired,
-  books: PropTypes.arrayOf(PropTypes.object).isRequired,
+  issues: PropTypes.arrayOf(PropTypes.object).isRequired,
   isSaving: PropTypes.bool.isRequired,
   isSelected: PropTypes.bool,
   onSelectedChange: PropTypes.func.isRequired,
-  onAuthorMonitoredPress: PropTypes.func.isRequired,
-  onBookMonitoredPress: PropTypes.func.isRequired
+  onVolumeMonitoredPress: PropTypes.func.isRequired,
+  onIssueMonitoredPress: PropTypes.func.isRequired
 };
 
 BookshelfRow.defaultProps = {

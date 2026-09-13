@@ -4,16 +4,16 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import LoadingIndicator from 'Components/Loading/LoadingIndicator';
-import { fetchBookFiles as fetchIssueFiles } from 'Store/Actions/bookFileActions';
+import { fetchIssueFiles as fetchIssueFiles } from 'Store/Actions/issueFileActions';
 import getErrorMessage from 'Utilities/Object/getErrorMessage';
 import FileDetails from './FileDetails';
 
 function createMapStateToProps() {
   return createSelector(
-    (state) => state.bookFiles,
-    (bookFiles) => {
+    (state) => state.issueFiles,
+    (issueFiles) => {
       return {
-        ...bookFiles
+        ...issueFiles
       };
     }
   );

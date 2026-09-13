@@ -14,7 +14,7 @@ class EditIssueModalConnector extends Component {
   // Listeners
 
   onModalClose = () => {
-    this.props.clearPendingChanges({ section: 'books' });
+    this.props.clearPendingChanges({ section: 'issues' });
     this.props.onModalClose();
   };
 

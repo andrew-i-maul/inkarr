@@ -55,7 +55,7 @@ class VolumeIndexTable extends Component {
       showTitle
     } = this.props;
 
-    const author = items[rowIndex];
+    const volume = items[rowIndex];
 
     return (
       <VirtualTableRow
@@ -63,14 +63,14 @@ class VolumeIndexTable extends Component {
         style={style}
       >
         <VolumeIndexItemConnector
-          key={author.id}
+          key={volume.id}
           component={VolumeIndexRow}
           style={style}
           columns={columns}
-          authorId={author.id}
-          qualityProfileId={author.qualityProfileId}
-          metadataProfileId={author.metadataProfileId}
-          isSelected={selectedState[author.id]}
+          volumeId={volume.id}
+          qualityProfileId={volume.qualityProfileId}
+          metadataProfileId={volume.metadataProfileId}
+          isSelected={selectedState[volume.id]}
           onSelectedChange={onSelectedChange}
           isEditorActive={isEditorActive}
           showBanners={showBanners}

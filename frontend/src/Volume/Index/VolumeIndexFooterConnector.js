@@ -6,9 +6,9 @@ import VolumeIndexFooter from './VolumeIndexFooter';
 
 function createUnoptimizedSelector() {
   return createSelector(
-    createClientSideCollectionSelector('authors', 'authorIndex'),
-    (authors) => {
-      return authors.items.map((s) => {
+    createClientSideCollectionSelector('volumes', 'volumeIndex'),
+    (volumes) => {
+      return volumes.items.map((s) => {
         const {
           monitored,
           status,
@@ -28,16 +28,16 @@ function createUnoptimizedSelector() {
 function createVolumeSelector() {
   return createDeepEqualSelector(
     createUnoptimizedSelector(),
-    (author) => author
+    (volume) => volume
   );
 }
 
 function createMapStateToProps() {
   return createSelector(
     createVolumeSelector(),
-    (author) => {
+    (volume) => {
       return {
-        author
+        volume
       };
     }
   );

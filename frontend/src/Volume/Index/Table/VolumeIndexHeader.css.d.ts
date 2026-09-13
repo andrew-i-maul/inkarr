@@ -5,9 +5,9 @@ interface CssExports {
   'added': string;
   'banner': string;
   'bannerGrow': string;
-  'bookCount': string;
-  'bookProgress': string;
   'genres': string;
+  'issueCount': string;
+  'issueProgress': string;
   'lastIssue': string;
   'latestIssue': string;
   'metadataProfileId': string;

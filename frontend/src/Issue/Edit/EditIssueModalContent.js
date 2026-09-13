@@ -35,7 +35,7 @@ class EditIssueModalContent extends Component {
   render() {
     const {
       title,
-      authorName,
+      volumeName,
       statistics,
       item,
       isFetching,
@@ -53,13 +53,13 @@ class EditIssueModalContent extends Component {
       editions
     } = item;
 
-    const hasFile = statistics ? statistics.bookFileCount > 0 : false;
+    const hasFile = statistics ? statistics.issueFileCount > 0 : false;
     const errorMessage = getErrorMessage(error, 'Unable to load editions');
 
     return (
       <ModalContent onModalClose={onModalClose}>
         <ModalHeader>
-          Edit - {authorName} - {title}
+          Edit - {volumeName} - {title}
         </ModalHeader>
 
         <ModalBody>
@@ -112,11 +112,11 @@ class EditIssueModalContent extends Component {
                   </FormLabel>
 
                   <FormInputGroup
-                    type={inputTypes.BOOK_EDITION_SELECT}
+                    type={inputTypes.ISSUE_EDITION_SELECT}
                     name="editions"
                     helpText={translate('EditionsHelpText')}
                     isDisabled={anyEditionOk.value && hasFile}
-                    bookEditions={editions}
+                    issueEditions={editions}
                     onChange={onInputChange}
                   />
                 </FormGroup>
@@ -145,9 +145,9 @@ class EditIssueModalContent extends Component {
 }
 
 EditIssueModalContent.propTypes = {
-  bookId: PropTypes.number.isRequired,
+  issueId: PropTypes.number.isRequired,
   title: PropTypes.string.isRequired,
-  authorName: PropTypes.string.isRequired,
+  volumeName: PropTypes.string.isRequired,
   statistics: PropTypes.object.isRequired,
   item: PropTypes.object.isRequired,
   isFetching: PropTypes.bool.isRequired,

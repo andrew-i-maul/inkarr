@@ -61,7 +61,7 @@ class VolumeDetailsHeader extends Component {
     const {
       id,
       width,
-      authorName,
+      volumeName,
       ratings,
       path,
       statistics,
@@ -79,7 +79,7 @@ class VolumeDetailsHeader extends Component {
     } = this.props;
 
     const {
-      bookFileCount,
+      issueFileCount,
       sizeOnDisk
     } = statistics;
 
@@ -93,12 +93,12 @@ class VolumeDetailsHeader extends Component {
     const fanartUrl = getFanartUrl(images);
     const marqueeWidth = titleWidth - (isSmallScreen ? 85 : 160);
 
-    let bookFilesCountMessage = translate('BookFilesCountMessage');
+    let issueFilesCountMessage = translate('BookFilesCountMessage');
 
-    if (bookFileCount === 1) {
-      bookFilesCountMessage = '1 book file';
-    } else if (bookFileCount > 1) {
-      bookFilesCountMessage = `${bookFileCount} book files`;
+    if (issueFileCount === 1) {
+      issueFilesCountMessage = '1 issue file';
+    } else if (issueFileCount > 1) {
+      issueFilesCountMessage = `${issueFileCount} issue files`;
     }
 
     return (
@@ -139,7 +139,7 @@ class VolumeDetailsHeader extends Component {
                 </div>
 
                 <div className={styles.title} style={{ width: marqueeWidth }}>
-                  <Marquee text={authorName} />
+                  <Marquee text={volumeName} />
                 </div>
 
                 {
@@ -187,7 +187,7 @@ class VolumeDetailsHeader extends Component {
 
               <Label
                 className={styles.detailsLabel}
-                title={bookFilesCountMessage}
+                title={issueFilesCountMessage}
                 size={sizes.LARGE}
               >
                 <Icon
@@ -293,7 +293,7 @@ class VolumeDetailsHeader extends Component {
                         </span>
                       </Label>
                     }
-                    tooltip={<VolumeTagsConnector authorId={id} />}
+                    tooltip={<VolumeTagsConnector volumeId={id} />}
                     kind={kinds.INVERSE}
                     position={tooltipPositions.BOTTOM}
                   />
@@ -319,7 +319,7 @@ class VolumeDetailsHeader extends Component {
 VolumeDetailsHeader.propTypes = {
   id: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
-  authorName: PropTypes.string.isRequired,
+  volumeName: PropTypes.string.isRequired,
   ratings: PropTypes.object.isRequired,
   path: PropTypes.string.isRequired,
   statistics: PropTypes.object.isRequired,

@@ -34,20 +34,20 @@
   flex: 0 0 180px;
 }
 
-.bookCount {
+.issueCount {
   composes: headerCell from '~Components/Table/VirtualTableHeaderCell.css';
 
   flex: 0 0 100px;
 }
 
-.bookProgress,
+.issueProgress,
 .latestIssue {
   composes: headerCell from '~Components/Table/VirtualTableHeaderCell.css';
 
   flex: 0 0 150px;
 }
 
-.bookCount {
+.issueCount {
   composes: headerCell from '~Components/Table/VirtualTableHeaderCell.css';
 
   flex: 0 0 130px;

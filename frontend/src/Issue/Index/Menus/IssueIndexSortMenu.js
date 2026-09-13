@@ -38,7 +38,7 @@ function IssueIndexSortMenu(props) {
         </SortMenuItem>
 
         <SortMenuItem
-          name="authorTitle"
+          name="volumeTitle"
           sortKey={sortKey}
           sortDirection={sortDirection}
           onPress={onSortSelect}
@@ -74,7 +74,7 @@ function IssueIndexSortMenu(props) {
         </SortMenuItem>
 
         <SortMenuItem
-          name="bookFileCount"
+          name="issueFileCount"
           sortKey={sortKey}
           sortDirection={sortDirection}
           onPress={onSortSelect}

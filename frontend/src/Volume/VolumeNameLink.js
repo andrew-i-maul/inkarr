@@ -2,19 +2,19 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Link from 'Components/Link/Link';
 
-function VolumeNameLink({ titleSlug, authorName, ...otherProps }) {
-  const link = `/author/${titleSlug}`;
+function VolumeNameLink({ titleSlug, volumeName, ...otherProps }) {
+  const link = `/volume/${titleSlug}`;
 
   return (
     <Link to={link} {...otherProps}>
-      {authorName}
+      {volumeName}
     </Link>
   );
 }
 
 VolumeNameLink.propTypes = {
   titleSlug: PropTypes.string.isRequired,
-  authorName: PropTypes.string.isRequired
+  volumeName: PropTypes.string.isRequired
 };
 
 export default VolumeNameLink;

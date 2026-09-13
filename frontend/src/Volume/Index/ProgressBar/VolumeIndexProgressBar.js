@@ -10,16 +10,16 @@ function VolumeIndexProgressBar(props) {
   const {
     monitored,
     status,
-    bookCount,
+    issueCount,
     availableIssueCount,
-    bookFileCount,
+    issueFileCount,
     totalIssueCount,
     posterWidth,
     detailedProgressBar
   } = props;
 
-  const progress = bookCount ? (availableIssueCount / bookCount) * 100 : 100;
-  const text = `${availableIssueCount} / ${bookCount}`;
+  const progress = issueCount ? (availableIssueCount / issueCount) * 100 : 100;
+  const text = `${availableIssueCount} / ${issueCount}`;
 
   return (
     <ProgressBar
@@ -30,7 +30,7 @@ function VolumeIndexProgressBar(props) {
       size={detailedProgressBar ? sizes.MEDIUM : sizes.SMALL}
       showText={detailedProgressBar}
       text={text}
-      title={translate('VolumeProgressBarText', { bookCount, availableIssueCount, bookFileCount, totalIssueCount })}
+      title={translate('VolumeProgressBarText', { issueCount, availableIssueCount, issueFileCount, totalIssueCount })}
       width={posterWidth}
     />
   );
@@ -39,9 +39,9 @@ function VolumeIndexProgressBar(props) {
 VolumeIndexProgressBar.propTypes = {
   monitored: PropTypes.bool.isRequired,
   status: PropTypes.string.isRequired,
-  bookCount: PropTypes.number.isRequired,
+  issueCount: PropTypes.number.isRequired,
   availableIssueCount: PropTypes.number.isRequired,
-  bookFileCount: PropTypes.number.isRequired,
+  issueFileCount: PropTypes.number.isRequired,
   totalIssueCount: PropTypes.number.isRequired,
   posterWidth: PropTypes.number.isRequired,
   detailedProgressBar: PropTypes.bool.isRequired

@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { toggleBooksMonitored } from 'Store/Actions/bookActions';
+import { toggleIssuesMonitored } from 'Store/Actions/issueActions';
 import { executeCommand } from 'Store/Actions/commandActions';
 import { setSeriesSort, setSeriesTableOption } from 'Store/Actions/seriesActions';
-import createAuthorSelector from 'Store/Selectors/createAuthorSelector';
+import createVolumeSelector from 'Store/Selectors/createVolumeSelector';
 import createCommandsSelector from 'Store/Selectors/createCommandsSelector';
 import createDimensionsSelector from 'Store/Selectors/createDimensionsSelector';
 import createUISettingsSelector from 'Store/Selectors/createUISettingsSelector';
@@ -16,23 +16,23 @@ import VolumeDetailsSeries from './VolumeDetailsSeries';
 function createMapStateToProps() {
   return createSelector(
     (state, { seriesId }) => seriesId,
-    (state) => state.books,
-    createAuthorSelector(),
+    (state) => state.issues,
+    createVolumeSelector(),
     (state) => state.series,
     createCommandsSelector(),
     createDimensionsSelector(),
     createUISettingsSelector(),
-    (seriesId, books, author, series, commands, dimensions, uiSettings) => {
+    (seriesId, issues, volume, series, commands, dimensions, uiSettings) => {
 
       const currentSeries = _.find(series.items, { id: seriesId });
 
-      const bookIds = currentSeries.links.map((x) => x.bookId);
+      const issueIds = currentSeries.links.map((x) => x.issueId);
       const positionMap = currentSeries.links.reduce((acc, curr) => {
-        acc[curr.bookId] = curr.position;
+        acc[curr.issueId] = curr.position;
         return acc;
       }, {});
 
-      const booksInSeries = _.filter(books.items, (book) => bookIds.includes(book.id));
+      const issuesInSeries = _.filter(issues.items, (issue) => issueIds.includes(issue.id));
 
       let sortDir = 'asc';
 
@@ -42,13 +42,13 @@ function createMapStateToProps() {
 
       let sortedIssues = [];
       if (series.sortKey === 'position') {
-        sortedIssues = booksInSeries.sort((a, b) => {
+        sortedIssues = issuesInSeries.sort((a, b) => {
           const apos = positionMap[a.id] || '';
           const bpos = positionMap[b.id] || '';
           return apos.localeCompare(bpos, undefined, { numeric: true, sensivity: 'base' });
         });
       } else {
-        sortedIssues = _.orderBy(booksInSeries, series.sortKey, sortDir);
+        sortedIssues = _.orderBy(issuesInSeries, series.sortKey, sortDir);
       }
 
       return {
@@ -59,7 +59,7 @@ function createMapStateToProps() {
         columns: series.columns,
         sortKey: series.sortKey,
         sortDirection: series.sortDirection,
-        authorMonitored: author.monitored,
+        volumeMonitored: volume.monitored,
         isSmallScreen: dimensions.isSmallScreen,
         uiSettings
       };
@@ -68,7 +68,7 @@ function createMapStateToProps() {
 }
 
 const mapDispatchToProps = {
-  toggleIssuesMonitored: toggleBooksMonitored,
+  toggleIssuesMonitored: toggleIssuesMonitored,
   setSeriesTableOption,
   dispatchSetSeriesSort: setSeriesSort,
   executeCommand
@@ -87,9 +87,9 @@ class VolumeDetailsSeasonConnector extends Component {
     this.props.dispatchSetSeriesSort({ sortKey });
   };
 
-  onMonitorIssuePress = (bookIds, monitored) => {
+  onMonitorIssuePress = (issueIds, monitored) => {
     this.props.toggleIssuesMonitored({
-      bookIds,
+      issueIds,
       monitored
     });
   };
@@ -110,7 +110,7 @@ class VolumeDetailsSeasonConnector extends Component {
 }
 
 VolumeDetailsSeasonConnector.propTypes = {
-  authorId: PropTypes.number.isRequired,
+  volumeId: PropTypes.number.isRequired,
   toggleIssuesMonitored: PropTypes.func.isRequired,
   setSeriesTableOption: PropTypes.func.isRequired,
   dispatchSetSeriesSort: PropTypes.func.isRequired,

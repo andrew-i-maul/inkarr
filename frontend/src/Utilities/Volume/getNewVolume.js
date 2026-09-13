@@ -1,5 +1,5 @@
 
-function getNewVolume(author, payload) {
+function getNewVolume(volume, payload) {
   const {
     rootFolderPath,
     monitor,
@@ -15,15 +15,15 @@ function getNewVolume(author, payload) {
     searchForMissingIssues
   };
 
-  author.addOptions = addOptions;
-  author.monitored = true;
-  author.monitorNewItems = monitorNewItems;
-  author.qualityProfileId = qualityProfileId;
-  author.metadataProfileId = metadataProfileId;
-  author.rootFolderPath = rootFolderPath;
-  author.tags = tags;
+  volume.addOptions = addOptions;
+  volume.monitored = true;
+  volume.monitorNewItems = monitorNewItems;
+  volume.qualityProfileId = qualityProfileId;
+  volume.metadataProfileId = metadataProfileId;
+  volume.rootFolderPath = rootFolderPath;
+  volume.tags = tags;
 
-  return author;
+  return volume;
 }
 
 export default getNewVolume;

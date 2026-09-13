@@ -19,29 +19,29 @@ function NotificationEventItems(props) {
     onReleaseImport,
     onUpgrade,
     onRename,
-    onAuthorAdded,
-    onAuthorDelete,
-    onBookDelete,
-    onBookFileDelete,
-    onBookFileDeleteForUpgrade,
+    onVolumeAdded,
+    onVolumeDelete,
+    onIssueDelete,
+    onIssueFileDelete,
+    onIssueFileDeleteForUpgrade,
     onHealthIssue,
     onDownloadFailure,
     onImportFailure,
-    onBookRetag,
+    onIssueRetag,
     onApplicationUpdate,
     supportsOnGrab,
     supportsOnReleaseImport,
     supportsOnUpgrade,
     supportsOnRename,
-    supportsOnAuthorAdded,
-    supportsOnAuthorDelete,
-    supportsOnBookDelete,
-    supportsOnBookFileDelete,
+    supportsOnVolumeAdded,
+    supportsOnVolumeDelete,
+    supportsOnIssueDelete,
+    supportsOnIssueFileDelete,
     supportsOnHealthIssue,
     includeHealthWarnings,
     supportsOnDownloadFailure,
     supportsOnImportFailure,
-    supportsOnBookRetag,
+    supportsOnIssueRetag,
     supportsOnApplicationUpdate
   } = item;
 
@@ -128,10 +128,10 @@ function NotificationEventItems(props) {
           <div>
             <FormInputGroup
               type={inputTypes.CHECK}
-              name="onAuthorAdded"
+              name="onVolumeAdded"
               helpText={translate('OnAuthorAddedHelpText')}
-              isDisabled={!supportsOnAuthorAdded.value}
-              {...onAuthorAdded}
+              isDisabled={!supportsOnVolumeAdded.value}
+              {...onVolumeAdded}
               onChange={onInputChange}
             />
           </div>
@@ -139,10 +139,10 @@ function NotificationEventItems(props) {
           <div>
             <FormInputGroup
               type={inputTypes.CHECK}
-              name="onAuthorDelete"
+              name="onVolumeDelete"
               helpText={translate('OnAuthorDeleteHelpText')}
-              isDisabled={!supportsOnAuthorDelete.value}
-              {...onAuthorDelete}
+              isDisabled={!supportsOnVolumeDelete.value}
+              {...onVolumeDelete}
               onChange={onInputChange}
             />
           </div>
@@ -150,10 +150,10 @@ function NotificationEventItems(props) {
           <div>
             <FormInputGroup
               type={inputTypes.CHECK}
-              name="onBookDelete"
+              name="onIssueDelete"
               helpText={translate('OnBookDeleteHelpText')}
-              isDisabled={!supportsOnBookDelete.value}
-              {...onBookDelete}
+              isDisabled={!supportsOnIssueDelete.value}
+              {...onIssueDelete}
               onChange={onInputChange}
             />
           </div>
@@ -161,10 +161,10 @@ function NotificationEventItems(props) {
           <div>
             <FormInputGroup
               type={inputTypes.CHECK}
-              name="onBookFileDelete"
+              name="onIssueFileDelete"
               helpText={translate('OnBookFileDeleteHelpText')}
-              isDisabled={!supportsOnBookFileDelete.value}
-              {...onBookFileDelete}
+              isDisabled={!supportsOnIssueFileDelete.value}
+              {...onIssueFileDelete}
               onChange={onInputChange}
             />
           </div>
@@ -172,10 +172,10 @@ function NotificationEventItems(props) {
           <div>
             <FormInputGroup
               type={inputTypes.CHECK}
-              name="onBookFileDeleteForUpgrade"
+              name="onIssueFileDeleteForUpgrade"
               helpText={translate('OnBookFileDeleteForUpgradeHelpText')}
-              isDisabled={!supportsOnBookFileDelete.value}
-              {...onBookFileDeleteForUpgrade}
+              isDisabled={!supportsOnIssueFileDelete.value}
+              {...onIssueFileDeleteForUpgrade}
               onChange={onInputChange}
             />
           </div>
@@ -183,10 +183,10 @@ function NotificationEventItems(props) {
           <div>
             <FormInputGroup
               type={inputTypes.CHECK}
-              name="onBookRetag"
+              name="onIssueRetag"
               helpText={translate('OnBookRetagHelpText')}
-              isDisabled={!supportsOnBookRetag.value}
-              {...onBookRetag}
+              isDisabled={!supportsOnIssueRetag.value}
+              {...onIssueRetag}
               onChange={onInputChange}
             />
           </div>

@@ -1,29 +1,29 @@
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { bulkDeleteAuthor } from 'Store/Actions/authorIndexActions';
-import createAllAuthorSelector from 'Store/Selectors/createAllAuthorsSelector';
+import { bulkDeleteVolume } from 'Store/Actions/volumeIndexActions';
+import createAllVolumeSelector from 'Store/Selectors/createAllVolumesSelector';
 import DeleteVolumeModalContent from './DeleteVolumeModalContent';
 
 function createMapStateToProps() {
   return createSelector(
-    (state, { authorIds }) => authorIds,
-    createAllAuthorSelector(),
-    (authorIds, allVolumes) => {
-      const selectedVolume = _.intersectionWith(allVolumes, authorIds, (s, id) => {
+    (state, { volumeIds }) => volumeIds,
+    createAllVolumeSelector(),
+    (volumeIds, allVolumes) => {
+      const selectedVolume = _.intersectionWith(allVolumes, volumeIds, (s, id) => {
         return s.id === id;
       });
 
       const sortedVolume = _.orderBy(selectedVolume, 'sortName');
-      const author = _.map(sortedVolume, (s) => {
+      const volume = _.map(sortedVolume, (s) => {
         return {
-          authorName: s.authorName,
+          volumeName: s.volumeName,
           path: s.path
         };
       });
 
       return {
-        author
+        volume
       };
     }
   );
@@ -33,7 +33,7 @@ function createMapDispatchToProps(dispatch, props) {
   return {
     onDeleteSelectedPress(deleteFiles) {
       dispatch(bulkDeleteVolume({
-        authorIds: props.authorIds,
+        volumeIds: props.volumeIds,
         deleteFiles
       }));
 

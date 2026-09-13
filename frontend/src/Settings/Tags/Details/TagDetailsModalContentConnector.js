@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import createAllAuthorSelector from 'Store/Selectors/createAllAuthorsSelector';
+import createAllVolumeSelector from 'Store/Selectors/createAllVolumesSelector';
 import TagDetailsModalContent from './TagDetailsModalContent';
 
 function findMatchingItems(ids, items) {
@@ -9,21 +9,21 @@ function findMatchingItems(ids, items) {
   });
 }
 
-function createUnorderedMatchingAuthorSelector() {
+function createUnorderedMatchingVolumeSelector() {
   return createSelector(
-    (state, { authorIds }) => authorIds,
-    createAllAuthorSelector(),
+    (state, { volumeIds }) => volumeIds,
+    createAllVolumeSelector(),
     findMatchingItems
   );
 }
 
-function createMatchingAuthorSelector() {
+function createMatchingVolumeSelector() {
   return createSelector(
-    createUnorderedMatchingAuthorSelector(),
-    (authors) => {
-      return authors.sort((authorA, authorB) => {
-        const sortNameA = authorA.sortName;
-        const sortNameB = authorB.sortName;
+    createUnorderedMatchingVolumeSelector(),
+    (volumes) => {
+      return volumes.sort((volumeA, volumeB) => {
+        const sortNameA = volumeA.sortName;
+        const sortNameB = volumeB.sortName;
 
         if (sortNameA > sortNameB) {
           return 1;
@@ -87,16 +87,16 @@ function createMatchingDownloadClientsSelector() {
 
 function createMapStateToProps() {
   return createSelector(
-    createMatchingAuthorSelector(),
+    createMatchingVolumeSelector(),
     createMatchingDelayProfilesSelector(),
     createMatchingImportListsSelector(),
     createMatchingNotificationsSelector(),
     createMatchingReleaseProfilesSelector(),
     createMatchingIndexersSelector(),
     createMatchingDownloadClientsSelector(),
-    (author, delayProfiles, importLists, notifications, releaseProfiles, indexers, downloadClients) => {
+    (volume, delayProfiles, importLists, notifications, releaseProfiles, indexers, downloadClients) => {
       return {
-        author,
+        volume,
         delayProfiles,
         importLists,
         notifications,

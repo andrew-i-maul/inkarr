@@ -50,9 +50,9 @@ function getInternalLink(source) {
     case 'RootFolderCheck':
       return (
         <IconButton
-          name={icons.AUTHOR_CONTINUING}
+          name={icons.VOLUME_CONTINUING}
           title={translate('AuthorEditor')}
-          to="/authoreditor"
+          to="/volumeeditor"
         />
       );
     case 'UpdateCheck':

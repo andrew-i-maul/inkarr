@@ -164,7 +164,7 @@ function EditDelayProfileModalContent(props) {
               {
                 id === 1 ?
                   <Alert>
-                    This is the default profile. It applies to all author that don't have an explicit profile.
+                    This is the default profile. It applies to all volume that don't have an explicit profile.
                   </Alert> :
 
                   <FormGroup>

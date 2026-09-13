@@ -3,20 +3,20 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import { fetchHistory, markAsFailed } from 'Store/Actions/historyActions';
-import createAuthorSelector from 'Store/Selectors/createAuthorSelector';
-import createBookSelector from 'Store/Selectors/createBookSelector';
+import createVolumeSelector from 'Store/Selectors/createVolumeSelector';
+import createIssueSelector from 'Store/Selectors/createIssueSelector';
 import createUISettingsSelector from 'Store/Selectors/createUISettingsSelector';
 import HistoryRow from './HistoryRow';
 
 function createMapStateToProps() {
   return createSelector(
-    createAuthorSelector(),
-    createBookSelector(),
+    createVolumeSelector(),
+    createIssueSelector(),
     createUISettingsSelector(),
-    (author, book, uiSettings) => {
+    (volume, issue, uiSettings) => {
       return {
-        author,
-        book,
+        volume,
+        issue,
         shortDateFormat: uiSettings.shortDateFormat,
         timeFormat: uiSettings.timeFormat
       };

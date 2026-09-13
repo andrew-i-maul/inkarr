@@ -5,7 +5,7 @@ import { setBookshelfFilter } from 'Store/Actions/bookshelfActions';
 
 function createMapStateToProps() {
   return createSelector(
-    (state) => state.authors.items,
+    (state) => state.volumes.items,
     (state) => state.bookshelf.filterBuilderProps,
     (sectionItems, filterBuilderProps) => {
       return {

@@ -3,7 +3,7 @@ import React from 'react';
 import Link from 'Components/Link/Link';
 
 function IssueNameLink({ titleSlug, title }) {
-  const link = `/book/${titleSlug}`;
+  const link = `/issue/${titleSlug}`;
 
   return (
     <Link to={link}>

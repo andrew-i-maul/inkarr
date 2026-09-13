@@ -9,8 +9,8 @@ function createMapStateToProps() {
   return createSelector(
     (state) => state.app,
     (state) => state.queue.status,
-    (state) => state.queue.options.includeUnknownAuthorItems,
-    (app, status, includeUnknownAuthorItems) => {
+    (state) => state.queue.options.includeUnknownVolumeItems,
+    (app, status, includeUnknownVolumeItems) => {
       const {
         errors,
         warnings,
@@ -25,9 +25,9 @@ function createMapStateToProps() {
         isReconnecting: app.isReconnecting,
         isPopulated: status.isPopulated,
         ...status.item,
-        count: includeUnknownAuthorItems ? totalCount : count,
-        errors: includeUnknownAuthorItems ? errors || unknownErrors : errors,
-        warnings: includeUnknownAuthorItems ? warnings || unknownWarnings : warnings
+        count: includeUnknownVolumeItems ? totalCount : count,
+        errors: includeUnknownVolumeItems ? errors || unknownErrors : errors,
+        warnings: includeUnknownVolumeItems ? warnings || unknownWarnings : warnings
       };
     }
   );

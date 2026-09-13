@@ -2,17 +2,17 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { updateBookMonitor as updateIssueMonitor } from 'Store/Actions/authorActions';
+import { updateIssueMonitor as updateIssueMonitor } from 'Store/Actions/volumeActions';
 import MonitoringOptionsModalContent from './MonitoringOptionsModalContent';
 
 function createMapStateToProps() {
   return createSelector(
-    (state) => state.authors,
-    (authorState) => {
+    (state) => state.volumes,
+    (volumeState) => {
       const {
         isSaving,
         saveError
-      } = authorState;
+      } = volumeState;
 
       return {
         isSaving,
@@ -46,7 +46,7 @@ class MonitoringOptionsModalContentConnector extends Component {
 
   onSavePress = ({ monitor }) => {
     this.props.dispatchUpdateMonitoringOptions({
-      id: this.props.authorId,
+      id: this.props.volumeId,
       monitor
     });
   };
@@ -66,7 +66,7 @@ class MonitoringOptionsModalContentConnector extends Component {
 }
 
 MonitoringOptionsModalContentConnector.propTypes = {
-  authorId: PropTypes.number.isRequired,
+  volumeId: PropTypes.number.isRequired,
   isSaving: PropTypes.bool.isRequired,
   saveError: PropTypes.object,
   dispatchUpdateMonitoringOptions: PropTypes.func.isRequired,

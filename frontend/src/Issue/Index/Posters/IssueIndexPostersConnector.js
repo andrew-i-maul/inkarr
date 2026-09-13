@@ -6,7 +6,7 @@ import IssueIndexPosters from './IssueIndexPosters';
 
 function createMapStateToProps() {
   return createSelector(
-    (state) => state.bookIndex.posterOptions,
+    (state) => state.issueIndex.posterOptions,
     createUISettingsSelector(),
     createDimensionsSelector(),
     (posterOptions, uiSettings, dimensions) => {

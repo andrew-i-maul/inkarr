@@ -149,7 +149,7 @@ class VolumeEditorFooter extends Component {
 
   render() {
     const {
-      authorIds,
+      volumeIds,
       selectedCount,
       isSaving,
       isDeleting,
@@ -319,14 +319,14 @@ class VolumeEditorFooter extends Component {
 
         <TagsModal
           isOpen={isTagsModalOpen}
-          authorIds={authorIds}
+          volumeIds={volumeIds}
           onApplyTagsPress={this.onApplyTagsPress}
           onModalClose={this.onTagsModalClose}
         />
 
         <DeleteVolumeModal
           isOpen={isDeleteVolumeModalOpen}
-          authorIds={authorIds}
+          volumeIds={volumeIds}
           onModalClose={this.onDeleteVolumeModalClose}
         />
 
@@ -343,7 +343,7 @@ class VolumeEditorFooter extends Component {
 }
 
 VolumeEditorFooter.propTypes = {
-  authorIds: PropTypes.arrayOf(PropTypes.number).isRequired,
+  volumeIds: PropTypes.arrayOf(PropTypes.number).isRequired,
   selectedCount: PropTypes.number.isRequired,
   isSaving: PropTypes.bool.isRequired,
   saveError: PropTypes.object,

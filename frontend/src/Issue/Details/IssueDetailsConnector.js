@@ -5,12 +5,12 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import * as commandNames from 'Commands/commandNames';
-import { toggleBooksMonitored } from 'Store/Actions/bookActions';
-import { clearBookFiles, fetchBookFiles } from 'Store/Actions/bookFileActions';
+import { toggleIssuesMonitored } from 'Store/Actions/issueActions';
+import { clearIssueFiles, fetchIssueFiles } from 'Store/Actions/issueFileActions';
 import { executeCommand } from 'Store/Actions/commandActions';
 import { clearEditions, fetchEditions } from 'Store/Actions/editionActions';
 import { cancelFetchReleases, clearReleases } from 'Store/Actions/releaseActions';
-import createAllAuthorSelector from 'Store/Selectors/createAllAuthorsSelector';
+import createAllVolumeSelector from 'Store/Selectors/createAllVolumesSelector';
 import createCommandsSelector from 'Store/Selectors/createCommandsSelector';
 import createDimensionsSelector from 'Store/Selectors/createDimensionsSelector';
 import createUISettingsSelector from 'Store/Selectors/createUISettingsSelector';
@@ -19,21 +19,21 @@ import { registerPagePopulator, unregisterPagePopulator } from 'Utilities/pagePo
 import IssueDetails from './IssueDetails';
 
 const selectIssueFiles = createSelector(
-  (state) => state.bookFiles,
-  (bookFiles) => {
+  (state) => state.issueFiles,
+  (issueFiles) => {
     const {
       items,
       isFetching,
       isPopulated,
       error
-    } = bookFiles;
+    } = issueFiles;
 
     const hasIssueFiles = !!items.length;
 
     return {
       isIssueFilesFetching: isFetching,
       isIssueFilesPopulated: isPopulated,
-      bookFilesError: error,
+      issueFilesError: error,
       hasIssueFiles
     };
   }
@@ -43,63 +43,63 @@ function createMapStateToProps() {
   return createSelector(
     (state, { titleSlug }) => titleSlug,
     selectIssueFiles,
-    (state) => state.books,
+    (state) => state.issues,
     (state) => state.editions,
-    createAllAuthorSelector(),
+    createAllVolumeSelector(),
     createCommandsSelector(),
     createUISettingsSelector(),
     createDimensionsSelector(),
-    (titleSlug, bookFiles, books, editions, authors, commands, uiSettings, dimensions) => {
-      const book = books.items.find((b) => b.titleSlug === titleSlug);
-      const author = authors.find((a) => a.id === book.authorId);
-      const sortedIssues = books.items.filter((b) => b.authorId === book.authorId);
+    (titleSlug, issueFiles, issues, editions, volumes, commands, uiSettings, dimensions) => {
+      const issue = issues.items.find((b) => b.titleSlug === titleSlug);
+      const volume = volumes.find((a) => a.id === issue.volumeId);
+      const sortedIssues = issues.items.filter((b) => b.volumeId === issue.volumeId);
       sortedIssues.sort((a, b) => ((a.releaseDate > b.releaseDate) ? 1 : -1));
-      const bookIndex = sortedIssues.findIndex((b) => b.id === book.id);
+      const issueIndex = sortedIssues.findIndex((b) => b.id === issue.id);
 
-      if (!book) {
+      if (!issue) {
         return {};
       }
 
       const {
         isIssueFilesFetching,
         isIssueFilesPopulated,
-        bookFilesError,
+        issueFilesError,
         hasIssueFiles
-      } = bookFiles;
+      } = issueFiles;
 
-      const previousIssue = sortedIssues[bookIndex - 1] || _.last(sortedIssues);
-      const nextIssue = sortedIssues[bookIndex + 1] || _.first(sortedIssues);
-      const isRefreshingCommand = findCommand(commands, { name: commandNames.REFRESH_BOOK });
+      const previousIssue = sortedIssues[issueIndex - 1] || _.last(sortedIssues);
+      const nextIssue = sortedIssues[issueIndex + 1] || _.first(sortedIssues);
+      const isRefreshingCommand = findCommand(commands, { name: commandNames.REFRESH_ISSUE });
       const isRefreshing = (
         isCommandExecuting(isRefreshingCommand) &&
-        isRefreshingCommand.body.bookId === book.id
+        isRefreshingCommand.body.issueId === issue.id
       );
-      const isSearchingCommand = findCommand(commands, { name: commandNames.BOOK_SEARCH });
+      const isSearchingCommand = findCommand(commands, { name: commandNames.ISSUE_SEARCH });
       const isSearching = (
         isCommandExecuting(isSearchingCommand) &&
-        isSearchingCommand.body.bookIds.indexOf(book.id) > -1
+        isSearchingCommand.body.issueIds.indexOf(issue.id) > -1
       );
-      const isRenamingFiles = isCommandExecuting(findCommand(commands, { name: commandNames.RENAME_FILES, authorId: author.id }));
-      const isRenamingVolumeCommand = findCommand(commands, { name: commandNames.RENAME_AUTHOR });
+      const isRenamingFiles = isCommandExecuting(findCommand(commands, { name: commandNames.RENAME_FILES, volumeId: volume.id }));
+      const isRenamingVolumeCommand = findCommand(commands, { name: commandNames.RENAME_VOLUME });
       const isRenamingVolume = (
         isCommandExecuting(isRenamingVolumeCommand) &&
-        isRenamingVolumeCommand.body.authorIds.indexOf(author.id) > -1
+        isRenamingVolumeCommand.body.volumeIds.indexOf(volume.id) > -1
       );
 
       const isFetching = isIssueFilesFetching || editions.isFetching;
       const isPopulated = isIssueFilesPopulated && editions.isPopulated;
 
       return {
-        ...book,
+        ...issue,
         shortDateFormat: uiSettings.shortDateFormat,
-        author,
+        volume,
         isRefreshing,
         isSearching,
         isRenamingFiles,
         isRenamingVolume,
         isFetching,
         isPopulated,
-        bookFilesError,
+        issueFilesError,
         hasIssueFiles,
         previousIssue,
         nextIssue,
@@ -111,13 +111,13 @@ function createMapStateToProps() {
 
 const mapDispatchToProps = {
   executeCommand,
-  fetchIssueFiles: fetchBookFiles,
-  clearIssueFiles: clearBookFiles,
+  fetchIssueFiles: fetchIssueFiles,
+  clearIssueFiles: clearIssueFiles,
   fetchEditions,
   clearEditions,
   clearReleases,
   cancelFetchReleases,
-  toggleIssuesMonitored: toggleBooksMonitored
+  toggleIssuesMonitored: toggleIssuesMonitored
 };
 
 function getMonitoredEditions(props) {
@@ -149,7 +149,7 @@ class IssueDetailsConnector extends Component {
       this.populate();
     }
 
-    // If the id has changed we need to clear the book
+    // If the id has changed we need to clear the issue
     // files and fetch from the server.
 
     if (prevProps.id !== id) {
@@ -167,10 +167,10 @@ class IssueDetailsConnector extends Component {
   // Control
 
   populate = () => {
-    const bookId = this.props.id;
+    const issueId = this.props.id;
 
-    this.props.fetchIssueFiles({ bookId });
-    this.props.fetchEditions({ bookId });
+    this.props.fetchIssueFiles({ issueId });
+    this.props.fetchEditions({ issueId });
   };
 
   unpopulate = () => {
@@ -185,22 +185,22 @@ class IssueDetailsConnector extends Component {
 
   onMonitorTogglePress = (monitored) => {
     this.props.toggleIssuesMonitored({
-      bookIds: [this.props.id],
+      issueIds: [this.props.id],
       monitored
     });
   };
 
   onRefreshPress = () => {
     this.props.executeCommand({
-      name: commandNames.REFRESH_BOOK,
-      bookId: this.props.id
+      name: commandNames.REFRESH_ISSUE,
+      issueId: this.props.id
     });
   };
 
   onSearchPress = () => {
     this.props.executeCommand({
-      name: commandNames.BOOK_SEARCH,
-      bookIds: [this.props.id]
+      name: commandNames.ISSUE_SEARCH,
+      issueIds: [this.props.id]
     });
   };
 

@@ -70,7 +70,7 @@
   flex: 0 0 180px;
 }
 
-.bookProgress {
+.issueProgress {
   composes: cell;
 
   display: flex;

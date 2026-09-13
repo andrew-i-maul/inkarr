@@ -5,14 +5,14 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import * as commandNames from 'Commands/commandNames';
-import { toggleAuthorMonitored } from 'Store/Actions/authorActions';
-import { clearBookFiles, fetchBookFiles } from 'Store/Actions/bookFileActions';
-import { saveBookEditor } from 'Store/Actions/bookIndexActions';
+import { toggleVolumeMonitored } from 'Store/Actions/volumeActions';
+import { clearIssueFiles, fetchIssueFiles } from 'Store/Actions/issueFileActions';
+import { saveIssueEditor } from 'Store/Actions/issueIndexActions';
 import { executeCommand } from 'Store/Actions/commandActions';
 import { clearQueueDetails, fetchQueueDetails } from 'Store/Actions/queueActions';
 import { cancelFetchReleases, clearReleases } from 'Store/Actions/releaseActions';
 import { clearSeries, fetchSeries } from 'Store/Actions/seriesActions';
-import createAllAuthorSelector from 'Store/Selectors/createAllAuthorsSelector';
+import createAllVolumeSelector from 'Store/Selectors/createAllVolumesSelector';
 import createCommandsSelector from 'Store/Selectors/createCommandsSelector';
 import createDimensionsSelector from 'Store/Selectors/createDimensionsSelector';
 import createSortedSectionSelector from 'Store/Selectors/createSortedSectionSelector';
@@ -21,15 +21,15 @@ import { registerPagePopulator, unregisterPagePopulator } from 'Utilities/pagePo
 import VolumeDetails from './VolumeDetails';
 
 const selectIssues = createSelector(
-  (state) => state.books,
-  (state) => state.bookIndex,
-  (books, index) => {
+  (state) => state.issues,
+  (state) => state.issueIndex,
+  (issues, index) => {
     const {
       items,
       isFetching,
       isPopulated,
       error
-    } = books;
+    } = issues;
 
     const {
       isSaving,
@@ -44,7 +44,7 @@ const selectIssues = createSelector(
     return {
       isIssuesFetching: isFetching,
       isIssuesPopulated: isPopulated,
-      booksError: error,
+      issuesError: error,
       hasIssues,
       hasMonitoredIssues,
       isSaving,
@@ -79,21 +79,21 @@ const selectSeries = createSelector(
 );
 
 const selectIssueFiles = createSelector(
-  (state) => state.bookFiles,
-  (bookFiles) => {
+  (state) => state.issueFiles,
+  (issueFiles) => {
     const {
       items,
       isFetching,
       isPopulated,
       error
-    } = bookFiles;
+    } = issueFiles;
 
     const hasIssueFiles = !!items.length;
 
     return {
       isIssueFilesFetching: isFetching,
       isIssueFilesPopulated: isPopulated,
-      bookFilesError: error,
+      issueFilesError: error,
       hasIssueFiles
     };
   }
@@ -105,29 +105,29 @@ function createMapStateToProps() {
     selectIssues,
     selectSeries,
     selectIssueFiles,
-    createAllAuthorSelector(),
+    createAllVolumeSelector(),
     createCommandsSelector(),
     createDimensionsSelector(),
-    (titleSlug, books, series, bookFiles, allVolumes, commands, dimensions) => {
+    (titleSlug, issues, series, issueFiles, allVolumes, commands, dimensions) => {
       const sortedVolume = _.orderBy(allVolumes, 'sortNameLastFirst');
-      const authorIndex = _.findIndex(sortedVolume, { titleSlug });
-      const author = sortedVolume[authorIndex];
+      const volumeIndex = _.findIndex(sortedVolume, { titleSlug });
+      const volume = sortedVolume[volumeIndex];
 
-      if (!author) {
+      if (!volume) {
         return {};
       }
 
       const {
         isIssuesFetching,
         isIssuesPopulated,
-        booksError,
+        issuesError,
         hasIssues,
         hasMonitoredIssues,
         isSaving,
         saveError,
         isDeleting,
         deleteError
-      } = books;
+      } = issues;
 
       const {
         isSeriesFetching,
@@ -140,31 +140,31 @@ function createMapStateToProps() {
       const {
         isIssueFilesFetching,
         isIssueFilesPopulated,
-        bookFilesError,
+        issueFilesError,
         hasIssueFiles
-      } = bookFiles;
+      } = issueFiles;
 
-      const previousVolume = sortedVolume[authorIndex - 1] || _.last(sortedVolume);
-      const nextVolume = sortedVolume[authorIndex + 1] || _.first(sortedVolume);
-      const isVolumeRefreshing = isCommandExecuting(findCommand(commands, { name: commandNames.REFRESH_AUTHOR, authorId: author.id }));
-      const authorRefreshingCommand = findCommand(commands, { name: commandNames.REFRESH_AUTHOR });
+      const previousVolume = sortedVolume[volumeIndex - 1] || _.last(sortedVolume);
+      const nextVolume = sortedVolume[volumeIndex + 1] || _.first(sortedVolume);
+      const isVolumeRefreshing = isCommandExecuting(findCommand(commands, { name: commandNames.REFRESH_VOLUME, volumeId: volume.id }));
+      const volumeRefreshingCommand = findCommand(commands, { name: commandNames.REFRESH_VOLUME });
       const allVolumeRefreshing = (
-        isCommandExecuting(authorRefreshingCommand) &&
-        !authorRefreshingCommand.body.authorId
+        isCommandExecuting(volumeRefreshingCommand) &&
+        !volumeRefreshingCommand.body.volumeId
       );
       const isRefreshing = isVolumeRefreshing || allVolumeRefreshing;
-      const isSearching = isCommandExecuting(findCommand(commands, { name: commandNames.AUTHOR_SEARCH, authorId: author.id }));
-      const isRenamingFiles = isCommandExecuting(findCommand(commands, { name: commandNames.RENAME_FILES, authorId: author.id }));
-      const isRenamingVolumeCommand = findCommand(commands, { name: commandNames.RENAME_AUTHOR });
+      const isSearching = isCommandExecuting(findCommand(commands, { name: commandNames.VOLUME_SEARCH, volumeId: volume.id }));
+      const isRenamingFiles = isCommandExecuting(findCommand(commands, { name: commandNames.RENAME_FILES, volumeId: volume.id }));
+      const isRenamingVolumeCommand = findCommand(commands, { name: commandNames.RENAME_VOLUME });
       const isRenamingVolume = (
         isCommandExecuting(isRenamingVolumeCommand) &&
-        isRenamingVolumeCommand.body.authorIds.indexOf(author.id) > -1
+        isRenamingVolumeCommand.body.volumeIds.indexOf(volume.id) > -1
       );
 
       const isFetching = isIssuesFetching || isSeriesFetching || isIssueFilesFetching;
       const isPopulated = isIssuesPopulated && isSeriesPopulated && isIssueFilesPopulated;
 
-      const alternateTitles = _.reduce(author.alternateTitles, (acc, alternateTitle) => {
+      const alternateTitles = _.reduce(volume.alternateTitles, (acc, alternateTitle) => {
         if ((alternateTitle.seasonNumber === -1 || alternateTitle.seasonNumber === undefined) &&
             (alternateTitle.sceneSeasonNumber === -1 || alternateTitle.sceneSeasonNumber === undefined)) {
           acc.push(alternateTitle.title);
@@ -174,7 +174,7 @@ function createMapStateToProps() {
       }, []);
 
       return {
-        ...author,
+        ...volume,
         alternateTitles,
         isVolumeRefreshing,
         allVolumeRefreshing,
@@ -184,13 +184,13 @@ function createMapStateToProps() {
         isRenamingVolume,
         isFetching,
         isPopulated,
-        booksError,
+        issuesError,
         isSaving,
         saveError,
         isDeleting,
         deleteError,
         seriesError,
-        bookFilesError,
+        issueFilesError,
         hasIssues,
         hasMonitoredIssues,
         hasSeries,
@@ -207,10 +207,10 @@ function createMapStateToProps() {
 const mapDispatchToProps = {
   fetchSeries,
   clearSeries,
-  saveIssueEditor: saveBookEditor,
-  fetchIssueFiles: fetchBookFiles,
-  clearIssueFiles: clearBookFiles,
-  toggleVolumeMonitored: toggleAuthorMonitored,
+  saveIssueEditor: saveIssueEditor,
+  fetchIssueFiles: fetchIssueFiles,
+  clearIssueFiles: clearIssueFiles,
+  toggleVolumeMonitored: toggleVolumeMonitored,
   fetchQueueDetails,
   clearQueueDetails,
   clearReleases,
@@ -246,7 +246,7 @@ class VolumeDetailsConnector extends Component {
       this.populate();
     }
 
-    // If the id has changed we need to clear the books
+    // If the id has changed we need to clear the issues
     // files and fetch from the server.
 
     if (prevProps.id !== id) {
@@ -264,11 +264,11 @@ class VolumeDetailsConnector extends Component {
   // Control
 
   populate = () => {
-    const authorId = this.props.id;
+    const volumeId = this.props.id;
 
-    this.props.fetchSeries({ authorId });
-    this.props.fetchIssueFiles({ authorId });
-    this.props.fetchQueueDetails({ authorId });
+    this.props.fetchSeries({ volumeId });
+    this.props.fetchIssueFiles({ volumeId });
+    this.props.fetchQueueDetails({ volumeId });
   };
 
   unpopulate = () => {
@@ -284,22 +284,22 @@ class VolumeDetailsConnector extends Component {
 
   onMonitorTogglePress = (monitored) => {
     this.props.toggleVolumeMonitored({
-      authorId: this.props.id,
+      volumeId: this.props.id,
       monitored
     });
   };
 
   onRefreshPress = () => {
     this.props.executeCommand({
-      name: commandNames.REFRESH_AUTHOR,
-      authorId: this.props.id
+      name: commandNames.REFRESH_VOLUME,
+      volumeId: this.props.id
     });
   };
 
   onSearchPress = () => {
     this.props.executeCommand({
-      name: commandNames.AUTHOR_SEARCH,
-      authorId: this.props.id
+      name: commandNames.VOLUME_SEARCH,
+      volumeId: this.props.id
     });
   };
 

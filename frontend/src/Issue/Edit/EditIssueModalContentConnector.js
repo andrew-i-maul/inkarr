@@ -3,25 +3,25 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { saveBook, setBookValue } from 'Store/Actions/bookActions';
+import { saveIssue, setIssueValue } from 'Store/Actions/issueActions';
 import { saveEditions } from 'Store/Actions/editionActions';
-import createAuthorSelector from 'Store/Selectors/createAuthorSelector';
-import createBookSelector from 'Store/Selectors/createBookSelector';
+import createVolumeSelector from 'Store/Selectors/createVolumeSelector';
+import createIssueSelector from 'Store/Selectors/createIssueSelector';
 import selectSettings from 'Store/Selectors/selectSettings';
 import EditIssueModalContent from './EditIssueModalContent';
 
 function createMapStateToProps() {
   return createSelector(
-    (state) => state.books,
+    (state) => state.issues,
     (state) => state.editions,
-    createBookSelector(),
-    createAuthorSelector(),
-    (bookState, editionState, book, author) => {
+    createIssueSelector(),
+    createVolumeSelector(),
+    (issueState, editionState, issue, volume) => {
       const {
         isSaving,
         saveError,
         pendingChanges
-      } = bookState;
+      } = issueState;
 
       const {
         isFetching,
@@ -29,19 +29,19 @@ function createMapStateToProps() {
         error
       } = editionState;
 
-      const bookSettings = _.pick(book, [
+      const issueSettings = _.pick(issue, [
         'monitored',
         'anyEditionOk'
       ]);
-      bookSettings.editions = editionState.items;
+      issueSettings.editions = editionState.items;
 
-      const settings = selectSettings(bookSettings, pendingChanges, saveError);
+      const settings = selectSettings(issueSettings, pendingChanges, saveError);
 
       return {
-        title: book.title,
-        authorName: author.authorName,
-        bookType: book.bookType,
-        statistics: book.statistics,
+        title: issue.title,
+        volumeName: volume.volumeName,
+        issueType: issue.issueType,
+        statistics: issue.statistics,
         isFetching,
         isPopulated,
         error,
@@ -55,8 +55,8 @@ function createMapStateToProps() {
 }
 
 const mapDispatchToProps = {
-  dispatchSetIssueValue: setBookValue,
-  dispatchSaveIssue: saveBook,
+  dispatchSetIssueValue: setIssueValue,
+  dispatchSaveIssue: saveIssue,
   dispatchSaveEditions: saveEditions
 };
 
@@ -80,10 +80,10 @@ class EditIssueModalContentConnector extends Component {
 
   onSavePress = () => {
     this.props.dispatchSaveIssue({
-      id: this.props.bookId
+      id: this.props.issueId
     });
     this.props.dispatchSaveEditions({
-      id: this.props.bookId
+      id: this.props.issueId
     });
   };
 
@@ -102,7 +102,7 @@ class EditIssueModalContentConnector extends Component {
 }
 
 EditIssueModalContentConnector.propTypes = {
-  bookId: PropTypes.number,
+  issueId: PropTypes.number,
   isSaving: PropTypes.bool.isRequired,
   saveError: PropTypes.object,
   dispatchSetIssueValue: PropTypes.func.isRequired,

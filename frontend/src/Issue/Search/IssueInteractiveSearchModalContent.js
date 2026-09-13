@@ -11,26 +11,26 @@ import translate from 'Utilities/String/translate';
 
 function IssueInteractiveSearchModalContent(props) {
   const {
-    bookId,
-    bookTitle,
-    authorName,
+    issueId,
+    issueTitle,
+    volumeName,
     onModalClose
   } = props;
 
   return (
     <ModalContent onModalClose={onModalClose}>
       <ModalHeader>
-        {bookId === null ?
+        {issueId === null ?
           translate('InteractiveSearchModalHeader') :
-          translate('InteractiveSearchModalHeaderIssueVolume', { bookTitle, authorName })
+          translate('InteractiveSearchModalHeaderIssueVolume', { issueTitle, volumeName })
         }
       </ModalHeader>
 
       <ModalBody scrollDirection={scrollDirections.BOTH}>
         <InteractiveSearchConnector
-          type="book"
+          type="issue"
           searchPayload={{
-            bookId
+            issueId
           }}
         />
       </ModalBody>
@@ -45,9 +45,9 @@ function IssueInteractiveSearchModalContent(props) {
 }
 
 IssueInteractiveSearchModalContent.propTypes = {
-  bookId: PropTypes.number.isRequired,
-  bookTitle: PropTypes.string.isRequired,
-  authorName: PropTypes.string.isRequired,
+  issueId: PropTypes.number.isRequired,
+  issueTitle: PropTypes.string.isRequired,
+  volumeName: PropTypes.string.isRequired,
   onModalClose: PropTypes.func.isRequired
 };
 

@@ -6,26 +6,26 @@ import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import * as commandNames from 'Commands/commandNames';
 import { executeCommand } from 'Store/Actions/commandActions';
-import createAuthorMetadataProfileSelector from 'Store/Selectors/createAuthorMetadataProfileSelector';
-import createAuthorQualityProfileSelector from 'Store/Selectors/createAuthorQualityProfileSelector';
-import createAuthorSelector from 'Store/Selectors/createAuthorSelector';
+import createVolumeMetadataProfileSelector from 'Store/Selectors/createVolumeMetadataProfileSelector';
+import createVolumeQualityProfileSelector from 'Store/Selectors/createVolumeQualityProfileSelector';
+import createVolumeSelector from 'Store/Selectors/createVolumeSelector';
 import createExecutingCommandsSelector from 'Store/Selectors/createExecutingCommandsSelector';
 
 function selectShowSearchAction() {
   return createSelector(
-    (state) => state.authorIndex,
-    (authorIndex) => {
-      const view = authorIndex.view;
+    (state) => state.volumeIndex,
+    (volumeIndex) => {
+      const view = volumeIndex.view;
 
       switch (view) {
         case 'posters':
-          return authorIndex.posterOptions.showSearchAction;
+          return volumeIndex.posterOptions.showSearchAction;
         case 'banners':
-          return authorIndex.bannerOptions.showSearchAction;
+          return volumeIndex.bannerOptions.showSearchAction;
         case 'overview':
-          return authorIndex.overviewOptions.showSearchAction;
+          return volumeIndex.overviewOptions.showSearchAction;
         default:
-          return authorIndex.tableOptions.showSearchAction;
+          return volumeIndex.tableOptions.showSearchAction;
       }
     }
   );
@@ -33,46 +33,46 @@ function selectShowSearchAction() {
 
 function createMapStateToProps() {
   return createSelector(
-    createAuthorSelector(),
-    createAuthorQualityProfileSelector(),
-    createAuthorMetadataProfileSelector(),
+    createVolumeSelector(),
+    createVolumeQualityProfileSelector(),
+    createVolumeMetadataProfileSelector(),
     selectShowSearchAction(),
     createExecutingCommandsSelector(),
     (
-      author,
+      volume,
       qualityProfile,
       metadataProfile,
       showSearchAction,
       executingCommands
     ) => {
 
-      // If an author is deleted this selector may fire before the parent
-      // selectors, which will result in an undefined author, if that happens
+      // If an volume is deleted this selector may fire before the parent
+      // selectors, which will result in an undefined volume, if that happens
       // we want to return early here and again in the render function to avoid
-      // trying to show an author that has no information available.
+      // trying to show an volume that has no information available.
 
-      if (!author) {
+      if (!volume) {
         return {};
       }
 
       const isRefreshingVolume = executingCommands.some((command) => {
         return (
-          command.name === commandNames.REFRESH_AUTHOR &&
-          command.body.authorId === author.id
+          command.name === commandNames.REFRESH_VOLUME &&
+          command.body.volumeId === volume.id
         );
       });
 
       const isSearchingVolume = executingCommands.some((command) => {
         return (
-          command.name === commandNames.AUTHOR_SEARCH &&
-          command.body.authorId === author.id
+          command.name === commandNames.VOLUME_SEARCH &&
+          command.body.volumeId === volume.id
         );
       });
 
-      const latestIssue = _.maxBy(author.books, (book) => book.releaseDate);
+      const latestIssue = _.maxBy(volume.issues, (issue) => issue.releaseDate);
 
       return {
-        ...author,
+        ...volume,
         qualityProfile,
         metadataProfile,
         latestIssue,
@@ -95,15 +95,15 @@ class VolumeIndexItemConnector extends Component {
 
   onRefreshVolumePress = () => {
     this.props.dispatchExecuteCommand({
-      name: commandNames.REFRESH_AUTHOR,
-      authorId: this.props.id
+      name: commandNames.REFRESH_VOLUME,
+      volumeId: this.props.id
     });
   };
 
   onSearchPress = () => {
     this.props.dispatchExecuteCommand({
-      name: commandNames.AUTHOR_SEARCH,
-      authorId: this.props.id
+      name: commandNames.VOLUME_SEARCH,
+      volumeId: this.props.id
     });
   };
 

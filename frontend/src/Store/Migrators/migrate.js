@@ -1,9 +1,9 @@
-import migrateAddAuthorDefaults from './migrateAddAuthorDefaults';
-import migrateAuthorSortKey from './migrateAuthorSortKey';
+import migrateAddVolumeDefaults from './migrateAddVolumeDefaults';
+import migrateVolumeSortKey from './migrateVolumeSortKey';
 import migrateBlacklistToBlocklist from './migrateBlacklistToBlocklist';
 
 export default function migrate(persistedState) {
-  migrateAddAuthorDefaults(persistedState);
-  migrateAuthorSortKey(persistedState);
+  migrateAddVolumeDefaults(persistedState);
+  migrateVolumeSortKey(persistedState);
   migrateBlacklistToBlocklist(persistedState);
 }

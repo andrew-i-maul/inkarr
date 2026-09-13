@@ -2,10 +2,10 @@ import _ from 'lodash';
 import { createAction } from 'redux-actions';
 import { batchActions } from 'redux-batched-actions';
 import { createThunk, handleThunks } from 'Store/thunks';
-import getNewAuthor from 'Utilities/Volume/getNewVolume';
+import getNewVolume from 'Utilities/Volume/getNewVolume';
 import monitorNewItemsOptions from 'Utilities/Volume/monitorNewItemsOptions';
 import monitorOptions from 'Utilities/Volume/monitorOptions';
-import getNewBook from 'Utilities/Issue/getNewIssue';
+import getNewIssue from 'Utilities/Issue/getNewIssue';
 import createAjaxRequest from 'Utilities/createAjaxRequest';
 import getSectionState from 'Utilities/State/getSectionState';
 import updateSectionState from 'Utilities/State/updateSectionState';
@@ -30,7 +30,7 @@ export const defaultState = {
   addError: null,
   items: [],
 
-  authorDefaults: {
+  volumeDefaults: {
     rootFolderPath: '',
     monitor: monitorOptions[0].key,
     monitorNewItems: monitorNewItemsOptions[0].key,
@@ -39,7 +39,7 @@ export const defaultState = {
     tags: []
   },
 
-  bookDefaults: {
+  issueDefaults: {
     rootFolderPath: '',
     monitor: monitorOptions[0].key,
     monitorNewItems: monitorNewItemsOptions[0].key,
@@ -50,29 +50,29 @@ export const defaultState = {
 };
 
 export const persistState = [
-  'search.bookDefaults',
-  'search.authorDefaults'
+  'search.issueDefaults',
+  'search.volumeDefaults'
 ];
 
 //
 // Actions Types
 
 export const GET_SEARCH_RESULTS = 'search/getSearchResults';
-export const ADD_AUTHOR = 'search/addAuthor';
-export const ADD_BOOK = 'search/addBook';
+export const ADD_VOLUME = 'search/addVolume';
+export const ADD_ISSUE = 'search/addIssue';
 export const CLEAR_SEARCH_RESULTS = 'search/clearSearchResults';
-export const SET_AUTHOR_ADD_DEFAULT = 'search/setAuthorAddDefault';
-export const SET_BOOK_ADD_DEFAULT = 'search/setBookAddDefault';
+export const SET_VOLUME_ADD_DEFAULT = 'search/setVolumeAddDefault';
+export const SET_ISSUE_ADD_DEFAULT = 'search/setIssueAddDefault';
 
 //
 // Action Creators
 
 export const getSearchResults = createThunk(GET_SEARCH_RESULTS);
-export const addAuthor = createThunk(ADD_AUTHOR);
-export const addBook = createThunk(ADD_BOOK);
+export const addVolume = createThunk(ADD_VOLUME);
+export const addIssue = createThunk(ADD_ISSUE);
 export const clearSearchResults = createAction(CLEAR_SEARCH_RESULTS);
-export const setAuthorAddDefault = createAction(SET_AUTHOR_ADD_DEFAULT);
-export const setBookAddDefault = createAction(SET_BOOK_ADD_DEFAULT);
+export const setVolumeAddDefault = createAction(SET_VOLUME_ADD_DEFAULT);
+export const setIssueAddDefault = createAction(SET_ISSUE_ADD_DEFAULT);
 
 //
 // Action Handlers
@@ -118,25 +118,25 @@ export const actionHandlers = handleThunks({
     });
   },
 
-  [ADD_AUTHOR]: function(getState, payload, dispatch) {
+  [ADD_VOLUME]: function(getState, payload, dispatch) {
     dispatch(set({ section, isAdding: true }));
 
-    const foreignAuthorId = payload.foreignAuthorId;
+    const foreignVolumeId = payload.foreignVolumeId;
     const items = getState().search.items;
-    const itemToAdd = _.find(items, { foreignId: foreignAuthorId });
-    const newAuthor = getNewAuthor(_.cloneDeep(itemToAdd.author), payload);
+    const itemToAdd = _.find(items, { foreignId: foreignVolumeId });
+    const newVolume = getNewVolume(_.cloneDeep(itemToAdd.volume), payload);
 
     const promise = createAjaxRequest({
-      url: '/author',
+      url: '/volume',
       method: 'POST',
       dataType: 'json',
       contentType: 'application/json',
-      data: JSON.stringify(newAuthor)
+      data: JSON.stringify(newVolume)
     }).request;
 
     promise.done((data) => {
       dispatch(batchActions([
-        updateItem({ section: 'authors', ...data }),
+        updateItem({ section: 'volumes', ...data }),
 
         set({
           section,
@@ -157,27 +157,27 @@ export const actionHandlers = handleThunks({
     });
   },
 
-  [ADD_BOOK]: function(getState, payload, dispatch) {
+  [ADD_ISSUE]: function(getState, payload, dispatch) {
     dispatch(set({ section, isAdding: true }));
 
-    const foreignBookId = payload.foreignBookId;
+    const foreignIssueId = payload.foreignIssueId;
     const items = getState().search.items;
-    const itemToAdd = _.find(items, { foreignId: foreignBookId });
-    const newBook = getNewBook(_.cloneDeep(itemToAdd.book), payload);
+    const itemToAdd = _.find(items, { foreignId: foreignIssueId });
+    const newIssue = getNewIssue(_.cloneDeep(itemToAdd.issue), payload);
 
     const promise = createAjaxRequest({
-      url: '/book',
+      url: '/issue',
       method: 'POST',
       dataType: 'json',
       contentType: 'application/json',
-      data: JSON.stringify(newBook)
+      data: JSON.stringify(newIssue)
     }).request;
 
     promise.done((data) => {
-      itemToAdd.book = data;
+      itemToAdd.issue = data;
       dispatch(batchActions([
-        updateItem({ section: 'authors', ...data.author }),
-        updateItem({ section: 'books', ...data }),
+        updateItem({ section: 'volumes', ...data.volume }),
+        updateItem({ section: 'issues', ...data }),
         updateItem({ section, ...itemToAdd }),
 
         set({
@@ -205,22 +205,22 @@ export const actionHandlers = handleThunks({
 
 export const reducers = createHandleActions({
 
-  [SET_AUTHOR_ADD_DEFAULT]: function(state, { payload }) {
+  [SET_VOLUME_ADD_DEFAULT]: function(state, { payload }) {
     const newState = getSectionState(state, section);
 
-    newState.authorDefaults = {
-      ...newState.authorDefaults,
+    newState.volumeDefaults = {
+      ...newState.volumeDefaults,
       ...payload
     };
 
     return updateSectionState(state, section, newState);
   },
 
-  [SET_BOOK_ADD_DEFAULT]: function(state, { payload }) {
+  [SET_ISSUE_ADD_DEFAULT]: function(state, { payload }) {
     const newState = getSectionState(state, section);
 
-    newState.bookDefaults = {
-      ...newState.bookDefaults,
+    newState.issueDefaults = {
+      ...newState.issueDefaults,
       ...payload
     };
 
@@ -229,8 +229,8 @@ export const reducers = createHandleActions({
 
   [CLEAR_SEARCH_RESULTS]: function(state) {
     const {
-      authorDefaults,
-      bookDefaults,
+      volumeDefaults,
+      issueDefaults,
       ...otherDefaultState
     } = defaultState;
 

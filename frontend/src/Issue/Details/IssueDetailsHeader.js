@@ -69,7 +69,7 @@ class IssueDetailsHeader extends Component {
       links,
       isSaving,
       shortDateFormat,
-      author,
+      volume,
       isSmallScreen,
       onMonitorTogglePress
     } = this.props;
@@ -79,7 +79,7 @@ class IssueDetailsHeader extends Component {
       titleWidth
     } = this.state;
 
-    const fanartUrl = getFanartUrl(author.images);
+    const fanartUrl = getFanartUrl(volume.images);
     const marqueeWidth = titleWidth - (isSmallScreen ? 85 : 160);
 
     return (
@@ -133,9 +133,9 @@ class IssueDetailsHeader extends Component {
 
               <div>
                 <VolumeNameLink
-                  className={styles.authorLink}
-                  titleSlug={author.titleSlug}
-                  authorName={author.authorName}
+                  className={styles.volumeLink}
+                  titleSlug={volume.titleSlug}
+                  volumeName={volume.volumeName}
                 />
 
                 {
@@ -261,7 +261,7 @@ IssueDetailsHeader.propTypes = {
   monitored: PropTypes.bool.isRequired,
   shortDateFormat: PropTypes.string.isRequired,
   isSaving: PropTypes.bool.isRequired,
-  author: PropTypes.object,
+  volume: PropTypes.object,
   isSmallScreen: PropTypes.bool.isRequired,
   onMonitorTogglePress: PropTypes.func.isRequired
 };

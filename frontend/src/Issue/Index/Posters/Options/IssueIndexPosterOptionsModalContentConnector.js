@@ -1,13 +1,13 @@
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { setBookPosterOption as setIssuePosterOption } from 'Store/Actions/bookIndexActions';
+import { setIssuePosterOption as setIssuePosterOption } from 'Store/Actions/issueIndexActions';
 import IssueIndexPosterOptionsModalContent from './IssueIndexPosterOptionsModalContent';
 
 function createMapStateToProps() {
   return createSelector(
-    (state) => state.bookIndex,
-    (bookIndex) => {
-      return bookIndex.posterOptions;
+    (state) => state.issueIndex,
+    (issueIndex) => {
+      return issueIndex.posterOptions;
     }
   );
 }

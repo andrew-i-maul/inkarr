@@ -9,7 +9,7 @@ import translate from 'Utilities/String/translate';
 import IssueIndexOverviewInfoRow from './IssueIndexOverviewInfoRow';
 import styles from './IssueIndexOverviewInfo.css';
 
-const infoRowHeight = parseInt(dimensions.authorIndexOverviewInfoRowHeight);
+const infoRowHeight = parseInt(dimensions.volumeIndexOverviewInfoRowHeight);
 
 const rows = [
   {
@@ -36,7 +36,7 @@ const rows = [
   {
     name: 'path',
     showProp: 'showPath',
-    valueProp: 'author'
+    valueProp: 'volume'
   },
   {
     name: 'sizeOnDisk',
@@ -132,7 +132,7 @@ function getInfoRowProps(row, props) {
     return {
       title: 'Path',
       iconName: icons.FOLDER,
-      label: props.author.path
+      label: props.volume.path
     };
   }
 
@@ -192,7 +192,7 @@ IssueIndexOverviewInfo.propTypes = {
   showSizeOnDisk: PropTypes.bool.isRequired,
   monitored: PropTypes.bool.isRequired,
   qualityProfile: PropTypes.object.isRequired,
-  author: PropTypes.object.isRequired,
+  volume: PropTypes.object.isRequired,
   releaseDate: PropTypes.string,
   added: PropTypes.string,
   sizeOnDisk: PropTypes.number,

@@ -48,7 +48,7 @@
   float: right;
 }
 
-.authorNavigationButtons {
+.volumeNavigationButtons {
   position: absolute;
   right: 0;
   z-index: 1;
@@ -57,8 +57,8 @@
   white-space: nowrap;
 }
 
-.authorUpButton,
-.authorNavigationButton {
+.volumeUpButton,
+.volumeNavigationButton {
   composes: button from '~Components/Link/IconButton.css';
 
   margin-left: 5px;
@@ -76,15 +76,15 @@
     padding: 20px 0;
   }
 
-  .authorNavigationButtons {
+  .volumeNavigationButtons {
     padding: 15px;
   }
 
-  .authorNavigationButtons {
+  .volumeNavigationButtons {
     margin-top: 5px;
   }
 
-  .authorNavigationButton {
+  .volumeNavigationButton {
     display: none;
   }
 }

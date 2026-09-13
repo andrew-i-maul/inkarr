@@ -1,18 +1,18 @@
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import { fetchHistory, markAsFailed } from 'Store/Actions/historyActions';
-import createAuthorSelector from 'Store/Selectors/createAuthorSelector';
-import createBookSelector from 'Store/Selectors/createBookSelector';
+import createVolumeSelector from 'Store/Selectors/createVolumeSelector';
+import createIssueSelector from 'Store/Selectors/createIssueSelector';
 import VolumeHistoryRow from './VolumeHistoryRow';
 
 function createMapStateToProps() {
   return createSelector(
-    createAuthorSelector(),
-    createBookSelector(),
-    (author, book) => {
+    createVolumeSelector(),
+    createIssueSelector(),
+    (volume, issue) => {
       return {
-        author,
-        book
+        volume,
+        issue
       };
     }
   );

@@ -18,7 +18,7 @@ class About extends Component {
     const {
       version,
       packageVersion,
-      packageAuthor,
+      packageVolume,
       isNetCore,
       isDocker,
       runtimeVersion,
@@ -45,7 +45,7 @@ class About extends Component {
             packageVersion &&
               <DescriptionListItem
                 title={translate('PackageVersion')}
-                data={(packageAuthor ? <span> {packageVersion} {' by '} <InlineMarkdown data={packageAuthor} /> </span> : packageVersion)}
+                data={(packageVolume ? <span> {packageVersion} {' by '} <InlineMarkdown data={packageVolume} /> </span> : packageVersion)}
               />
           }
 
@@ -110,7 +110,7 @@ class About extends Component {
 About.propTypes = {
   version: PropTypes.string.isRequired,
   packageVersion: PropTypes.string,
-  packageAuthor: PropTypes.string,
+  packageVolume: PropTypes.string,
   isNetCore: PropTypes.bool.isRequired,
   runtimeVersion: PropTypes.string.isRequired,
   isDocker: PropTypes.bool.isRequired,

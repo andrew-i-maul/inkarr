@@ -51,7 +51,7 @@ class InteractiveImportModalContentConnector extends Component {
 
   componentDidMount() {
     const {
-      authorId,
+      volumeId,
       downloadId,
       folder
     } = this.props;
@@ -62,7 +62,7 @@ class InteractiveImportModalContentConnector extends Component {
     } = this.state;
 
     this.props.fetchInteractiveImportItems({
-      authorId,
+      volumeId,
       downloadId,
       folder,
       filterExistingFiles,
@@ -79,13 +79,13 @@ class InteractiveImportModalContentConnector extends Component {
     if (prevState.filterExistingFiles !== filterExistingFiles ||
         prevState.replaceExistingFiles !== replaceExistingFiles) {
       const {
-        authorId,
+        volumeId,
         downloadId,
         folder
       } = this.props;
 
       this.props.fetchInteractiveImportItems({
-        authorId,
+        volumeId,
         downloadId,
         folder,
         filterExistingFiles,
@@ -130,21 +130,21 @@ class InteractiveImportModalContentConnector extends Component {
 
       if (isSelected) {
         const {
-          author,
-          book,
+          volume,
+          issue,
           foreignEditionId,
           quality,
           indexerFlags,
           disableReleaseSwitching
         } = item;
 
-        if (!author) {
-          this.setState({ interactiveImportErrorMessage: 'Author must be chosen for each selected file' });
+        if (!volume) {
+          this.setState({ interactiveImportErrorMessage: 'Volume must be chosen for each selected file' });
           return false;
         }
 
-        if (!book) {
-          this.setState({ interactiveImportErrorMessage: 'Book must be chosen for each selected file' });
+        if (!issue) {
+          this.setState({ interactiveImportErrorMessage: 'Issue must be chosen for each selected file' });
           return false;
         }
 
@@ -155,8 +155,8 @@ class InteractiveImportModalContentConnector extends Component {
 
         files.push({
           path: item.path,
-          authorId: author.id,
-          bookId: book.id,
+          volumeId: volume.id,
+          issueId: issue.id,
           foreignEditionId,
           quality,
           indexerFlags,
@@ -207,7 +207,7 @@ class InteractiveImportModalContentConnector extends Component {
 }
 
 InteractiveImportModalContentConnector.propTypes = {
-  authorId: PropTypes.number,
+  volumeId: PropTypes.number,
   downloadId: PropTypes.string,
   folder: PropTypes.string,
   filterExistingFiles: PropTypes.bool.isRequired,
@@ -223,7 +223,7 @@ InteractiveImportModalContentConnector.propTypes = {
 };
 
 InteractiveImportModalContentConnector.defaultProps = {
-  authorId: 0,
+  volumeId: 0,
   filterExistingFiles: true,
   replaceExistingFiles: false
 };

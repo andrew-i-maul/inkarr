@@ -7,5 +7,5 @@ export const METADATA_PROFILE = 'metadataProfile';
 export const PROTOCOL = 'protocol';
 export const QUALITY = 'quality';
 export const QUALITY_PROFILE = 'qualityProfile';
-export const AUTHOR_STATUS = 'authorStatus';
+export const VOLUME_STATUS = 'volumeStatus';
 export const TAG = 'tag';

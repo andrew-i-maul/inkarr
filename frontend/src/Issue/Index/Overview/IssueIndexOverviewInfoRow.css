@@ -1,5 +1,5 @@
 .infoRow {
-  flex: 0 0 $authorIndexOverviewInfoRowHeight;
+  flex: 0 0 $volumeIndexOverviewInfoRowHeight;
   margin: 2px 0;
 }
 

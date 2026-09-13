@@ -2,9 +2,6 @@
 // Please do not change this file!
 interface CssExports {
   'alternateTitlesIconContainer': string;
-  'authorNavigationButton': string;
-  'authorNavigationButtons': string;
-  'authorUpButton': string;
   'backdrop': string;
   'backdropOverlay': string;
   'details': string;
@@ -24,6 +21,9 @@ interface CssExports {
   'titleContainer': string;
   'titleRow': string;
   'toggleMonitoredContainer': string;
+  'volumeNavigationButton': string;
+  'volumeNavigationButtons': string;
+  'volumeUpButton': string;
 }
 export const cssExports: CssExports;
 export default cssExports;

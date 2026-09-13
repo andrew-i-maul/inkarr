@@ -15,18 +15,18 @@ class QueueOptions extends Component {
     super(props, context);
 
     this.state = {
-      includeUnknownAuthorItems: props.includeUnknownAuthorItems
+      includeUnknownVolumeItems: props.includeUnknownVolumeItems
     };
   }
 
   componentDidUpdate(prevProps) {
     const {
-      includeUnknownAuthorItems
+      includeUnknownVolumeItems
     } = this.props;
 
-    if (includeUnknownAuthorItems !== prevProps.includeUnknownAuthorItems) {
+    if (includeUnknownVolumeItems !== prevProps.includeUnknownVolumeItems) {
       this.setState({
-        includeUnknownAuthorItems
+        includeUnknownVolumeItems
       });
     }
   }
@@ -49,7 +49,7 @@ class QueueOptions extends Component {
 
   render() {
     const {
-      includeUnknownAuthorItems
+      includeUnknownVolumeItems
     } = this.state;
 
     return (
@@ -61,8 +61,8 @@ class QueueOptions extends Component {
 
           <FormInputGroup
             type={inputTypes.CHECK}
-            name="includeUnknownAuthorItems"
-            value={includeUnknownAuthorItems}
+            name="includeUnknownVolumeItems"
+            value={includeUnknownVolumeItems}
             helpText={translate('IncludeUnknownAuthorItemsHelpText')}
             onChange={this.onOptionChange}
           />
@@ -73,7 +73,7 @@ class QueueOptions extends Component {
 }
 
 QueueOptions.propTypes = {
-  includeUnknownAuthorItems: PropTypes.bool.isRequired,
+  includeUnknownVolumeItems: PropTypes.bool.isRequired,
   onOptionChange: PropTypes.func.isRequired
 };
 

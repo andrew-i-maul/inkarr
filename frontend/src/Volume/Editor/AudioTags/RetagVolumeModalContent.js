@@ -41,7 +41,7 @@ class RetagVolumeModalContent extends Component {
 
   render() {
     const {
-      authorNames,
+      volumeNames,
       onModalClose
     } = this.props;
 
@@ -53,7 +53,7 @@ class RetagVolumeModalContent extends Component {
 
         <ModalBody>
           <Alert>
-            Tip: To preview the tags that will be written... select "Cancel" then click any author name and use the
+            Tip: To preview the tags that will be written... select "Cancel" then click any volume name and use the
             <Icon
               className={styles.retagIcon}
               name={icons.RETAG}
@@ -61,14 +61,14 @@ class RetagVolumeModalContent extends Component {
           </Alert>
 
           <div className={styles.message}>
-            Are you sure you want to re-tag all files in the {authorNames.length} selected author?
+            Are you sure you want to re-tag all files in the {volumeNames.length} selected volume?
           </div>
           <ul>
             {
-              authorNames.map((authorName) => {
+              volumeNames.map((volumeName) => {
                 return (
-                  <li key={authorName}>
-                    {authorName}
+                  <li key={volumeName}>
+                    {volumeName}
                   </li>
                 );
               })
@@ -122,7 +122,7 @@ class RetagVolumeModalContent extends Component {
 }
 
 RetagVolumeModalContent.propTypes = {
-  authorNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+  volumeNames: PropTypes.arrayOf(PropTypes.string).isRequired,
   onModalClose: PropTypes.func.isRequired,
   onRetagVolumePress: PropTypes.func.isRequired
 };

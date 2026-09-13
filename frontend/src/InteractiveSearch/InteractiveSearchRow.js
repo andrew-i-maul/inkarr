@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import ProtocolLabel from 'Activity/Queue/ProtocolLabel';
-import BookFormats from 'Issue/IssueFormats';
-import BookQuality from 'Issue/IssueQuality';
+import IssueFormats from 'Issue/IssueFormats';
+import IssueQuality from 'Issue/IssueQuality';
 import IndexerFlags from 'Issue/IndexerFlags';
 import Icon from 'Components/Icon';
 import Link from 'Components/Link/Link';
@@ -182,7 +182,7 @@ class InteractiveSearchRow extends Component {
         </TableRowCell>
 
         <TableRowCell className={styles.quality}>
-          <BookQuality quality={quality} showRevision={true} />
+          <IssueQuality quality={quality} showRevision={true} />
         </TableRowCell>
 
         <TableRowCell className={styles.customFormatScore}>
@@ -190,7 +190,7 @@ class InteractiveSearchRow extends Component {
             anchor={
               formatCustomFormatScore(customFormatScore, customFormats.length)
             }
-            tooltip={<BookFormats formats={customFormats} />}
+            tooltip={<IssueFormats formats={customFormats} />}
             position={tooltipPositions.LEFT}
           />
         </TableRowCell>

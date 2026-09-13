@@ -18,8 +18,8 @@ import translate from 'Utilities/String/translate';
 import IssueIndexOverviewInfo from './IssueIndexOverviewInfo';
 import styles from './IssueIndexOverview.css';
 
-const columnPadding = parseInt(dimensions.authorIndexColumnPadding);
-const columnPaddingSmallScreen = parseInt(dimensions.authorIndexColumnPaddingSmallScreen);
+const columnPadding = parseInt(dimensions.volumeIndexColumnPadding);
+const columnPaddingSmallScreen = parseInt(dimensions.volumeIndexColumnPaddingSmallScreen);
 const defaultFontSize = parseInt(fonts.defaultFontSize);
 const lineHeight = parseFloat(fonts.lineHeight);
 
@@ -52,10 +52,10 @@ class IssueIndexOverview extends Component {
     const { id } = this.props;
 
     // Note that this component is lazy loaded by the virtualised view.
-    // We want to avoid storing overviews for *all* books which is
+    // We want to avoid storing overviews for *all* issues which is
     // why it's not put into the redux store
     const promise = createAjaxRequest({
-      url: `/book/${id}/overview`
+      url: `/issue/${id}/overview`
     }).request;
 
     promise.done((data) => {
@@ -127,9 +127,9 @@ class IssueIndexOverview extends Component {
     } = this.props;
 
     const {
-      bookCount,
+      issueCount,
       sizeOnDisk,
-      bookFileCount,
+      issueFileCount,
       totalIssueCount
     } = statistics;
 
@@ -139,7 +139,7 @@ class IssueIndexOverview extends Component {
       isDeleteVolumeModalOpen
     } = this.state;
 
-    const link = `/book/${titleSlug}`;
+    const link = `/issue/${titleSlug}`;
 
     const elementStyle = {
       width: `${posterWidth}px`,
@@ -192,8 +192,8 @@ class IssueIndexOverview extends Component {
 
             <IssueIndexProgressBar
               monitored={monitored}
-              bookCount={bookCount}
-              bookFileCount={bookFileCount}
+              issueCount={issueCount}
+              issueFileCount={issueFileCount}
               totalIssueCount={totalIssueCount}
               posterWidth={posterWidth}
               detailedProgressBar={overviewOptions.detailedProgressBar}
@@ -266,14 +266,14 @@ class IssueIndexOverview extends Component {
 
         <EditVolumeModalConnector
           isOpen={isEditVolumeModalOpen}
-          authorId={id}
+          volumeId={id}
           onModalClose={this.onEditVolumeModalClose}
           onDeleteVolumePress={this.onDeleteVolumePress}
         />
 
         <DeleteVolumeModal
           isOpen={isDeleteVolumeModalOpen}
-          authorId={id}
+          volumeId={id}
           onModalClose={this.onDeleteVolumeModalClose}
         />
       </div>
@@ -311,8 +311,8 @@ IssueIndexOverview.propTypes = {
 
 IssueIndexOverview.defaultProps = {
   statistics: {
-    bookCount: 0,
-    bookFileCount: 0,
+    issueCount: 0,
+    issueFileCount: 0,
     totalIssueCount: 0
   }
 };

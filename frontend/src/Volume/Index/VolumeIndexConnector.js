@@ -5,24 +5,24 @@ import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import * as commandNames from 'Commands/commandNames';
 import withScrollPosition from 'Components/withScrollPosition';
-import { saveAuthorEditor, setAuthorFilter, setAuthorSort, setAuthorTableOption, setAuthorView } from 'Store/Actions/authorIndexActions';
+import { saveVolumeEditor, setVolumeFilter, setVolumeSort, setVolumeTableOption, setVolumeView } from 'Store/Actions/volumeIndexActions';
 import { executeCommand } from 'Store/Actions/commandActions';
 import scrollPositions from 'Store/scrollPositions';
-import createAuthorClientSideCollectionItemsSelector from 'Store/Selectors/createAuthorClientSideCollectionItemsSelector';
+import createVolumeClientSideCollectionItemsSelector from 'Store/Selectors/createVolumeClientSideCollectionItemsSelector';
 import createCommandExecutingSelector from 'Store/Selectors/createCommandExecutingSelector';
 import createDimensionsSelector from 'Store/Selectors/createDimensionsSelector';
 import VolumeIndex from './VolumeIndex';
 
 function createMapStateToProps() {
   return createSelector(
-    createAuthorClientSideCollectionItemsSelector('authorIndex'),
-    createCommandExecutingSelector(commandNames.BULK_REFRESH_AUTHOR),
+    createVolumeClientSideCollectionItemsSelector('volumeIndex'),
+    createCommandExecutingSelector(commandNames.BULK_REFRESH_VOLUME),
     createCommandExecutingSelector(commandNames.RSS_SYNC),
-    createCommandExecutingSelector(commandNames.RENAME_AUTHOR),
-    createCommandExecutingSelector(commandNames.RETAG_AUTHOR),
+    createCommandExecutingSelector(commandNames.RENAME_VOLUME),
+    createCommandExecutingSelector(commandNames.RETAG_VOLUME),
     createDimensionsSelector(),
     (
-      author,
+      volume,
       isRefreshingVolume,
       isRssSyncExecuting,
       isOrganizingVolume,
@@ -30,7 +30,7 @@ function createMapStateToProps() {
       dimensionsState
     ) => {
       return {
-        ...author,
+        ...volume,
         isRefreshingVolume,
         isRssSyncExecuting,
         isOrganizingVolume,
@@ -65,8 +65,8 @@ function createMapDispatchToProps(dispatch, props) {
 
     onRefreshVolumePress(items) {
       dispatch(executeCommand({
-        name: commandNames.BULK_REFRESH_AUTHOR,
-        authorIds: items
+        name: commandNames.BULK_REFRESH_VOLUME,
+        volumeIds: items
       }));
     },
 
@@ -92,7 +92,7 @@ class VolumeIndexConnector extends Component {
   };
 
   onScroll = ({ scrollTop }) => {
-    scrollPositions.authorIndex = scrollTop;
+    scrollPositions.volumeIndex = scrollTop;
   };
 
   //
@@ -119,5 +119,5 @@ VolumeIndexConnector.propTypes = {
 
 export default withScrollPosition(
   connect(createMapStateToProps, createMapDispatchToProps)(VolumeIndexConnector),
-  'authorIndex'
+  'volumeIndex'
 );

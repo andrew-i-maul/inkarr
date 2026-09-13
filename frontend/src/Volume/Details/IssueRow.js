@@ -59,19 +59,19 @@ class IssueRow extends Component {
   render() {
     const {
       id,
-      authorId,
+      volumeId,
       monitored,
       releaseDate,
       title,
       seriesTitle,
-      authorName,
+      volumeName,
       position,
       pageCount,
       ratings,
       isSaving,
-      authorMonitored,
+      volumeMonitored,
       titleSlug,
-      bookFiles,
+      issueFiles,
       indexerFlags,
       isEditorActive,
       isSelected,
@@ -79,7 +79,7 @@ class IssueRow extends Component {
       columns
     } = this.props;
 
-    const bookFile = bookFiles[0];
+    const issueFile = issueFiles[0];
     const isAvailable = Date.parse(releaseDate) < new Date();
 
     return (
@@ -115,7 +115,7 @@ class IssueRow extends Component {
                 >
                   <MonitorToggleButton
                     monitored={monitored}
-                    isDisabled={!authorMonitored}
+                    isDisabled={!volumeMonitored}
                     isSaving={isSaving}
                     onPress={this.onMonitorIssuePress}
                   />
@@ -223,7 +223,7 @@ class IssueRow extends Component {
                   <IssueStatus
                     isAvailable={isAvailable}
                     monitored={monitored}
-                    bookFile={bookFile}
+                    issueFile={issueFile}
                   />
                 </TableRowCell>
               );
@@ -233,10 +233,10 @@ class IssueRow extends Component {
               return (
                 <IssueSearchCellConnector
                   key={name}
-                  bookId={id}
-                  authorId={authorId}
-                  bookTitle={title}
-                  authorName={authorName}
+                  issueId={id}
+                  volumeId={volumeId}
+                  issueTitle={title}
+                  volumeName={volumeName}
                 />
               );
             }
@@ -250,20 +250,20 @@ class IssueRow extends Component {
 
 IssueRow.propTypes = {
   id: PropTypes.number.isRequired,
-  authorId: PropTypes.number.isRequired,
+  volumeId: PropTypes.number.isRequired,
   monitored: PropTypes.bool.isRequired,
   releaseDate: PropTypes.string,
   title: PropTypes.string.isRequired,
   seriesTitle: PropTypes.string.isRequired,
-  authorName: PropTypes.string.isRequired,
+  volumeName: PropTypes.string.isRequired,
   position: PropTypes.string,
   pageCount: PropTypes.number,
   ratings: PropTypes.object.isRequired,
   indexerFlags: PropTypes.number.isRequired,
   titleSlug: PropTypes.string.isRequired,
   isSaving: PropTypes.bool,
-  authorMonitored: PropTypes.bool.isRequired,
-  bookFiles: PropTypes.arrayOf(PropTypes.object).isRequired,
+  volumeMonitored: PropTypes.bool.isRequired,
+  issueFiles: PropTypes.arrayOf(PropTypes.object).isRequired,
   isEditorActive: PropTypes.bool.isRequired,
   isSelected: PropTypes.bool,
   onSelectedChange: PropTypes.func.isRequired,

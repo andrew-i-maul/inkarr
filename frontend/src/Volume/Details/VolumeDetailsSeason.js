@@ -45,22 +45,22 @@ class VolumeDetailsSeason extends Component {
   //
   // Listeners
 
-  onMonitorIssuePress = (bookId, monitored, { shiftKey }) => {
+  onMonitorIssuePress = (issueId, monitored, { shiftKey }) => {
     const lastToggled = this.state.lastToggledIssue;
-    const bookIds = [bookId];
+    const issueIds = [issueId];
 
     if (shiftKey && lastToggled) {
-      const { lower, upper } = getToggledRange(this.props.items, bookId, lastToggled);
+      const { lower, upper } = getToggledRange(this.props.items, issueId, lastToggled);
       const items = this.props.items;
 
       for (let i = lower; i < upper; i++) {
-        bookIds.push(items[i].id);
+        issueIds.push(items[i].id);
       }
     }
 
-    this.setState({ lastToggledIssue: bookId });
+    this.setState({ lastToggledIssue: issueId });
 
-    this.props.onMonitorIssuePress(_.uniq(bookIds), monitored);
+    this.props.onMonitorIssuePress(_.uniq(issueIds), monitored);
   };
 
   onSelectedChange = ({ id, value, shiftKey = false }) => {
@@ -94,9 +94,9 @@ class VolumeDetailsSeason extends Component {
 
     return (
       <div
-        className={styles.bookType}
+        className={styles.issueType}
       >
-        <div className={styles.books}>
+        <div className={styles.issues}>
           <Table
             columns={titleColumns}
             sortKey={sortKey}

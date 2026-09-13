@@ -3,41 +3,41 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { saveAuthor, setAuthorValue } from 'Store/Actions/authorActions';
-import createAuthorSelector from 'Store/Selectors/createAuthorSelector';
+import { saveVolume, setVolumeValue } from 'Store/Actions/volumeActions';
+import createVolumeSelector from 'Store/Selectors/createVolumeSelector';
 import selectSettings from 'Store/Selectors/selectSettings';
 import EditVolumeModalContent from './EditVolumeModalContent';
 
 function createIsPathChangingSelector() {
   return createSelector(
-    (state) => state.authors.pendingChanges,
-    createAuthorSelector(),
-    (pendingChanges, author) => {
+    (state) => state.volumes.pendingChanges,
+    createVolumeSelector(),
+    (pendingChanges, volume) => {
       const path = pendingChanges.path;
 
       if (path == null) {
         return false;
       }
 
-      return author.path !== path;
+      return volume.path !== path;
     }
   );
 }
 
 function createMapStateToProps() {
   return createSelector(
-    (state) => state.authors,
+    (state) => state.volumes,
     (state) => state.settings.metadataProfiles,
-    createAuthorSelector(),
+    createVolumeSelector(),
     createIsPathChangingSelector(),
-    (authorsState, metadataProfiles, author, isPathChanging) => {
+    (volumesState, metadataProfiles, volume, isPathChanging) => {
       const {
         isSaving,
         saveError,
         pendingChanges
-      } = authorsState;
+      } = volumesState;
 
-      const authorSettings = _.pick(author, [
+      const volumeSettings = _.pick(volume, [
         'monitored',
         'monitorNewItems',
         'qualityProfileId',
@@ -46,14 +46,14 @@ function createMapStateToProps() {
         'tags'
       ]);
 
-      const settings = selectSettings(authorSettings, pendingChanges, saveError);
+      const settings = selectSettings(volumeSettings, pendingChanges, saveError);
 
       return {
-        authorName: author.authorName,
+        volumeName: volume.volumeName,
         isSaving,
         saveError,
         isPathChanging,
-        originalPath: author.path,
+        originalPath: volume.path,
         item: settings.settings,
         showMetadataProfile: metadataProfiles.items.length > 1,
         ...settings
@@ -63,8 +63,8 @@ function createMapStateToProps() {
 }
 
 const mapDispatchToProps = {
-  dispatchSetVolumeValue: setAuthorValue,
-  dispatchSaveVolume: saveAuthor
+  dispatchSetVolumeValue: setVolumeValue,
+  dispatchSaveVolume: saveVolume
 };
 
 class EditVolumeModalContentConnector extends Component {
@@ -87,7 +87,7 @@ class EditVolumeModalContentConnector extends Component {
 
   onSavePress = (moveFiles) => {
     this.props.dispatchSaveVolume({
-      id: this.props.authorId,
+      id: this.props.volumeId,
       moveFiles
     });
   };
@@ -108,7 +108,7 @@ class EditVolumeModalContentConnector extends Component {
 }
 
 EditVolumeModalContentConnector.propTypes = {
-  authorId: PropTypes.number,
+  volumeId: PropTypes.number,
   isSaving: PropTypes.bool.isRequired,
   saveError: PropTypes.object,
   dispatchSetVolumeValue: PropTypes.func.isRequired,

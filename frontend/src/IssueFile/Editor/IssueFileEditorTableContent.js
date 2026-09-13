@@ -137,7 +137,7 @@ class IssueFileEditorTableContent extends Component {
         {
           isPopulated && !items.length ?
             <div className={styles.blankpad}>
-              No book files to manage.
+              No issue files to manage.
             </div> :
             null
         }

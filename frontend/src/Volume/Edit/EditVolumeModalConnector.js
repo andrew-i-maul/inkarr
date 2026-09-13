@@ -14,7 +14,7 @@ class EditVolumeModalConnector extends Component {
   // Listeners
 
   onModalClose = () => {
-    this.props.clearPendingChanges({ section: 'author' });
+    this.props.clearPendingChanges({ section: 'volume' });
     this.props.onModalClose();
   };
 

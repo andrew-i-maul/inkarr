@@ -1,24 +1,24 @@
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import createAllAuthorSelector from 'Store/Selectors/createAllAuthorsSelector';
+import createAllVolumeSelector from 'Store/Selectors/createAllVolumesSelector';
 import createTagsSelector from 'Store/Selectors/createTagsSelector';
 import TagsModalContent from './TagsModalContent';
 
 function createMapStateToProps() {
   return createSelector(
-    (state, { authorIds }) => authorIds,
-    createAllAuthorSelector(),
+    (state, { volumeIds }) => volumeIds,
+    createAllVolumeSelector(),
     createTagsSelector(),
-    (authorIds, allVolumes, tagList) => {
-      const author = _.intersectionWith(allVolumes, authorIds, (s, id) => {
+    (volumeIds, allVolumes, tagList) => {
+      const volume = _.intersectionWith(allVolumes, volumeIds, (s, id) => {
         return s.id === id;
       });
 
-      const authorTags = _.uniq(_.concat(..._.map(author, 'tags')));
+      const volumeTags = _.uniq(_.concat(..._.map(volume, 'tags')));
 
       return {
-        authorTags,
+        volumeTags,
         tagList
       };
     }

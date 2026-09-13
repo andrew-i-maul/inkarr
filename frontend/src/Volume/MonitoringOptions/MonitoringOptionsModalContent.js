@@ -104,7 +104,7 @@ class MonitoringOptionsModalContent extends Component {
               <FormLabel>{translate('Monitoring')}</FormLabel>
 
               <FormInputGroup
-                type={inputTypes.MONITOR_BOOKS_SELECT}
+                type={inputTypes.MONITOR_ISSUES_SELECT}
                 name="monitor"
                 value={monitor}
                 includeNoChange={true}
@@ -134,7 +134,7 @@ class MonitoringOptionsModalContent extends Component {
 }
 
 MonitoringOptionsModalContent.propTypes = {
-  authorId: PropTypes.number.isRequired,
+  volumeId: PropTypes.number.isRequired,
   saveError: PropTypes.object,
   isSaving: PropTypes.bool.isRequired,
   onInputChange: PropTypes.func.isRequired,
