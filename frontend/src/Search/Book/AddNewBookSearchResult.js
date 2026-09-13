@@ -81,11 +81,13 @@ class AddNewBookSearchResult extends Component {
       ratings,
       images,
       author,
-      editions,
+      links,
       isExistingBook,
       isExistingAuthor,
       isSmallScreen
     } = this.props;
+
+    const comicVineLink = links && links.find((link) => link.name === 'ComicVine');
 
     const {
       isNewAddBookModalOpen
@@ -139,18 +141,18 @@ class AddNewBookSearchResult extends Component {
                 }
 
                 {
-                  editions && editions.length > 1 ?
+                  comicVineLink &&
                     <Link
                       className={styles.mbLink}
-                      to={`https://goodreads.com/book/show/${editions[0].foreignEditionId}`}
-                      onPress={this.onTVDBLinkPress}
+                      to={comicVineLink.url}
+                      onPress={this.onMBLinkPress}
                     >
                       <Icon
                         className={styles.mbLinkIcon}
                         name={icons.EXTERNAL_LINK}
                         size={28}
                       />
-                    </Link> : null
+                    </Link>
                 }
               </div>
             </div>
@@ -222,8 +224,8 @@ AddNewBookSearchResult.propTypes = {
   overview: PropTypes.string,
   ratings: PropTypes.object.isRequired,
   author: PropTypes.object,
-  editions: PropTypes.arrayOf(PropTypes.object),
   images: PropTypes.arrayOf(PropTypes.object).isRequired,
+  links: PropTypes.arrayOf(PropTypes.object),
   isExistingBook: PropTypes.bool.isRequired,
   isExistingAuthor: PropTypes.bool.isRequired,
   isSmallScreen: PropTypes.bool.isRequired

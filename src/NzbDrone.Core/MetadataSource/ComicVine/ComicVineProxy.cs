@@ -195,6 +195,20 @@ namespace NzbDrone.Core.MetadataSource.ComicVine
 
         public List<object> SearchForNewEntity(string title)
         {
+            var trimmed = title?.Trim();
+
+            if (trimmed.IsNotNullOrWhiteSpace() && trimmed.StartsWith("comicvine:", StringComparison.OrdinalIgnoreCase))
+            {
+                var idPart = trimmed.Substring("comicvine:".Length);
+
+                if (int.TryParse(idPart, out var issueId))
+                {
+                    return SearchByGoodreadsBookId(issueId, true).Cast<object>().ToList();
+                }
+
+                return new List<object>();
+            }
+
             var authors = SearchForNewAuthor(title);
 
             return authors.Cast<object>().ToList();
