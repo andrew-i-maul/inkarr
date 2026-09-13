@@ -14,6 +14,7 @@ import AnalyticSettings from './AnalyticSettings';
 import BackupSettings from './BackupSettings';
 import HostSettings from './HostSettings';
 import LoggingSettings from './LoggingSettings';
+import MetadataSourceSettings from './MetadataSourceSettings';
 import ProxySettings from './ProxySettings';
 import SecuritySettings from './SecuritySettings';
 import UpdateSettings from './UpdateSettings';
@@ -148,6 +149,11 @@ class GeneralSettings extends Component {
                   isResettingApiKey={isResettingApiKey}
                   onInputChange={onInputChange}
                   onConfirmResetApiKey={onConfirmResetApiKey}
+                />
+
+                <MetadataSourceSettings
+                  settings={settings}
+                  onInputChange={onInputChange}
                 />
 
                 <ProxySettings
