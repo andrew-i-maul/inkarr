@@ -1,0 +1,19 @@
+# Example docker-compose.yml for Inkarr.
+#
+# NOT build/run-verified in an actual Docker environment -- see DOCKER.md.
+# Adjust the /comics bind mount path (and add others, e.g. a downloads
+# folder) to match your real library layout before using this.
+
+services:
+  inkarr:
+    build: .
+    container_name: inkarr
+    restart: unless-stopped
+    ports:
+      - "8787:8787"
+    volumes:
+      - inkarr-config:/config
+      - /path/to/your/comics:/comics
+
+volumes:
+  inkarr-config:

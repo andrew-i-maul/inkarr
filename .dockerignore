@@ -1,0 +1,13 @@
+.git
+_output
+_tests
+node_modules
+frontend/node_modules
+bin
+obj
+**/bin
+**/obj
+*.user
+.vs
+.vscode
+.idea
