@@ -329,7 +329,8 @@ namespace NzbDrone.Core.MetadataSource.ComicVine
             {
                 Metadata = metadata,
                 CleanName = metadata.Name,
-                Issues = issues
+                Issues = issues,
+                Series = new List<Series>()
             };
         }
 
@@ -375,6 +376,7 @@ namespace NzbDrone.Core.MetadataSource.ComicVine
                 Overview = issue.Description.IsNotNullOrWhiteSpace() ? issue.Description : issue.Deck,
                 Publisher = publisherName,
                 ReleaseDate = releaseDate,
+                Language = "eng",
                 Monitored = false
             };
 

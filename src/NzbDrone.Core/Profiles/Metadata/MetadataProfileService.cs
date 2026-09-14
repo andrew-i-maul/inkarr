@@ -264,6 +264,19 @@ namespace NzbDrone.Core.Profiles.Metadata
         {
             var profiles = All();
 
+            // MinPopularity of 350 was the original Goodreads-era default (a book popularity
+            // score). ComicVine issues never populate a comparable rating, so that threshold
+            // silently filtered out every issue for anyone whose "Standard" profile predates
+            // this fix. Self-heal it here, before the early-return below can skip it.
+            var standardProfile = profiles.FirstOrDefault(x => x.Name == "Standard" && x.MinPopularity == 350);
+
+            if (standardProfile != null)
+            {
+                _logger.Info("Resetting Standard metadata profile's MinPopularity (Goodreads-era default is incompatible with ComicVine data)");
+                standardProfile.MinPopularity = 0;
+                Update(standardProfile);
+            }
+
             // Name is a unique property
             var emptyProfile = profiles.FirstOrDefault(x => x.Name == NONE_PROFILE_NAME);
 
@@ -282,7 +295,7 @@ namespace NzbDrone.Core.Profiles.Metadata
                 Add(new MetadataProfile
                 {
                     Name = "Standard",
-                    MinPopularity = 350,
+                    MinPopularity = 0,
                     SkipMissingDate = true,
                     SkipPartsAndSets = true,
                     AllowedLanguages = "eng, null"
